@@ -1,0 +1,22 @@
+﻿# Sensible Inhalte
+*.env
+*secret*
+*password*
+*token*
+*recovery-key*
+
+# Modelle (zu gross)
+models/
+*.gguf
+*.safetensors
+
+# Persoenliche Daten
+drehbuecher/
+heilung-roh/
+finanz-strategie/
+memory-roh/
+
+# System
+__pycache__/
+node_modules/
+.DS_Store
