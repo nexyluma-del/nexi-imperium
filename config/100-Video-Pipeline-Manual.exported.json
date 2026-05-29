@@ -1,0 +1,144 @@
+[
+  {
+    "updatedAt": "2026-05-29T18:27:10.658Z",
+    "createdAt": "2026-05-29T18:27:10.658Z",
+    "id": "100VideoPipelineManual",
+    "name": "100-Video-Pipeline-Manual",
+    "description": "Manual single-video pipeline: URL -> yt-dlp -> Whisper -> Gemini -> Markdown via local WSL bridge.",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "7a2dd062-0e88-4f39-9eb5-08f9db8d1a1a",
+        "name": "Manual Trigger",
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "return [{\n  json: {\n    url: 'https://www.nasa.gov/wp-content/uploads/2023/09/nsn-llcd-1.mp4',\n    data_class: 'D0',\n    slug: 'n8n-manual-nasa',\n    max_cost_eur: '0.30',\n    note: 'Edit this Code node for the next single-video manual run.'\n  }\n}];"
+        },
+        "id": "2029efdc-f4bf-47b4-86f2-c7be84cc2072",
+        "name": "Input - Edit URL Here",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://host.docker.internal:8787/run",
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ url: $json.url, data_class: $json.data_class, slug: $json.slug, max_cost_eur: $json.max_cost_eur, model: $json.model || '' }) }}",
+          "options": {
+            "timeout": 2400000
+          }
+        },
+        "id": "d18e867a-465b-47cc-86d9-53b7061f07cc",
+        "name": "Run Local WSL Pipeline",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          560,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const result = items[0].json;\n\nif (!result.ok) {\n  return [{\n    json: {\n      status: 'error',\n      url: result.url,\n      data_class: result.data_class,\n      error: result.error || result.raw || 'Unknown pipeline error',\n      log_file: result.log_file_windows || result.log_file,\n      bridge_exit_code: result.bridge_exit_code,\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    status: 'success',\n    url: result.url,\n    data_class: result.data_class,\n    slug: result.slug,\n    analysis_markdown: result.files.analysis_markdown_windows,\n    analysis_json: result.files.analysis_json_windows,\n    transcript_txt: result.files.transcript_txt_windows,\n    video_file: result.files.video_windows,\n    audio_file: result.files.audio_windows,\n    log_file: result.log_file_windows,\n    cost_usd_estimated: result.cost.estimated_actual_usd,\n    preflight_cost_usd: result.cost.preflight_usd,\n    tokens: result.cost.usage,\n    steps_seconds: result.steps,\n    finished_at: result.finished_at,\n  }\n}];"
+        },
+        "id": "6d67e8a4-7497-4b6e-96f0-234401ecfa44",
+        "name": "Final Summary",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          860,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Manual Trigger": {
+        "main": [
+          [
+            {
+              "node": "Input - Edit URL Here",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Input - Edit URL Here": {
+        "main": [
+          [
+            {
+              "node": "Run Local WSL Pipeline",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Run Local WSL Pipeline": {
+        "main": [
+          [
+            {
+              "node": "Final Summary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "saveExecutionProgress": true,
+      "saveManualExecutions": true
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "7e215611-cfee-4baa-8ee0-6309e44fcb00",
+    "activeVersionId": null,
+    "versionCounter": 1,
+    "triggerCount": 0,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-05-29T18:27:10.662Z",
+        "createdAt": "2026-05-29T18:27:10.662Z",
+        "role": "workflow:owner",
+        "workflowId": "100VideoPipelineManual",
+        "projectId": "OzqJtOGo61Isl2ig",
+        "project": {
+          "updatedAt": "2026-05-29T13:23:49.455Z",
+          "createdAt": "2026-05-29T13:21:06.256Z",
+          "id": "OzqJtOGo61Isl2ig",
+          "name": "Nexi Luma <nexyluma@gmail.com>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "dee0e1fb-b619-4fda-89e6-2b3cc309194d"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": null,
+      "description": null
+    }
+  }
+]

@@ -1,0 +1,144 @@
+[
+  {
+    "updatedAt": "2026-05-29T18:44:30.150Z",
+    "createdAt": "2026-05-29T18:44:30.150Z",
+    "id": "200VideoPipelineBatch",
+    "name": "200-Video-Pipeline-Batch",
+    "description": "Manual batch pipeline: topic file -> sequential video processing -> Qdrant embeddings.",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {},
+        "id": "a6dba356-8f69-4f7d-878f-9d4164db81a1",
+        "name": "Manual Trigger",
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "return [{\n  json: {\n    topic_file: 'C:\\\\Users\\\\nexil\\\\Desktop\\\\Instagram Liste\\\\D0-NASA-Workflow-Test.md',\n    budget_eur: '5.00',\n    sleep_seconds: '2',\n    max_videos: '',\n    note: 'Edit topic_file to run another split topic file. D2/D3 need explicit approval before cloud Gemini.'\n  }\n}];"
+        },
+        "id": "c3ac13f3-6b03-45e9-98d7-2ad246287cfe",
+        "name": "Input - Edit Topic File Here",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://host.docker.internal:8787/batch",
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ topic_file: $json.topic_file, budget_eur: $json.budget_eur, sleep_seconds: $json.sleep_seconds, max_videos: $json.max_videos }) }}",
+          "options": {
+            "timeout": 7200000
+          }
+        },
+        "id": "8d03e3b3-0f1a-4327-bf79-a28be8f10dc9",
+        "name": "Run Batch Via Local Bridge",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          580,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const result = items[0].json;\nif (!result.ok) {\n  return [{ json: { status: 'error', topic: result.topic, topic_file: result.topic_file, estimated_cost_eur: result.estimated_cost_eur, budget_eur: result.budget_eur, errors: result.errors || [result.error || result.raw || 'Unknown error'], bridge_exit_code: result.bridge_exit_code } }];\n}\nreturn [{ json: { status: 'success', topic: result.topic, topic_file: result.topic_file, pending_count: result.pending_count, estimated_cost_eur: result.estimated_cost_eur, actual_cost_usd: result.actual_cost_usd, processed_count: (result.processed || []).length, processed: result.processed, errors: result.errors, finished_at: result.finished_at } }];"
+        },
+        "id": "7dcdf847-b601-4574-a09a-19602978fb7a",
+        "name": "Final Batch Summary",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          900,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Manual Trigger": {
+        "main": [
+          [
+            {
+              "node": "Input - Edit Topic File Here",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Input - Edit Topic File Here": {
+        "main": [
+          [
+            {
+              "node": "Run Batch Via Local Bridge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Run Batch Via Local Bridge": {
+        "main": [
+          [
+            {
+              "node": "Final Batch Summary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "saveExecutionProgress": true,
+      "saveManualExecutions": true
+    },
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {},
+    "versionId": "3da7417e-66c0-483d-abd9-9bdf1321973a",
+    "activeVersionId": null,
+    "versionCounter": 1,
+    "triggerCount": 0,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-05-29T18:44:30.153Z",
+        "createdAt": "2026-05-29T18:44:30.153Z",
+        "role": "workflow:owner",
+        "workflowId": "200VideoPipelineBatch",
+        "projectId": "OzqJtOGo61Isl2ig",
+        "project": {
+          "updatedAt": "2026-05-29T13:23:49.455Z",
+          "createdAt": "2026-05-29T13:21:06.256Z",
+          "id": "OzqJtOGo61Isl2ig",
+          "name": "Nexi Luma <nexyluma@gmail.com>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "dee0e1fb-b619-4fda-89e6-2b3cc309194d"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": null,
+      "description": null
+    }
+  }
+]
