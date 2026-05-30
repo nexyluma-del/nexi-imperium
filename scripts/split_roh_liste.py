@@ -18,6 +18,7 @@ TOPIC_RE = re.compile(r"^\s*\[([^\]]+)\]\s*$")
 class Entry:
     topic: str
     url: str
+    tags: list[str] = field(default_factory=list)
     questions: list[str] = field(default_factory=list)
 
 
@@ -64,6 +65,7 @@ def split_question_line(line: str) -> list[str]:
 def parse_raw_file(raw_file: Path) -> list[Entry]:
     text = raw_file.read_text(encoding="utf-8-sig")
     current_topic = "Unsortiert"
+    pending_tags: list[str] = []
     entries: list[Entry] = []
     current: Entry | None = None
 
@@ -75,12 +77,23 @@ def parse_raw_file(raw_file: Path) -> list[Entry]:
         topic_match = TOPIC_RE.match(line)
         if topic_match:
             current_topic = topic_match.group(1).strip()
+            pending_tags = []
             current = None
+            continue
+
+        tag_match = re.match(r"^Tags?\s*:\s*(.+?)\s*$", line, flags=re.I)
+        if tag_match:
+            tags = [tag.strip() for tag in re.split(r"[,;|]", tag_match.group(1)) if tag.strip()]
+            if current is None:
+                pending_tags = tags
+            else:
+                current.tags.extend(tags)
             continue
 
         url_match = URL_RE.search(line)
         if url_match:
-            current = Entry(topic=current_topic, url=url_match.group(0).rstrip(").,]"))
+            current = Entry(topic=current_topic, url=url_match.group(0).rstrip(").,]"), tags=pending_tags)
+            pending_tags = []
             entries.append(current)
             rest = line.replace(url_match.group(0), "").strip(" -:|")
             if rest:
@@ -107,6 +120,7 @@ def render_topic_file(topic: str, entries: list[Entry], raw_file: Path, data_cla
             [
                 f"## Eintrag {index}",
                 f"URL: {entry.url}",
+                f"Tags: {', '.join(entry.tags)}",
                 "Fragen:",
             ]
         )
@@ -164,4 +178,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

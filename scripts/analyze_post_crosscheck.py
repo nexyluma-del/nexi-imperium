@@ -230,13 +230,24 @@ def download_images(url: str, slug: str, max_images: int, log_file: Path) -> tup
 
 
 def data_url_for(path: Path) -> str:
-    mime = mimetypes.guess_type(path.name)[0] or get_mime_type(path)
+    mime = detect_image_mime(path)
     encoded = base64.b64encode(path.read_bytes()).decode("ascii")
     return f"data:{mime};base64,{encoded}"
 
 
+def detect_image_mime(path: Path) -> str:
+    header = path.read_bytes()[:16]
+    if header.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if header.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if header.startswith(b"RIFF") and b"WEBP" in header:
+        return "image/webp"
+    return mimetypes.guess_type(path.name)[0] or get_mime_type(path)
+
+
 def base64_image(path: Path) -> tuple[str, str]:
-    mime = mimetypes.guess_type(path.name)[0] or get_mime_type(path)
+    mime = detect_image_mime(path)
     return mime, base64.b64encode(path.read_bytes()).decode("ascii")
 
 
@@ -245,6 +256,7 @@ def build_prompt(topic: str, question: str, metadata: str, has_images: bool) -> 
     return f"""Du analysierst Instagram-Karussell-Bilder im Kontext \"{topic}\".
 {image_note}
 Bitte beantworte konkret diese Frage: \"{question}\"
+Sicherheitsregel: Bei Cybersecurity, Hacking, Ueberwachung, Kennzeichen/Gesichter, Waffen, Medizin, Finanzen oder riskanten Bauanleitungen gib keine illegalen, schädlichen oder invasiven Schritt-fuer-Schritt-Anleitungen. Erklaere stattdessen defensiv, legal, konzeptionell, mit Risiken, Grenzen und sicheren Lernpfaden.
 
 Strukturiere deine Antwort:
 ## Direkte Antwort auf Frage

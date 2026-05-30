@@ -52,6 +52,7 @@ ensure_project_venv()
 class BatchEntry:
     number: str
     url: str
+    tags: str
     questions: list[str]
     status: str
     data_class: str
@@ -103,6 +104,7 @@ def parse_entries(text: str) -> list[BatchEntry]:
             BatchEntry(
                 number=match.group(1).strip(),
                 url=field_value(block, "URL"),
+                tags=field_value(block, "Tags"),
                 questions=parse_questions(block),
                 status=field_value(block, "Status"),
                 data_class=field_value(block, "Datenklasse") or "D2",
@@ -119,6 +121,7 @@ def render_entry(entry: BatchEntry) -> str:
     lines = [
         f"## Eintrag {entry.number}",
         f"URL: {entry.url}",
+        f"Tags: {entry.tags}",
         "Fragen:",
     ]
     lines.extend(f"- {question}" for question in (entry.questions or ["Allgemein: Was ist die wichtigste Aussage?"]))
@@ -146,9 +149,14 @@ def is_image_post_url(url: str) -> bool:
     return "instagram.com/p/" in url.lower()
 
 
+def topic_context(topic: str, entry: BatchEntry) -> str:
+    return f"{topic} | Tags: {entry.tags}" if entry.tags else topic
+
+
 def run_single(entry: BatchEntry, topic: str, topic_slug: str, index: int, budget_eur: float) -> dict[str, Any]:
     slug = slugify(f"{topic_slug}-{index}")
     script = "analyze_post_crosscheck.py" if is_image_post_url(entry.url) else "run_video_pipeline.py"
+    entry_topic = topic_context(topic, entry)
     command = [
         str(PROJECT_DIR / ".venv" / "bin" / "python"),
         str(PROJECT_DIR / "scripts" / script),
@@ -159,7 +167,7 @@ def run_single(entry: BatchEntry, topic: str, topic_slug: str, index: int, budge
         "--slug",
         slug,
         "--topic",
-        topic,
+        entry_topic,
         "--max-cost-eur",
         str(budget_eur),
     ]
@@ -262,7 +270,7 @@ def main() -> int:
             transcript_txt = Path(result["files"]["transcript_txt"])
             qdrant = upsert_video_knowledge(
                 url=entry.url,
-                topic=topic,
+                topic=topic_context(topic, entry),
                 data_class=entry.data_class,
                 questions=entry.questions,
                 analysis_markdown=analysis_md,

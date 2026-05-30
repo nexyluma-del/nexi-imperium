@@ -112,6 +112,7 @@ Nexis konkrete Fragen, die du spezifisch beantworten musst:
 
 Analysiere das Video visuell und nutze das lokale Whisper-Transkript als Audiokontext.
 Antworte in strukturiertem Markdown auf Deutsch.
+Sicherheitsregel: Bei Cybersecurity, Hacking, Ueberwachung, Kennzeichen/Gesichter, Waffen, Medizin, Finanzen oder riskanten Bauanleitungen gib keine illegalen, schädlichen oder invasiven Schritt-fuer-Schritt-Anleitungen. Erklaere stattdessen defensiv, legal, konzeptionell, mit Risiken, Grenzen und sicheren Lernpfaden.
 
 ## Antworten auf Nexis konkrete Fragen
 Beantworte diese Fragen zuerst, kurz, konkret und entscheidungsorientiert.

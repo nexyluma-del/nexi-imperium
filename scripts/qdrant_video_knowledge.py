@@ -14,24 +14,36 @@ QDRANT_URL = "http://127.0.0.1:6333"
 OLLAMA_URL = "http://127.0.0.1:11434"
 COLLECTION = "video_knowledge"
 EMBED_MODEL = "nomic-embed-text"
-MAX_EMBED_CHARS = 6000
+MAX_EMBED_CHARS = 3000
 
 
 def embedding(text: str) -> list[float]:
+    prompt = text[:MAX_EMBED_CHARS]
     response = requests.post(
         f"{OLLAMA_URL}/api/embeddings",
-        json={"model": EMBED_MODEL, "prompt": text},
+        json={"model": EMBED_MODEL, "prompt": prompt},
         timeout=120,
     )
-    if response.status_code == 404:
+    if response.status_code >= 400:
+        fallback_prompt = prompt[:1500]
         response = requests.post(
             f"{OLLAMA_URL}/api/embed",
-            json={"model": EMBED_MODEL, "input": text},
+            json={"model": EMBED_MODEL, "input": fallback_prompt},
             timeout=120,
         )
-        response.raise_for_status()
+        if response.status_code >= 400:
+            response = requests.post(
+                f"{OLLAMA_URL}/api/embeddings",
+                json={"model": EMBED_MODEL, "prompt": fallback_prompt},
+                timeout=120,
+            )
+            response.raise_for_status()
+            return response.json()["embedding"]
         payload = response.json()
-        return payload["embeddings"][0]
+        embeddings = payload.get("embeddings") or payload.get("embedding")
+        if embeddings and isinstance(embeddings[0], list):
+            return embeddings[0]
+        return embeddings
     response.raise_for_status()
     return response.json()["embedding"]
 

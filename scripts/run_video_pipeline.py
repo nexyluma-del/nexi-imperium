@@ -192,37 +192,58 @@ def main() -> int:
         summary["steps"]["download_video_seconds"] = elapsed
         summary["files"]["video"] = str(video_file)
 
-        audio_output, elapsed = run_step(
-            "download_audio",
-            [str(PROJECT_DIR / "scripts" / "download.sh"), args.url, args.data_class, slug],
-            log_file,
-            timeout_seconds=900,
-        )
-        audio_file = parse_prefixed_path(audio_output, "Audio file")
-        if not audio_file:
-            raise RuntimeError("Audio-Datei konnte aus download.sh Output nicht gelesen werden.")
-        summary["steps"]["download_audio_seconds"] = elapsed
-        summary["files"]["audio"] = audio_file
+        try:
+            audio_output, elapsed = run_step(
+                "download_audio",
+                [str(PROJECT_DIR / "scripts" / "download.sh"), args.url, args.data_class, slug],
+                log_file,
+                timeout_seconds=900,
+            )
+            audio_file = parse_prefixed_path(audio_output, "Audio file")
+            if not audio_file:
+                raise RuntimeError("Audio-Datei konnte aus download.sh Output nicht gelesen werden.")
+            summary["steps"]["download_audio_seconds"] = elapsed
+            summary["files"]["audio"] = audio_file
 
-        transcribe_output, elapsed = run_step(
-            "whisper_transcribe",
-            [
-                venv_python,
-                str(PROJECT_DIR / "scripts" / "transcribe.py"),
-                audio_file,
-                "--data-class",
-                args.data_class,
-            ],
-            log_file,
-            timeout_seconds=1800,
-        )
-        transcript_txt = parse_prefixed_path(transcribe_output, "Transcript TXT")
-        transcript_json = parse_prefixed_path(transcribe_output, "Transcript JSON")
-        if not transcript_txt:
-            raise RuntimeError("Transkript-Pfad konnte aus transcribe.py Output nicht gelesen werden.")
-        summary["steps"]["whisper_seconds"] = elapsed
-        summary["files"]["transcript_txt"] = transcript_txt
-        summary["files"]["transcript_json"] = transcript_json
+            transcribe_output, elapsed = run_step(
+                "whisper_transcribe",
+                [
+                    venv_python,
+                    str(PROJECT_DIR / "scripts" / "transcribe.py"),
+                    audio_file,
+                    "--data-class",
+                    args.data_class,
+                ],
+                log_file,
+                timeout_seconds=1800,
+            )
+            transcript_txt = parse_prefixed_path(transcribe_output, "Transcript TXT")
+            transcript_json = parse_prefixed_path(transcribe_output, "Transcript JSON")
+            if not transcript_txt:
+                raise RuntimeError("Transkript-Pfad konnte aus transcribe.py Output nicht gelesen werden.")
+            summary["steps"]["whisper_seconds"] = elapsed
+            summary["files"]["transcript_txt"] = transcript_txt
+            summary["files"]["transcript_json"] = transcript_json
+        except Exception as audio_exc:  # noqa: BLE001
+            if "audio codec" not in str(audio_exc) and "download_audio" not in str(audio_exc):
+                raise
+            transcript_path = PROJECT_DIR / "transcripts" / f"{slug}.txt"
+            transcript_path.parent.mkdir(exist_ok=True)
+            transcript_path.write_text(
+                "\n".join(
+                    [
+                        f"audio_file: none",
+                        f"data_class: {args.data_class}",
+                        "Hinweis: Keine extrahierbare Audiospur gefunden. Analyse nutzt nur die visuellen Videoinhalte.",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            transcript_txt = str(transcript_path)
+            transcript_json = None
+            summary["steps"]["audio_fallback"] = "no_extractable_audio"
+            summary["files"]["transcript_txt"] = transcript_txt
+            summary["files"]["transcript_json"] = transcript_json
 
         gemini_command = [
             venv_python,
