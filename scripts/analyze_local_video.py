@@ -46,7 +46,9 @@ from gemini_common import (  # noqa: E402
     usage_to_dict,
     write_json,
 )
+from check_video_quality import assess_video_quality  # noqa: E402
 from qdrant_video_knowledge import upsert_local_video_knowledge  # noqa: E402
+from upscale_video import upscale_video as run_upscale_video  # noqa: E402
 
 
 def normalize_input_path(path: Path) -> Path:
@@ -388,6 +390,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-cost-eur", type=float, default=None)
     parser.add_argument("--max-frames", type=int, default=DEFAULT_FRAME_COUNT)
     parser.add_argument("--preprocessor", default=None)
+    parser.add_argument("--upscale", choices=["auto", "always", "never"], default="auto")
+    parser.add_argument("--upscale-scale", type=int, choices=[2, 3, 4], default=2)
+    parser.add_argument("--upscale-model", default="realesrgan-x4plus")
+    parser.add_argument("--upscale-max-duration-seconds", type=float, default=180.0)
+    parser.add_argument("--keep-upscale-workdir", action="store_true")
     parser.add_argument("--pipeline", default="default_local_video")
     parser.add_argument("--allow-sensitive", action="store_true")
     parser.add_argument("--keep-uploaded-files", action="store_true")
@@ -430,14 +437,69 @@ def main() -> int:
         "log_file": str(log_file),
         "files": {},
         "cost": {},
+        "upscale": {
+            "mode": args.upscale,
+            "scale": args.upscale_scale,
+            "model": args.upscale_model,
+        },
     }
 
     try:
-        duration_seconds = ffprobe_duration_seconds(video_file)
-        audio_file = extract_audio(video_file, slug, log_file)
+        analysis_video_file = video_file
+        preprocessor_parts = [args.preprocessor] if args.preprocessor else []
+        quality_report: dict[str, Any] | None = None
+        upscale_report: dict[str, Any] | None = None
+
+        if args.upscale != "never":
+            quality_report = assess_video_quality(video_file)
+            summary["quality"] = quality_report
+            should_upscale = args.upscale == "always" or bool(quality_report.get("needs_upscaling"))
+            duration_for_guard = quality_report.get("duration_seconds")
+            duration_limit = None if args.upscale_max_duration_seconds <= 0 else args.upscale_max_duration_seconds
+            if should_upscale and duration_limit and duration_for_guard and duration_for_guard > duration_limit:
+                message = (
+                    f"Upscaling uebersprungen: {duration_for_guard:.1f}s > "
+                    f"{duration_limit:.1f}s Sicherheitslimit."
+                )
+                if args.upscale == "always":
+                    raise RuntimeError(message + " Fuer Pflicht-Upscaling Limit mit --upscale-max-duration-seconds 0 deaktivieren.")
+                preprocessor_parts.append(f"quality-check:needs-upscale-but-skipped ({message})")
+            elif should_upscale:
+                upscale_output_dir = PROJECT_DIR / "upscaled" / "local" / category_slug
+                upscale_output_dir.mkdir(parents=True, exist_ok=True)
+                upscale_output_path = upscale_output_dir / f"{slug}_upscaled_x{args.upscale_scale}.mp4"
+                upscale_report = run_upscale_video(
+                    video_file,
+                    output_path=upscale_output_path,
+                    scale=args.upscale_scale,
+                    model=args.upscale_model,
+                    keep_workdir=args.keep_upscale_workdir,
+                    max_duration_seconds=duration_limit,
+                )
+                analysis_video_file = Path(str(upscale_report["output_path"]))
+                preprocessor_parts.append(
+                    f"real-esrgan:{args.upscale_model}:x{args.upscale_scale}:{analysis_video_file.name}"
+                )
+            else:
+                preprocessor_parts.append("quality-check:no-upscale-needed")
+        else:
+            preprocessor_parts.append("upscale:disabled")
+
+        preprocessor_note = "; ".join(preprocessor_parts)
+        summary["upscale"].update(
+            {
+                "analysis_video_path": str(analysis_video_file),
+                "analysis_video_path_windows": wsl_to_windows(analysis_video_file),
+                "quality": quality_report,
+                "result": upscale_report,
+            }
+        )
+
+        duration_seconds = ffprobe_duration_seconds(analysis_video_file)
+        audio_file = extract_audio(analysis_video_file, slug, log_file)
         transcript_file = transcribe_audio(audio_file, args.data_class, slug, log_file)
         transcript_text = transcript_file.read_text(encoding="utf-8")
-        frame_paths = extract_frames(video_file, category_slug, slug, args.max_frames, log_file)
+        frame_paths = extract_frames(analysis_video_file, category_slug, slug, args.max_frames, log_file)
         if not frame_paths:
             raise RuntimeError("Es konnten keine Frames aus dem lokalen Video erzeugt werden.")
 
@@ -467,7 +529,7 @@ def main() -> int:
             transcript_text=transcript_text,
             frame_count=len(frame_paths),
             duration_seconds=round(duration_seconds, 3) if duration_seconds else None,
-            preprocessor=args.preprocessor,
+            preprocessor=preprocessor_note,
         )
 
         client = make_client(settings["api_key"])
@@ -509,7 +571,7 @@ def main() -> int:
                 actual_cost_usd=actual_cost,
                 model=model,
                 duration_seconds=round(duration_seconds, 3) if duration_seconds else None,
-                preprocessor=args.preprocessor,
+                preprocessor=preprocessor_note,
                 qdrant=None,
                 stamp=stamp,
             ),
@@ -526,7 +588,7 @@ def main() -> int:
             cost_usd=actual_cost,
             slug=slug,
             source_info=args.source_info,
-            preprocessor=args.preprocessor,
+            preprocessor=preprocessor_note,
             pipeline=args.pipeline,
         )
         output_md.write_text(
@@ -544,7 +606,7 @@ def main() -> int:
                 actual_cost_usd=actual_cost,
                 model=model,
                 duration_seconds=round(duration_seconds, 3) if duration_seconds else None,
-                preprocessor=args.preprocessor,
+                preprocessor=preprocessor_note,
                 qdrant=qdrant,
                 stamp=stamp,
             ),
@@ -557,6 +619,8 @@ def main() -> int:
                 "pipeline_type": "local-video",
                 "video_path": str(video_file),
                 "video_path_windows": wsl_to_windows(video_file),
+                "analysis_video_path": str(analysis_video_file),
+                "analysis_video_path_windows": wsl_to_windows(analysis_video_file),
                 "category": args.category,
                 "data_class": args.data_class,
                 "questions": questions,
@@ -566,7 +630,9 @@ def main() -> int:
                 "audio_file": str(audio_file) if audio_file else None,
                 "transcript_txt": str(transcript_file),
                 "frames": [str(path) for path in frame_paths],
-                "preprocessor": args.preprocessor,
+                "preprocessor": preprocessor_note,
+                "quality": quality_report,
+                "upscale": upscale_report,
                 "pipeline": args.pipeline,
                 "usage": usage,
                 "cost_usd": actual_cost,
@@ -581,6 +647,8 @@ def main() -> int:
             {
                 "audio": str(audio_file) if audio_file else None,
                 "transcript_txt": str(transcript_file),
+                "analysis_video": str(analysis_video_file),
+                "analysis_video_windows": wsl_to_windows(analysis_video_file),
                 "analysis_markdown": str(output_md),
                 "analysis_markdown_windows": wsl_to_windows(output_md),
                 "json": str(output_json),

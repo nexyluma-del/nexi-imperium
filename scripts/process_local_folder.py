@@ -164,9 +164,19 @@ def run_local_video(video: dict[str, Any], args: argparse.Namespace, config: dic
         str(args.per_video_cost_cap_eur),
         "--max-frames",
         str(args.max_frames),
+        "--upscale",
+        args.upscale,
+        "--upscale-scale",
+        str(args.upscale_scale),
+        "--upscale-model",
+        args.upscale_model,
+        "--upscale-max-duration-seconds",
+        str(args.upscale_max_duration_seconds),
         "--pipeline",
         str(config.get("pipeline") or "default_local_video"),
     ]
+    if args.keep_upscale_workdir:
+        command.append("--keep-upscale-workdir")
     if config.get("preprocessor"):
         command.extend(["--preprocessor", str(config["preprocessor"])])
     if args.dry_run:
@@ -197,6 +207,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--per-video-estimate-eur", type=float, default=0.08)
     parser.add_argument("--per-video-cost-cap-eur", type=float, default=0.50)
     parser.add_argument("--max-frames", type=int, default=6)
+    parser.add_argument("--upscale", choices=["auto", "always", "never"], default="auto")
+    parser.add_argument("--upscale-scale", type=int, choices=[2, 3, 4], default=2)
+    parser.add_argument("--upscale-model", default="realesrgan-x4plus")
+    parser.add_argument("--upscale-max-duration-seconds", type=float, default=180.0)
+    parser.add_argument("--keep-upscale-workdir", action="store_true")
     parser.add_argument("--sleep-seconds", type=float, default=2.0)
     parser.add_argument("--timeout-seconds", type=int, default=2400)
     parser.add_argument("--force", action="store_true")
