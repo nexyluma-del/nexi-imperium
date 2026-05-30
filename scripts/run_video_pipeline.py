@@ -12,6 +12,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from failed_videos import append_failed_video
+from telegram_common import send_message_if_configured
+
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 VALID_DATA_CLASSES = {"D0", "D1", "D2", "D3", "D4"}
@@ -130,6 +133,29 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-cost-eur", default="0.30")
     parser.add_argument("--allow-sensitive", action="store_true")
     return parser.parse_args()
+
+
+def notify_single_summary(summary: dict[str, Any]) -> None:
+    if not summary.get("url"):
+        return
+    if summary.get("ok"):
+        text = "\n".join(
+            [
+                "Video-Pipeline fertig",
+                f"URL: {summary.get('url')}",
+                f"Kosten: ${float(summary.get('cost', {}).get('estimated_actual_usd') or 0):.4f}",
+                f"Analyse: {summary.get('files', {}).get('analysis_markdown_windows') or summary.get('files', {}).get('analysis_markdown')}",
+            ]
+        )
+    else:
+        text = "\n".join(
+            [
+                "Video-Pipeline Fehler",
+                f"URL: {summary.get('url')}",
+                f"Fehler: {str(summary.get('error'))[:1500]}",
+            ]
+        )
+    send_message_if_configured(text)
 
 
 def main() -> int:
@@ -292,15 +318,18 @@ def main() -> int:
     except Exception as exc:  # noqa: BLE001
         summary["finished_at"] = now_stamp()
         summary["error"] = str(exc)
+        append_failed_video(url=args.url, topic=args.topic or "single-video", error=str(exc), source="run_video_pipeline")
         with log_file.open("a", encoding="utf-8") as log:
             log.write("\n=== PIPELINE ERROR ===\n")
             log.write(str(exc) + "\n")
+        notify_single_summary(summary)
         print(json.dumps(summary, ensure_ascii=False, indent=2, default=str))
         return 1
 
     for key, value in list(summary["files"].items()):
         summary["files"][f"{key}_windows"] = wsl_to_windows(value)
     summary["log_file_windows"] = wsl_to_windows(log_file)
+    notify_single_summary(summary)
     print(json.dumps(summary, ensure_ascii=False, indent=2, default=str))
     return 0
 

@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Any
 
 from qdrant_video_knowledge import upsert_video_knowledge
+from failed_videos import append_failed_video
+from telegram_common import send_message_if_configured
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -153,6 +155,24 @@ def topic_context(topic: str, entry: BatchEntry) -> str:
     return f"{topic} | Tags: {entry.tags}" if entry.tags else topic
 
 
+def notify_batch_summary(summary: dict[str, Any]) -> None:
+    processed = summary.get("processed") or []
+    errors = summary.get("errors") or []
+    if not processed and not errors:
+        return
+    text = "\n".join(
+        [
+            "Batch-Pipeline fertig",
+            f"Thema: {summary.get('topic')}",
+            f"Verarbeitet: {len(processed)}",
+            f"Fehler: {len(errors)}",
+            f"Kosten: ${float(summary.get('actual_cost_usd') or 0):.4f}",
+            f"Datei: {summary.get('topic_file')}",
+        ]
+    )
+    send_message_if_configured(text)
+
+
 def run_single(entry: BatchEntry, topic: str, topic_slug: str, index: int, budget_eur: float) -> dict[str, Any]:
     slug = slugify(f"{topic_slug}-{index}")
     script = "analyze_post_crosscheck.py" if is_image_post_url(entry.url) else "run_video_pipeline.py"
@@ -273,6 +293,7 @@ def main() -> int:
         if entry.data_class not in allowed:
             entry.status = f"gesperrt - Cloud-Freigabe fuer {entry.data_class} fehlt"
             summary["errors"].append({"entry": entry.number, "url": entry.url, "error": entry.status})
+            append_failed_video(url=entry.url, topic=topic_context(topic, entry), error=entry.status, source="run_batch_pipeline")
             write_topic_file(topic_file, text, entries)
             continue
         if spent + args.per_video_estimate_eur > args.budget_eur:
@@ -332,6 +353,7 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             entry.status = f"Fehler - siehe Log ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
             summary["errors"].append({"entry": entry.number, "url": entry.url, "error": str(exc)})
+            append_failed_video(url=entry.url, topic=topic_context(topic, entry), error=str(exc), source="run_batch_pipeline")
         finally:
             write_topic_file(topic_file, text, entries)
             text = topic_file.read_text(encoding="utf-8")
@@ -341,6 +363,7 @@ def main() -> int:
     summary["ok"] = len(summary["errors"]) == 0
     summary["actual_cost_usd"] = round(spent, 6)
     summary["finished_at"] = datetime.now().isoformat(timespec="seconds")
+    notify_batch_summary(summary)
     print(json.dumps(summary, ensure_ascii=False, indent=2, default=str))
     return 0 if summary["ok"] else 1
 
