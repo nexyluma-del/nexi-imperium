@@ -13,6 +13,7 @@ import requests
 QDRANT_URL = "http://127.0.0.1:6333"
 OLLAMA_URL = "http://127.0.0.1:11434"
 COLLECTION = "video_knowledge"
+SOFINELLO_COLLECTION = "sofinello_knowledge"
 EMBED_MODEL = "nomic-embed-text"
 MAX_EMBED_CHARS = 3000
 
@@ -48,15 +49,15 @@ def embedding(text: str) -> list[float]:
     return response.json()["embedding"]
 
 
-def ensure_collection(size: int) -> None:
-    existing = requests.get(f"{QDRANT_URL}/collections/{COLLECTION}", timeout=30)
+def ensure_collection(size: int, collection: str = COLLECTION) -> None:
+    existing = requests.get(f"{QDRANT_URL}/collections/{collection}", timeout=30)
     if existing.status_code == 200:
         return
     if existing.status_code != 404:
         existing.raise_for_status()
 
     response = requests.put(
-        f"{QDRANT_URL}/collections/{COLLECTION}",
+        f"{QDRANT_URL}/collections/{collection}",
         json={"vectors": {"size": size, "distance": "Cosine"}},
         timeout=60,
     )
@@ -116,6 +117,92 @@ def upsert_video_knowledge(
     )
     response.raise_for_status()
     return {"collection": COLLECTION, "point_id": point_id, "vector_size": len(vector), "payload": payload}
+
+
+def upsert_sofinello_knowledge(
+    *,
+    source_path: Path,
+    subcategory: str,
+    data_class: str,
+    questions: list[str],
+    analysis_markdown: Path,
+    raw_analysis_markdown: Path,
+    transcript_txt: Path,
+    frame_paths: list[Path],
+    upscaled_video: Path,
+    cost_usd: float | None,
+    slug: str,
+    compliance: dict[str, Any],
+    ingredients: list[str] | None = None,
+    health_mentions: list[str] | None = None,
+    product_mentions: list[str] | None = None,
+    source_info: str = "",
+) -> dict[str, Any]:
+    analysis_text = analysis_markdown.read_text(encoding="utf-8") if analysis_markdown.exists() else ""
+    transcript_text = transcript_txt.read_text(encoding="utf-8") if transcript_txt.exists() else ""
+    ingredients = ingredients or []
+    health_mentions = health_mentions or []
+    product_mentions = product_mentions or []
+    combined = "\n\n".join(
+        [
+            "Typ: sofinello-video",
+            f"Sub-Kategorie: {subcategory}",
+            f"Lokale Datei: {source_path}",
+            f"Quelle/Notiz: {source_info}",
+            f"Compliance-Status: {compliance.get('status')}",
+            "Fragen:",
+            "\n".join(f"- {question}" for question in questions),
+            "Erkannte Zutaten/Wirkstoffe:",
+            ", ".join(ingredients),
+            "Erwaehnte Beschwerden/Themen:",
+            ", ".join(health_mentions),
+            "Produkt-/Verpackungs-Hinweise:",
+            ", ".join(product_mentions),
+            "Whisper-Transkript:",
+            transcript_text[:1800],
+            "Compliance-gepruefte Analyse:",
+            analysis_text[:4200],
+        ]
+    )[:MAX_EMBED_CHARS]
+
+    vector = embedding(combined)
+    ensure_collection(len(vector), SOFINELLO_COLLECTION)
+    point_id = stable_point_id(str(source_path), subcategory, str(analysis_markdown))
+    payload = {
+        "type": "sofinello-video",
+        "source_path": str(source_path),
+        "source_info": source_info,
+        "subcategory": subcategory,
+        "topic": "Sofinello",
+        "data_class": data_class,
+        "questions": questions,
+        "analysis_markdown": str(analysis_markdown),
+        "raw_analysis_markdown": str(raw_analysis_markdown),
+        "transcript_txt": str(transcript_txt),
+        "frame_paths": [str(path) for path in frame_paths],
+        "upscaled_video": str(upscaled_video),
+        "cost_usd": cost_usd,
+        "slug": slug,
+        "ingredients": ingredients,
+        "health_mentions": health_mentions,
+        "product_mentions": product_mentions,
+        "compliance": compliance,
+        "pipeline": "sofinello_special_pipeline",
+        "indexed_at": datetime.now().isoformat(timespec="seconds"),
+        "embedding_model": EMBED_MODEL,
+    }
+    response = requests.put(
+        f"{QDRANT_URL}/collections/{SOFINELLO_COLLECTION}/points?wait=true",
+        json={"points": [{"id": point_id, "vector": vector, "payload": payload}]},
+        timeout=120,
+    )
+    response.raise_for_status()
+    return {
+        "collection": SOFINELLO_COLLECTION,
+        "point_id": point_id,
+        "vector_size": len(vector),
+        "payload": payload,
+    }
 
 
 def upsert_image_post_knowledge(

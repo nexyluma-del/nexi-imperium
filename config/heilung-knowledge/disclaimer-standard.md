@@ -1,0 +1,3 @@
+# Pflicht-Disclaimer fuer Sofinello-Analysen
+
+Diese Analyse dient der internen Sichtung, Sortierung und Ideenentwicklung. Sie ist keine medizinische Beratung, keine Diagnose und keine Behandlungsempfehlung. Aussagen zu Kraeutern, Lebensmitteln, Nahrungsergaenzungen, traditionellen Konzepten oder Dr.-Sebi-nahen Ideen werden dokumentiert, aber nicht als medizinisch gesicherte Wirkung bestaetigt. Fuer oeffentliche Nutzung, Produkttexte, Werbung, Etiketten, Dosierungen oder gesundheitsbezogene Aussagen ist eine fachliche und rechtliche Pruefung erforderlich. Bei gesundheitlichen Beschwerden oder Medikamenteneinnahme ist aerztliche bzw. pharmazeutische Beratung einzuholen.
