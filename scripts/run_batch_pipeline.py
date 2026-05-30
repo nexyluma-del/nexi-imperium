@@ -192,6 +192,36 @@ def run_single(entry: BatchEntry, topic: str, topic_slug: str, index: int, budge
     return payload
 
 
+def run_local_folder_mode(args: argparse.Namespace, root: Path) -> int:
+    command = [
+        str(PROJECT_DIR / ".venv" / "bin" / "python"),
+        str(PROJECT_DIR / "scripts" / "process_local_folder.py"),
+        "--root",
+        str(root),
+        "--data-class",
+        args.local_data_class,
+        "--max-cost-eur",
+        str(args.budget_eur),
+        "--per-video-estimate-eur",
+        str(args.per_video_estimate_eur),
+    ]
+    if args.max_videos > 0:
+        command.extend(["--max-videos", str(args.max_videos)])
+    for category_filter in args.local_filter:
+        command.extend(["--filter", category_filter])
+    if args.one_per_category:
+        command.append("--one-per-category")
+    if args.local_force:
+        command.append("--force")
+    if args.dry_run:
+        command.append("--dry-run")
+
+    completed = subprocess.run(command, cwd=PROJECT_DIR, text=True, capture_output=True, timeout=7200)
+    output = (completed.stdout or "") + (completed.stderr or "")
+    print(output)
+    return completed.returncode
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run batch video pipeline for one topic file.")
     parser.add_argument("--topic-file", type=Path, required=True)
@@ -200,9 +230,17 @@ def main() -> int:
     parser.add_argument("--sleep-seconds", type=float, default=2.0)
     parser.add_argument("--max-videos", type=int, default=0, help="0 means all pending entries.")
     parser.add_argument("--allow-cloud-data-class", action="append", default=["D0", "D1"])
+    parser.add_argument("--local-data-class", default="D2", choices=sorted(VALID_DATA_CLASSES))
+    parser.add_argument("--local-filter", action="append", default=[])
+    parser.add_argument("--one-per-category", action="store_true")
+    parser.add_argument("--local-force", action="store_true")
+    parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
     topic_file = normalize_input_path(args.topic_file)
+    if topic_file.is_dir():
+        return run_local_folder_mode(args, topic_file)
+
     text = topic_file.read_text(encoding="utf-8")
     topic = read_topic(text, topic_file)
     entries = parse_entries(text)

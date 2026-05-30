@@ -184,3 +184,67 @@ def upsert_image_post_knowledge(
     )
     response.raise_for_status()
     return {"collection": COLLECTION, "point_id": point_id, "vector_size": len(vector), "payload": payload}
+
+
+def upsert_local_video_knowledge(
+    *,
+    source_path: Path,
+    category: str,
+    data_class: str,
+    questions: list[str],
+    analysis_markdown: Path,
+    transcript_txt: Path,
+    frame_paths: list[Path],
+    cost_usd: float | None,
+    slug: str,
+    source_info: str = "",
+    preprocessor: str | None = None,
+    pipeline: str = "default_local_video",
+) -> dict[str, Any]:
+    analysis_text = analysis_markdown.read_text(encoding="utf-8") if analysis_markdown.exists() else ""
+    transcript_text = transcript_txt.read_text(encoding="utf-8") if transcript_txt.exists() else ""
+    combined = "\n\n".join(
+        [
+            f"Typ: local-video",
+            f"Kategorie: {category}",
+            f"Lokale Datei: {source_path}",
+            f"Quelle/Notiz: {source_info}",
+            f"Pipeline: {pipeline}",
+            f"Preprocessor: {preprocessor or 'none'}",
+            "Fragen:",
+            "\n".join(f"- {question}" for question in questions),
+            "Whisper-Transkript:",
+            transcript_text[:2500],
+            "Gemini-Analyse:",
+            analysis_text[:3500],
+        ]
+    )[:MAX_EMBED_CHARS]
+
+    vector = embedding(combined)
+    ensure_collection(len(vector))
+    point_id = stable_point_id(str(source_path), category, str(analysis_markdown))
+    payload = {
+        "type": "local-video",
+        "source_path": str(source_path),
+        "category": category,
+        "topic": category,
+        "data_class": data_class,
+        "questions": questions,
+        "analysis_markdown": str(analysis_markdown),
+        "transcript_txt": str(transcript_txt),
+        "frame_paths": [str(path) for path in frame_paths],
+        "cost_usd": cost_usd,
+        "slug": slug,
+        "source_info": source_info,
+        "preprocessor": preprocessor,
+        "pipeline": pipeline,
+        "indexed_at": datetime.now().isoformat(timespec="seconds"),
+        "embedding_model": EMBED_MODEL,
+    }
+    response = requests.put(
+        f"{QDRANT_URL}/collections/{COLLECTION}/points?wait=true",
+        json={"points": [{"id": point_id, "vector": vector, "payload": payload}]},
+        timeout=120,
+    )
+    response.raise_for_status()
+    return {"collection": COLLECTION, "point_id": point_id, "vector_size": len(vector), "payload": payload}

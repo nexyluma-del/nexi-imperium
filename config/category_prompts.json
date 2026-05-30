@@ -1,0 +1,46 @@
+{
+  "default": {
+    "question": "Was wird in diesem Video gezeigt und gesagt? Was sind die Hauptaussagen, Chancen, Risiken und naechsten Schritte?",
+    "pipeline": "default_local_video",
+    "preprocessor": null
+  },
+  "KI Tools": {
+    "question": "Welches KI-Tool oder welcher Workflow wird gezeigt? Wie kann Nexi das praktisch und legal fuer sein KI-Imperium nutzen?",
+    "pipeline": "default_local_video",
+    "preprocessor": null
+  },
+  "IT Hacks": {
+    "question": "Was wird technisch gezeigt? Erklaere es defensiv, legal und konzeptionell. Welche sicheren Lernschritte ergeben sich daraus?",
+    "pipeline": "default_local_video",
+    "preprocessor": null
+  },
+  "Finanzen": {
+    "question": "Welche Finanzidee, Marktbewegung oder Strategie wird gezeigt? Was ist belegbar, was ist Spekulation, und welche Pruefung waere noetig?",
+    "pipeline": "default_local_video",
+    "preprocessor": null
+  },
+  "Sofinello": {
+    "skip": true,
+    "question": "Reserviert fuer 016b: Heilungs-Compliance-Agent + Pflicht-Upscaling.",
+    "pipeline": "sofinello_healing_reserved",
+    "preprocessor": "real_esrgan_required_later"
+  },
+  "Sofinello Videos": {
+    "skip": true,
+    "question": "Reserviert fuer 016b: Heilungs-Compliance-Agent + Pflicht-Upscaling.",
+    "pipeline": "sofinello_healing_reserved",
+    "preprocessor": "real_esrgan_required_later"
+  },
+  "Sofinello Gerichte": {
+    "skip": true,
+    "question": "Reserviert fuer 016b: Heilungs-Compliance-Agent + Pflicht-Upscaling.",
+    "pipeline": "sofinello_healing_reserved",
+    "preprocessor": "real_esrgan_required_later"
+  },
+  "Sofinello To-Do": {
+    "skip": true,
+    "question": "Reserviert fuer 016b: Heilungs-Compliance-Agent + Pflicht-Upscaling.",
+    "pipeline": "sofinello_healing_reserved",
+    "preprocessor": "real_esrgan_required_later"
+  }
+}
