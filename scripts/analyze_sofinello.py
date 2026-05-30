@@ -56,7 +56,14 @@ from gemini_common import (  # noqa: E402
 )
 from qdrant_video_knowledge import upsert_sofinello_knowledge  # noqa: E402
 from sofinello_compliance import apply_compliance  # noqa: E402
-from upscale_video import upscale_video as run_upscale_video  # noqa: E402
+from upscale_video import (  # noqa: E402
+    DEFAULT_BINARY,
+    DEFAULT_MODELS,
+    nvidia_smi_snapshot,
+    run_command as run_upscale_command,
+    tool_path,
+    upscale_video as run_upscale_video,
+)
 
 
 SUBCATEGORIES = [
@@ -128,6 +135,75 @@ def extract_sofinello_frames(
         timeout=900,
     )
     return sorted(frame_dir.glob("frame_*.jpg"))[:max_frames]
+
+
+def upscale_sofinello_frames(
+    frame_paths: list[Path],
+    *,
+    slug: str,
+    scale: int,
+    model: str,
+    log_file: Path,
+) -> dict[str, Any]:
+    binary = normalize_input_path(DEFAULT_BINARY).resolve()
+    models_dir = normalize_input_path(DEFAULT_MODELS).resolve()
+    windows_binary = binary.suffix.lower() == ".exe"
+    if not binary.exists():
+        raise FileNotFoundError(f"Real-ESRGAN Binary nicht gefunden: {binary}")
+    if not models_dir.exists():
+        raise FileNotFoundError(f"Real-ESRGAN Models-Ordner nicht gefunden: {models_dir}")
+    if not frame_paths:
+        raise RuntimeError("Keine Frames fuer Frame-Only-Upscaling vorhanden.")
+
+    input_dir = frame_paths[0].parent
+    output_dir = PROJECT_DIR / "frames" / "sofinello_upscaled" / slug
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for old_frame in output_dir.glob("*"):
+        if old_frame.is_file() and old_frame.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+            old_frame.unlink()
+
+    before_gpu = nvidia_smi_snapshot()
+    run_upscale_command(
+        [
+            str(binary),
+            "-i",
+            tool_path(input_dir, windows_binary=windows_binary),
+            "-o",
+            tool_path(output_dir, windows_binary=windows_binary),
+            "-m",
+            tool_path(models_dir, windows_binary=windows_binary),
+            "-n",
+            model,
+            "-s",
+            str(scale),
+            "-f",
+            "png",
+            "-v",
+        ],
+        log_file,
+        timeout=None,
+        cwd=binary.parent,
+    )
+    after_gpu = nvidia_smi_snapshot()
+    upscaled_frames = sorted(
+        [path for path in output_dir.glob("*") if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}]
+    )
+    if not upscaled_frames:
+        raise RuntimeError("Real-ESRGAN hat keine upgescalten Analyseframes erzeugt.")
+    return {
+        "mode": "frame-only",
+        "input_frame_dir": str(input_dir),
+        "output_frame_dir": str(output_dir),
+        "input_frame_count": len(frame_paths),
+        "output_frame_count": len(upscaled_frames),
+        "frames": [str(path) for path in upscaled_frames],
+        "scale": scale,
+        "model": model,
+        "binary": str(binary),
+        "models_dir": str(models_dir),
+        "gpu_before": before_gpu,
+        "gpu_after": after_gpu,
+    }
 
 
 def estimate_sofinello_cost(model: str, transcript: str, frame_count: int, knowledge: str) -> float:
@@ -238,7 +314,8 @@ def extract_section_items(text: str, heading: str, limit: int = 20) -> list[str]
 def render_raw_markdown(
     *,
     source_path: Path,
-    upscaled_video: Path,
+    analysis_media: str,
+    upscale_mode: str,
     data_class: str,
     questions: list[str],
     source_info: str,
@@ -262,9 +339,9 @@ def render_raw_markdown(
             f"Modell: {model}",
             f"Quelle/Notiz: {source_info or 'lokale Sofinello-Datei'}",
             f"Original-Datei: `{source_path}`",
-            f"Upscaled-Datei: `{upscaled_video}`",
+            f"Analyse-Medium: `{analysis_media}`",
             f"Dauer: {duration_seconds if duration_seconds is not None else 'unbekannt'} s",
-            "Preprocessor: real-esrgan Pflicht-Upscaling",
+            f"Preprocessor: real-esrgan Pflicht-Upscaling ({upscale_mode})",
             "",
             "## Fragen",
             "",
@@ -305,7 +382,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", default=None)
     parser.add_argument("--max-cost-eur", type=float, default=1.0)
     parser.add_argument("--max-frames", type=int, default=DEFAULT_FRAME_COUNT)
-    parser.add_argument("--frame-long-side", type=int, default=1920)
+    parser.add_argument("--frame-long-side", type=int, default=1280)
+    parser.add_argument("--upscale-mode", choices=["full-video", "frame-only"], default="full-video")
     parser.add_argument("--upscale-scale", type=int, choices=[2, 3, 4], default=2)
     parser.add_argument("--upscale-model", default="realesrgan-x4plus")
     parser.add_argument("--upscale-max-duration-seconds", type=float, default=180.0)
@@ -354,27 +432,48 @@ def main() -> int:
 
     try:
         duration_limit = None if args.upscale_max_duration_seconds <= 0 else args.upscale_max_duration_seconds
-        upscaled_output = PROJECT_DIR / "upscaled" / "sofinello" / f"{slug}_upscaled_x{args.upscale_scale}.mp4"
-        upscale_report = run_upscale_video(
-            video_file,
-            output_path=upscaled_output,
-            scale=args.upscale_scale,
-            model=args.upscale_model,
-            keep_workdir=args.keep_upscale_workdir,
-            max_duration_seconds=duration_limit,
-        )
-        upscaled_video = Path(str(upscale_report["output_path"]))
-        duration_seconds = ffprobe_duration_seconds(upscaled_video)
-        audio_file = extract_audio(upscaled_video, slug, log_file)
+        upscaled_video: Path | None = None
+        duration_seconds = ffprobe_duration_seconds(video_file)
+        audio_file = extract_audio(video_file, slug, log_file)
         transcript_file = transcribe_audio(audio_file, args.data_class, slug, log_file)
         transcript_text = transcript_file.read_text(encoding="utf-8")
-        frame_paths = extract_sofinello_frames(
-            upscaled_video,
-            slug,
-            args.max_frames,
-            log_file,
-            frame_long_side=args.frame_long_side,
-        )
+        if args.upscale_mode == "full-video":
+            upscaled_output = PROJECT_DIR / "upscaled" / "sofinello" / f"{slug}_upscaled_x{args.upscale_scale}.mp4"
+            upscale_report = run_upscale_video(
+                video_file,
+                output_path=upscaled_output,
+                scale=args.upscale_scale,
+                model=args.upscale_model,
+                keep_workdir=args.keep_upscale_workdir,
+                max_duration_seconds=duration_limit,
+            )
+            upscaled_video = Path(str(upscale_report["output_path"]))
+            duration_seconds = ffprobe_duration_seconds(upscaled_video) or duration_seconds
+            frame_paths = extract_sofinello_frames(
+                upscaled_video,
+                slug,
+                args.max_frames,
+                log_file,
+                frame_long_side=args.frame_long_side,
+            )
+            analysis_media = str(upscaled_video)
+        else:
+            source_frames = extract_sofinello_frames(
+                video_file,
+                slug,
+                args.max_frames,
+                log_file,
+                frame_long_side=args.frame_long_side,
+            )
+            upscale_report = upscale_sofinello_frames(
+                source_frames,
+                slug=slug,
+                scale=args.upscale_scale,
+                model=args.upscale_model,
+                log_file=log_file,
+            )
+            frame_paths = [Path(path) for path in upscale_report["frames"]]
+            analysis_media = str(Path(upscale_report["output_frame_dir"]))
         if not frame_paths:
             raise RuntimeError("Es konnten keine Sofinello-Frames erzeugt werden.")
 
@@ -389,8 +488,9 @@ def main() -> int:
             summary["dry_run"] = True
             summary["files"].update(
                 {
-                    "upscaled_video": str(upscaled_video),
-                    "upscaled_video_windows": wsl_to_windows(upscaled_video),
+                    "upscaled_video": str(upscaled_video) if upscaled_video else None,
+                    "upscaled_video_windows": wsl_to_windows(upscaled_video) if upscaled_video else None,
+                    "upscaled_frames": [str(path) for path in frame_paths],
                     "audio": str(audio_file) if audio_file else None,
                     "transcript_txt": str(transcript_file),
                     "frames": [str(path) for path in frame_paths],
@@ -437,7 +537,8 @@ def main() -> int:
         raw_md.write_text(
             render_raw_markdown(
                 source_path=video_file,
-                upscaled_video=upscaled_video,
+                analysis_media=analysis_media,
+                upscale_mode=args.upscale_mode,
                 data_class=args.data_class,
                 questions=questions,
                 source_info=args.source_info,
@@ -483,8 +584,10 @@ def main() -> int:
             "pipeline_type": "sofinello-video",
             "video_path": str(video_file),
             "video_path_windows": wsl_to_windows(video_file),
-            "upscaled_video": str(upscaled_video),
-            "upscaled_video_windows": wsl_to_windows(upscaled_video),
+            "upscale_mode": args.upscale_mode,
+            "analysis_media": analysis_media,
+            "upscaled_video": str(upscaled_video) if upscaled_video else None,
+            "upscaled_video_windows": wsl_to_windows(upscaled_video) if upscaled_video else None,
             "data_class": args.data_class,
             "questions": questions,
             "source_info": args.source_info,
@@ -511,8 +614,9 @@ def main() -> int:
         summary["ok"] = True
         summary["files"].update(
             {
-                "upscaled_video": str(upscaled_video),
-                "upscaled_video_windows": wsl_to_windows(upscaled_video),
+                "upscaled_video": str(upscaled_video) if upscaled_video else None,
+                "upscaled_video_windows": wsl_to_windows(upscaled_video) if upscaled_video else None,
+                "upscaled_frames": [str(path) for path in frame_paths],
                 "audio": str(audio_file) if audio_file else None,
                 "transcript_txt": str(transcript_file),
                 "raw_markdown": str(raw_md),
