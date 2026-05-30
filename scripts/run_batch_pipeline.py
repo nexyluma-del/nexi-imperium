@@ -142,11 +142,16 @@ def write_topic_file(topic_file: Path, original_text: str, entries: list[BatchEn
     topic_file.write_text(header + "\n\n" + body, encoding="utf-8")
 
 
+def is_image_post_url(url: str) -> bool:
+    return "instagram.com/p/" in url.lower()
+
+
 def run_single(entry: BatchEntry, topic: str, topic_slug: str, index: int, budget_eur: float) -> dict[str, Any]:
     slug = slugify(f"{topic_slug}-{index}")
+    script = "analyze_post_crosscheck.py" if is_image_post_url(entry.url) else "run_video_pipeline.py"
     command = [
         str(PROJECT_DIR / ".venv" / "bin" / "python"),
-        str(PROJECT_DIR / "scripts" / "run_video_pipeline.py"),
+        str(PROJECT_DIR / "scripts" / script),
         "--url",
         entry.url,
         "--data-class",
@@ -231,6 +236,26 @@ def main() -> int:
 
         try:
             result = run_single(entry, topic, topic_slug, entry_index, args.budget_eur)
+            if result.get("pipeline_type") == "image-post":
+                cost = float(result.get("cost", {}).get("actual_total_usd") or 0.0)
+                qdrant = result.get("qdrant") or {}
+                entry.status = f"analysiert am {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                entry.analysis = result["files"].get("analysis_markdown_windows") or result["files"].get("analysis_markdown", "")
+                entry.cost_usd = f"{cost:.6f}"
+                entry.qdrant_id = qdrant.get("point_id", "")
+                spent += cost
+                summary["processed"].append(
+                    {
+                        "entry": entry.number,
+                        "url": entry.url,
+                        "pipeline_type": "image-post",
+                        "analysis": entry.analysis,
+                        "cost_usd": cost,
+                        "qdrant_id": entry.qdrant_id,
+                    }
+                )
+                continue
+
             cost = float(result.get("cost", {}).get("estimated_actual_usd") or 0.0)
             spent += cost
             analysis_md = Path(result["files"]["analysis_markdown"])

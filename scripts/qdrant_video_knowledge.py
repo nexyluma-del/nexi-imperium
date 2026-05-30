@@ -104,3 +104,71 @@ def upsert_video_knowledge(
     )
     response.raise_for_status()
     return {"collection": COLLECTION, "point_id": point_id, "vector_size": len(vector), "payload": payload}
+
+
+def upsert_image_post_knowledge(
+    *,
+    url: str,
+    topic: str,
+    data_class: str,
+    questions: list[str],
+    analysis_markdown: Path,
+    image_paths: list[Path],
+    cost_usd: float | None,
+    slug: str,
+    provider_results: list[dict[str, Any]],
+    input_mode: str,
+) -> dict[str, Any]:
+    analysis_text = analysis_markdown.read_text(encoding="utf-8")
+    provider_summary = "\n".join(
+        f"{result.get('provider')}: {str(result.get('text', ''))[:1200]}" for result in provider_results
+    )
+    combined = "\n\n".join(
+        [
+            f"Thema: {topic}",
+            f"URL: {url}",
+            "Typ: image-post",
+            "Crosscheck: 3way",
+            f"Input-Modus: {input_mode}",
+            "Fragen:",
+            "\n".join(f"- {question}" for question in questions),
+            "Provider-Zusammenfassung:",
+            provider_summary,
+            "Konsolidierte Analyse:",
+            analysis_text[:3500],
+        ]
+    )[:MAX_EMBED_CHARS]
+
+    vector = embedding(combined)
+    ensure_collection(len(vector))
+    point_id = stable_point_id(url, topic, str(analysis_markdown))
+    payload = {
+        "url": url,
+        "topic": topic,
+        "data_class": data_class,
+        "questions": questions,
+        "analysis_markdown": str(analysis_markdown),
+        "image_paths": [str(path) for path in image_paths],
+        "cost_usd": cost_usd,
+        "slug": slug,
+        "type": "image-post",
+        "crosscheck": "3way",
+        "input_mode": input_mode,
+        "providers": [
+            {
+                "provider": result.get("provider"),
+                "model": result.get("model"),
+                "cost_usd": result.get("cost_usd"),
+            }
+            for result in provider_results
+        ],
+        "indexed_at": datetime.now().isoformat(timespec="seconds"),
+        "embedding_model": EMBED_MODEL,
+    }
+    response = requests.put(
+        f"{QDRANT_URL}/collections/{COLLECTION}/points?wait=true",
+        json={"points": [{"id": point_id, "vector": vector, "payload": payload}]},
+        timeout=120,
+    )
+    response.raise_for_status()
+    return {"collection": COLLECTION, "point_id": point_id, "vector_size": len(vector), "payload": payload}
