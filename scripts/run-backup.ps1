@@ -1,12 +1,14 @@
 <#
 AUFGABE 002 - Manuelles Restic-Backup starten
 AUFGABE 010b - 2026-05-29 erweitert um C:\AI mit Exclude-Datei
+AUFGABE 010c - 2026-05-30 erweitert um Docker-Exports nach D:\Restic-Sources
 
 Dieses Skript:
 - installiert nichts
 - loescht keine Quelldaten
 - speichert das Restic-Passwort nicht im Klartext
 - fragt das Passwort interaktiv ab, wenn RESTIC_PASSWORD nicht gesetzt ist
+- stoppt keine Docker-Container
 #>
 
 [CmdletBinding()]
@@ -14,7 +16,10 @@ param(
     [string]$ResticExe = "C:\Users\nexil\Desktop\KI\tools\restic\restic.exe",
     [string]$Repository = "D:\Restic-Backup",
     [string]$ExcludeFile = "D:\Restic-Backup\restic-excludes.txt",
-    [string]$LogDir = "C:\Users\nexil\Desktop\KI\logs\backup"
+    [string]$LogDir = "C:\Users\nexil\Desktop\KI\logs\backup",
+    [string]$DockerExportRoot = "D:\Restic-Sources",
+    [switch]$SkipDockerExports,
+    [switch]$ExportOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -39,6 +44,25 @@ function Test-PathPresent {
     return $false
 }
 
+function Invoke-DockerExport {
+    param(
+        [Parameter(Mandatory = $true)] [string]$ScriptName,
+        [Parameter(Mandatory = $true)] [string]$OutputRoot,
+        [Parameter(Mandatory = $true)] [string]$LogPath
+    )
+    $scriptPath = Join-Path $PSScriptRoot $ScriptName
+    if (-not (Test-Path -LiteralPath $scriptPath)) {
+        throw "Docker-Export-Skript fehlt: $scriptPath"
+    }
+
+    "Docker-Export startet: $ScriptName -> $OutputRoot" | Tee-Object -FilePath $LogPath -Append
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $scriptPath -OutputRoot $OutputRoot 2>&1 |
+        Tee-Object -FilePath $LogPath -Append
+    if ($LASTEXITCODE -ne 0) {
+        throw "Docker-Export fehlgeschlagen: $ScriptName"
+    }
+}
+
 if (-not (Test-Path -LiteralPath $ResticExe)) {
     $cmd = Get-Command restic -ErrorAction SilentlyContinue
     if ($cmd) {
@@ -56,12 +80,29 @@ if (-not (Test-Path -LiteralPath $Repository)) {
 New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
 $logPath = Join-Path $LogDir ("backup-" + (Get-Date -Format "yyyy-MM-dd_HHmmss") + ".log")
 
+if (-not $SkipDockerExports) {
+    New-Item -ItemType Directory -Path $DockerExportRoot -Force | Out-Null
+    Invoke-DockerExport -ScriptName "export-qdrant-snapshot.ps1" -OutputRoot (Join-Path $DockerExportRoot "qdrant") -LogPath $logPath
+    Invoke-DockerExport -ScriptName "export-n8n-workflows.ps1" -OutputRoot (Join-Path $DockerExportRoot "n8n") -LogPath $logPath
+    Invoke-DockerExport -ScriptName "export-openwebui-db.ps1" -OutputRoot (Join-Path $DockerExportRoot "openwebui") -LogPath $logPath
+}
+else {
+    "Docker-Exports wurden per -SkipDockerExports uebersprungen." | Tee-Object -FilePath $logPath -Append
+}
+
+if ($ExportOnly) {
+    "ExportOnly aktiv: Restic-Backup wird nicht gestartet." | Tee-Object -FilePath $logPath -Append
+    Write-Host "Docker-Exports erfolgreich. Restic wurde wegen -ExportOnly nicht gestartet. Log: $logPath"
+    return
+}
+
 $sources = @(
     "C:\Users\nexil\Desktop",
     "C:\Users\nexil\Documents",
     "C:\Users\nexil\Pictures",
     "C:\Users\nexil\Videos",
-    "C:\AI"
+    "C:\AI",
+    $DockerExportRoot
 ) | Where-Object { Test-PathPresent $_ }
 
 if (-not $sources -or $sources.Count -eq 0) {

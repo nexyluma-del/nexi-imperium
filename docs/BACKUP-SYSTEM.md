@@ -1,6 +1,6 @@
 # BACKUP-SYSTEM - Restic lokal auf externer SSD
 
-**Status:** aktiv - Aufgabe 002 abgeschlossen, Aufgabe 010b erweitert am 2026-05-29
+**Status:** aktiv - Aufgabe 002 abgeschlossen, Aufgabe 010b erweitert am 2026-05-29, Aufgabe 010c Docker-Exports am 2026-05-30 integriert
 **Datenklasse:** D1 intern
 **Repository:** `D:\Restic-Backup`
 **Restic:** portable Installation unter `C:\Users\nexil\Desktop\KI\tools\restic\restic.exe`
@@ -20,6 +20,7 @@ Aktuelle Quellen ab Aufgabe 010b:
 | `C:\Users\nexil\Pictures` | Bilder, falls vorhanden |
 | `C:\Users\nexil\Videos` | Videos, falls vorhanden |
 | `C:\AI` | KI-Projekte, Konfigurationen, Skripte, Transkripte und Analyse-Ergebnisse |
+| `D:\Restic-Sources` | Docker-Exports fuer Qdrant, n8n und OpenWebUI |
 
 Hinweis: Die Instagram-Daten liegen inzwischen getrennt unter `C:\Users\nexil\Desktop\Instagram Videos` und `C:\Users\nexil\Desktop\Instagram Liste`. Beide liegen auf dem Desktop und sind dadurch weiterhin im Backup.
 
@@ -50,8 +51,46 @@ Wichtig: Projektdateien, Skripte, README-Dateien, Transkripte, Logs und spaetere
 - Keine WSL2-Installation.
 - Keine vorhandenen Daten werden geloescht oder verschoben.
 - Das Restic-Passwort wird nicht im Klartext in Skripten gespeichert.
-- Keine Docker-Volumes in diesem Backup. OpenWebUI, n8n und Qdrant folgen separat in Aufgabe 010c.
+- Keine rohen Docker-Volumes werden direkt gesichert. Stattdessen werden saubere Exports nach `D:\Restic-Sources` erzeugt und dann von Restic gesichert.
 - Keine grossen KI-Modelle oder reproduzierbaren Cache-/Dependency-Ordner.
+
+## Docker-Volume-Exports ab Aufgabe 010c
+
+Vor jedem normalen Backup ruft `run-backup.ps1` jetzt drei Export-Skripte auf:
+
+| Skript | Zielordner | Inhalt |
+|---|---|---|
+| `export-qdrant-snapshot.ps1` | `D:\Restic-Sources\qdrant\<Zeitstempel>` | Offizielle Qdrant-Collection-Snapshots, aktuell `video_knowledge` |
+| `export-n8n-workflows.ps1` | `D:\Restic-Sources\n8n\<Zeitstempel>` | Workflows, nicht entschluesselte Credentials, plus `n8n-volume.tgz` mit DB/Config |
+| `export-openwebui-db.ps1` | `D:\Restic-Sources\openwebui\<Zeitstempel>` | Konsistente SQLite-Kopie `webui.db` plus leichtes Daten-Tar ohne Cache/vector_db |
+
+Bewusst nicht gesichert:
+
+| Nicht gesichert | Grund |
+|---|---|
+| Ollama-Modelle | Sehr gross und mit `ollama pull` reproduzierbar |
+| OpenWebUI `cache` | Reproduzierbar |
+| OpenWebUI interne `vector_db` | Wir nutzen Qdrant als Wissensspeicher |
+| entschluesselte n8n-Credentials | Zu sensibel; die Exporte bleiben verschluesselt und das Volume-Tar enthaelt den noetigen Config-Kontext |
+
+Exportstufe ohne Restic testen:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Users\nexil\Desktop\KI\scripts\run-backup.ps1 -ExportOnly
+```
+
+Restore-Proben fuer Docker-Exports:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Users\nexil\Desktop\KI\scripts\test-docker-volume-restore.ps1
+```
+
+Dieser Test nutzt nur isolierte Testcontainer/-Volumes:
+
+- Qdrant-Snapshot wird in einem temporaeren Qdrant-Container wiederhergestellt.
+- n8n-Volume-Tar wird in ein temporaeres Docker-Volume entpackt und per n8n CLI gelesen.
+- OpenWebUI-DB wird in einem temporaeren Container per SQLite geoeffnet.
+- Live-Container bleiben unveraendert.
 
 ## Passwort-Regel
 
@@ -106,6 +145,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Users\nexil\Desktop\K
 
 Das Skript fragt interaktiv nach dem Restic-Passwort.
 Seit Aufgabe 010b nutzt es zusaetzlich die Exclude-Datei `D:\Restic-Backup\restic-excludes.txt`.
+Seit Aufgabe 010c erzeugt es vor dem Restic-Lauf Docker-Exports nach `D:\Restic-Sources`.
 
 ## Erster Backup-Lauf
 
@@ -176,6 +216,29 @@ Der Restore-Test wurde erfolgreich um eine Pflichtprobe aus `C:\AI` erweitert.
 | Log | `C:\Users\nexil\Desktop\KI\logs\backup\restore-test-2026-05-29_182612.log` |
 
 Damit ist nachgewiesen, dass Dateien aus `C:\AI` im Backup enthalten und wiederherstellbar sind.
+
+## Docker-Export-Test nach Aufgabe 010c
+
+Die Docker-Exportstufe wurde erfolgreich getestet.
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-05-30 |
+| Qdrant | Snapshot fuer `video_knowledge` erzeugt |
+| n8n | 3 Workflows exportiert; keine Credentials vorhanden; Volume-Tar erzeugt |
+| OpenWebUI | SQLite-Dump `webui.db` erzeugt |
+| ExportOnly-Log | `C:\Users\nexil\Desktop\KI\logs\backup\backup-2026-05-30_205634.log` |
+
+Restore-Probe der Docker-Exports:
+
+| System | Ergebnis |
+|---|---|
+| Qdrant | Snapshot in temporaerem Container wiederhergestellt, `video_knowledge` mit 54 Punkten |
+| n8n | Volume-Tar in temporaeres Volume restored, n8n CLI konnte 3 Workflows lesen |
+| OpenWebUI | Exportierte SQLite-DB konnte gelesen werden |
+| Ergebnisdatei | `D:\Restic-Restore-Test\docker-volumes-2026-05-30_210508\restore-test-result.json` |
+
+Hinweis: Ein vollstaendiger Restic-Snapshot nach 010c wurde noch nicht gestartet, weil das Restic-Passwort nicht im Chat oder Skript gespeichert wird. Beim naechsten manuellen Lauf von `run-backup.ps1` wird `D:\Restic-Sources` automatisch mitgesichert.
 
 ## Logs
 
