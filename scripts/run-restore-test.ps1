@@ -42,6 +42,22 @@ function Convert-ResticPathToWindowsPath {
     return $null
 }
 
+function Import-ResticPasswordFromEnvFile {
+    param([string]$EnvFile = "C:\AI\projects\09-video-analyse\.env")
+    if ($env:RESTIC_PASSWORD -or -not (Test-Path -LiteralPath $EnvFile)) {
+        return $false
+    }
+    foreach ($line in [System.IO.File]::ReadLines($EnvFile, [System.Text.Encoding]::UTF8)) {
+        $clean = $line.TrimStart([char]0xFEFF).Trim()
+        if (-not $clean -or $clean.StartsWith("#") -or -not $clean.StartsWith("RESTIC_PASSWORD=")) {
+            continue
+        }
+        $env:RESTIC_PASSWORD = $clean.Substring("RESTIC_PASSWORD=".Length)
+        return [bool]$env:RESTIC_PASSWORD
+    }
+    return $false
+}
+
 if (-not (Test-Path -LiteralPath $ResticExe)) {
     $cmd = Get-Command restic -ErrorAction SilentlyContinue
     if ($cmd) {
@@ -60,6 +76,7 @@ New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
 $logPath = Join-Path $LogDir ("restore-test-" + (Get-Date -Format "yyyy-MM-dd_HHmmss") + ".log")
 
 $passwordWasProvided = $false
+Import-ResticPasswordFromEnvFile | Out-Null
 if (-not $env:RESTIC_PASSWORD) {
     $securePassword = Read-Host "Restic-Passwort eingeben" -AsSecureString
     $env:RESTIC_PASSWORD = ConvertFrom-SecureStringToPlain -Secure $securePassword

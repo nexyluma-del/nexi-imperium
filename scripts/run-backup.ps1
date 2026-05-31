@@ -44,6 +44,22 @@ function Test-PathPresent {
     return $false
 }
 
+function Import-ResticPasswordFromEnvFile {
+    param([string]$EnvFile = "C:\AI\projects\09-video-analyse\.env")
+    if ($env:RESTIC_PASSWORD -or -not (Test-Path -LiteralPath $EnvFile)) {
+        return $false
+    }
+    foreach ($line in [System.IO.File]::ReadLines($EnvFile, [System.Text.Encoding]::UTF8)) {
+        $clean = $line.TrimStart([char]0xFEFF).Trim()
+        if (-not $clean -or $clean.StartsWith("#") -or -not $clean.StartsWith("RESTIC_PASSWORD=")) {
+            continue
+        }
+        $env:RESTIC_PASSWORD = $clean.Substring("RESTIC_PASSWORD=".Length)
+        return [bool]$env:RESTIC_PASSWORD
+    }
+    return $false
+}
+
 function Invoke-DockerExport {
     param(
         [Parameter(Mandatory = $true)] [string]$ScriptName,
@@ -110,6 +126,7 @@ if (-not $sources -or $sources.Count -eq 0) {
 }
 
 $passwordWasProvided = $false
+Import-ResticPasswordFromEnvFile | Out-Null
 if (-not $env:RESTIC_PASSWORD) {
     $securePassword = Read-Host "Restic-Passwort eingeben" -AsSecureString
     $env:RESTIC_PASSWORD = ConvertFrom-SecureStringToPlain -Secure $securePassword
