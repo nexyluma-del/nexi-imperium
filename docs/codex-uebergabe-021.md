@@ -49,3 +49,13 @@ Registrierter Windows-Task:
 ## Naechster Schritt
 
 Wenn Aufgabe 020-Spec von Claude da ist: Chief-Workflow-Template bauen. Bis dahin ist die Bruecke fuer externe KI-Sessions einsatzbereit.
+
+## Zusatz: Sofinello Resume-Guard
+
+Beim Abschluss-Check war kein aktiver `process_sofinello_batch.py` Prozess sichtbar. Damit der bereits freigegebene Sofinello-Batch B nach Gemini-Quota-Reset wirklich automatisch weiterlaeuft, wurde ein Resume-Guard ergaenzt:
+
+- `scripts/resume_sofinello_batch_b.py`
+- `scripts/register-sofinello-resume-task.ps1`
+- Windows-Task: `Nexi Sofinello Batch B Resume`
+- Zeit: taeglich 02:30
+- Verhalten: startet den Batch nur, wenn er nicht laeuft und noch nicht komplett fertig ist.
