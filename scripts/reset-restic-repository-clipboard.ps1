@@ -136,7 +136,12 @@ if (-not $password -or $password.Length -lt 20) {
 
 $env:RESTIC_PASSWORD = $password
 Set-DotEnvValue -Path $EnvFile -Name "RESTIC_PASSWORD" -Value $password
-Set-Clipboard -Value ""
+try {
+    Set-Clipboard -Value " "
+}
+catch {
+    Write-Warning "Konnte Zwischenablage nicht leeren: $($_.Exception.Message)"
+}
 
 try {
     Move-CurrentRepositoryAside -Path $Repository
