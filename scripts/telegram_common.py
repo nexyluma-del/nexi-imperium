@@ -118,6 +118,32 @@ def send_message(text: str, chat_id: str | None = None, disable_web_preview: boo
     return True
 
 
+def send_document(file_path: str | Path, caption: str = "", chat_id: str | None = None) -> bool:
+    target_chat = chat_id or get_chat_id()
+    if not target_chat:
+        return False
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(path)
+    token = require_token()
+    url = f"https://api.telegram.org/bot{token}/sendDocument"
+    data: dict[str, Any] = {"chat_id": target_chat}
+    if caption:
+        data["caption"] = caption[:1024]
+    with path.open("rb") as handle:
+        response = requests.post(
+            url,
+            data=data,
+            files={"document": (path.name, handle)},
+            timeout=120,
+        )
+    response.raise_for_status()
+    payload = response.json()
+    if not payload.get("ok"):
+        raise RuntimeError(f"Telegram API Fehler bei sendDocument: {json.dumps(payload, ensure_ascii=False)}")
+    return True
+
+
 def send_message_if_configured(text: str) -> bool:
     try:
         return send_message(text)

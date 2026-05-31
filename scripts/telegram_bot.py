@@ -12,7 +12,7 @@ from typing import Any
 import requests
 
 from failed_videos import append_failed_video
-from telegram_common import get_chat_id, get_updates, send_message, set_env_value
+from telegram_common import get_chat_id, get_updates, send_document, send_message, set_env_value
 from telegram_status import render_status, status_payload
 
 
@@ -21,6 +21,7 @@ URL_RE = re.compile(r"https?://[^\s<>]+", re.I)
 DEFAULT_DATA_CLASS = "D2"
 MAX_TELEGRAM_BATCH_COST_EUR = 5.0
 PER_URL_ESTIMATE_EUR = 0.08
+MAX_CHAT_ANALYSIS_CHARS = 3200
 
 
 HELP_TEXT = """Nexis Imperium Bot
@@ -73,6 +74,54 @@ def question_from_text(text: str, urls: list[str]) -> str:
     question = re.sub(r"^/analy[sz]e(@\w+)?", "", question, flags=re.I).strip()
     question = re.sub(r"\s+", " ", question).strip()
     return question or "Was ist die wichtigste Aussage, wie kann Nexi das nutzen, und welche Risiken gibt es?"
+
+
+def display_question(question: str) -> str:
+    return question if len(question) <= 500 else question[:497].rstrip() + "..."
+
+
+def local_readable_path(value: str | None) -> Path | None:
+    if not value:
+        return None
+    raw = str(value).strip()
+    match = re.match(r"^([A-Za-z]):\\(.*)$", raw)
+    if match:
+        drive = match.group(1).lower()
+        rest = match.group(2).replace("\\", "/")
+        return Path(f"/mnt/{drive}/{rest}")
+    return Path(raw)
+
+
+def excerpt_markdown(markdown_path: str | None) -> str:
+    path = local_readable_path(markdown_path)
+    if not path or not path.exists():
+        return ""
+    text = path.read_text(encoding="utf-8", errors="replace")
+    text = re.sub(r"```[\s\S]*?```", "", text)
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+
+    preferred_markers = [
+        "## Antworten auf Nexis konkrete Fragen",
+        "## Konsolidierter Bericht",
+        "## Konsolidierte Antwort",
+        "## Synthese",
+        "## Was Nexi daraus praktisch mitnehmen sollte",
+        "## Visuelle Analyse und Synthese",
+    ]
+    for marker in preferred_markers:
+        index = text.find(marker)
+        if index != -1:
+            text = text[index:]
+            break
+
+    if len(text) <= MAX_CHAT_ANALYSIS_CHARS:
+        return text
+    cut = text[:MAX_CHAT_ANALYSIS_CHARS]
+    split_at = max(cut.rfind("\n## "), cut.rfind("\n\n"), cut.rfind(". "))
+    if split_at > 900:
+        cut = cut[:split_at]
+    return cut.strip() + "\n\n[gekürzt - komplette Analyse als Datei im nächsten Telegram-Anhang]"
 
 
 def write_topic_file(urls: list[str], question: str) -> Path:
@@ -160,7 +209,12 @@ def render_batch_result(payload: dict[str, Any]) -> str:
         lines.append("")
         lines.append(f"Quelle: {item.get('url')}")
         if item.get("analysis"):
-            lines.append(f"Analyse: {item.get('analysis')}")
+            excerpt = excerpt_markdown(item.get("analysis"))
+            if excerpt:
+                lines.append("")
+                lines.append(excerpt)
+            lines.append("")
+            lines.append(f"Datei: {item.get('analysis')}")
         if item.get("qdrant_id"):
             lines.append(f"Qdrant: {item.get('qdrant_id')}")
     if errors:
@@ -168,6 +222,22 @@ def render_batch_result(payload: dict[str, Any]) -> str:
         lines.append("Fehler:")
         lines.extend(f"- {error.get('url')}: {error.get('error')}" for error in errors[:5])
     return "\n".join(lines)
+
+
+def send_analysis_documents(payload: dict[str, Any], chat_id: str) -> None:
+    processed = payload.get("processed") or []
+    for item in processed[:5]:
+        path = local_readable_path(item.get("analysis"))
+        if not path or not path.exists():
+            continue
+        caption = "\n".join(
+            [
+                "Vollständige Analyse",
+                f"Quelle: {item.get('url')}",
+                f"Kosten: ${float(item.get('cost_usd') or 0):.4f}",
+            ]
+        )
+        send_document(path, caption=caption, chat_id=chat_id)
 
 
 def save_note(text: str) -> Path:
@@ -246,12 +316,20 @@ def handle_text(text: str, chat_id: str) -> None:
         return
 
     send_message(
-        f"Starte Analyse fuer {len(urls)} URL(s). Schaetzung: ca. {estimated:.2f} EUR. Ergebnis kommt hier.",
+        "\n".join(
+            [
+                f"Starte Analyse fuer {len(urls)} URL(s).",
+                f"Schaetzung: ca. {estimated:.2f} EUR.",
+                f"Frage/Kontext: {display_question(question)}",
+                "Ergebnis kommt hier als Kurzfassung + Markdown-Datei.",
+            ]
+        ),
         chat_id=chat_id,
     )
     try:
         payload = run_batch_for_urls(urls, question)
         send_message(render_batch_result(payload), chat_id=chat_id)
+        send_analysis_documents(payload, chat_id=chat_id)
     except Exception as exc:  # noqa: BLE001
         for url in urls:
             append_failed_video(url=url, topic="TELEGRAM-SHARE", error=str(exc), source="telegram_bot")
