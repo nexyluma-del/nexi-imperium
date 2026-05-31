@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-31T18:43:23",
+  "generated_at": "2026-05-31T18:48:02",
   "http": {
     "Ollama": {
       "ok": true,
@@ -126,13 +126,13 @@
   "processes": {
     "telegram_bot": [
       "170911 .venv/bin/python -u -B scripts/telegram_bot.py",
-      "170986 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
+      "171106 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
     ],
     "sofinello_batch": [
-      "170986 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
+      "171106 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
     ],
     "voice_capture": [
-      "170986 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
+      "171106 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
     ]
   },
   "telegram_running": true,
@@ -155,7 +155,7 @@
   "costs": {
     "path": "C:\\AI\\projects\\09-video-analyse\\videos\\_cost\\api-costs.json",
     "run_id": "run-001-validation",
-    "updated_at": "2026-05-31T18:40:44",
+    "updated_at": "2026-05-31T18:47:18",
     "total_spent_eur": 0.519991,
     "providers": {
       "gemini-flash": {
@@ -164,7 +164,7 @@
         "spent_eur": 0.37509,
         "starting_credit_eur": null,
         "remaining_eur": null,
-        "alert_threshold_eur": 30.0,
+        "alert_threshold_eur": 60.0,
         "alert_sent": false,
         "billing_url": "https://aistudio.google.com/usage",
         "last_model": "gemini-2.5-flash",
@@ -176,7 +176,7 @@
         "spent_eur": 0.144901,
         "starting_credit_eur": null,
         "remaining_eur": null,
-        "alert_threshold_eur": 30.0,
+        "alert_threshold_eur": 60.0,
         "alert_sent": false,
         "billing_url": "https://aistudio.google.com/usage",
         "last_model": "gemini-pro-latest",
@@ -188,7 +188,7 @@
         "spent_eur": 0.0,
         "starting_credit_eur": null,
         "remaining_eur": null,
-        "alert_threshold_eur": 30.0,
+        "alert_threshold_eur": 60.0,
         "alert_sent": false,
         "billing_url": "https://console.anthropic.com/settings/billing",
         "last_model": null,
@@ -200,7 +200,7 @@
         "spent_eur": 0.0,
         "starting_credit_eur": null,
         "remaining_eur": null,
-        "alert_threshold_eur": 30.0,
+        "alert_threshold_eur": 60.0,
         "alert_sent": false,
         "billing_url": "https://platform.openai.com/settings/organization/billing/overview",
         "last_model": null,

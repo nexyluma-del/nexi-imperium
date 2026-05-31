@@ -8,30 +8,39 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
+
 from telegram_common import send_message_if_configured
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
+DEFAULT_ENV_FILE = PROJECT_DIR / ".env"
 COST_DIR = PROJECT_DIR / "videos" / "_cost"
 COST_FILE = COST_DIR / "api-costs.json"
-ALERT_THRESHOLD_EUR = 30.0
+DEFAULT_ALERT_THRESHOLD_EUR = 60.0
 USD_TO_EUR_GUARD = 1.0
+
+load_dotenv(DEFAULT_ENV_FILE)
 
 API_DEFAULTS = {
     "gemini-flash": {
         "credit_env": "GEMINI_FLASH_INITIAL_CREDIT_EUR",
+        "threshold_env": "GEMINI_FLASH_WARN_THRESHOLD_EUR",
         "billing_url": "https://aistudio.google.com/usage",
     },
     "gemini-pro": {
         "credit_env": "GEMINI_PRO_INITIAL_CREDIT_EUR",
+        "threshold_env": "GEMINI_PRO_WARN_THRESHOLD_EUR",
         "billing_url": "https://aistudio.google.com/usage",
     },
     "claude-vision": {
         "credit_env": "ANTHROPIC_INITIAL_CREDIT_EUR",
+        "threshold_env": "ANTHROPIC_WARN_THRESHOLD_EUR",
         "billing_url": "https://console.anthropic.com/settings/billing",
     },
     "openai-vision": {
         "credit_env": "OPENAI_INITIAL_CREDIT_EUR",
+        "threshold_env": "OPENAI_WARN_THRESHOLD_EUR",
         "billing_url": "https://platform.openai.com/settings/organization/billing/overview",
     },
 }
@@ -59,6 +68,26 @@ def env_float(name: str) -> float | None:
     raw = os.getenv(name)
     if not raw:
         return None
+
+
+def alert_threshold_eur(api_name: str) -> float:
+    defaults = API_DEFAULTS.get(api_name, {})
+    specific = defaults.get("threshold_env")
+    value = env_float(str(specific)) if specific else None
+    if value is None:
+        value = env_float("WARN_THRESHOLD_EUR")
+    return float(value if value is not None else DEFAULT_ALERT_THRESHOLD_EUR)
+
+
+def provider_defaults(api_name: str) -> dict[str, str]:
+    return API_DEFAULTS.get(
+        api_name,
+        {
+            "credit_env": "",
+            "threshold_env": "",
+            "billing_url": "",
+        },
+    )
     try:
         return float(raw.replace(",", "."))
     except ValueError:
@@ -66,23 +95,43 @@ def env_float(name: str) -> float | None:
 
 
 def empty_provider(name: str, previous: dict[str, Any] | None = None) -> dict[str, Any]:
-    defaults = API_DEFAULTS[name]
+    defaults = provider_defaults(name)
     previous = previous or {}
     starting_credit = previous.get("starting_credit_eur")
-    if starting_credit is None:
-        starting_credit = env_float(defaults["credit_env"])
+    env_credit = env_float(defaults["credit_env"]) if defaults.get("credit_env") else None
+    if env_credit is not None:
+        starting_credit = env_credit
     return {
         "calls": 0,
         "spent_usd": 0.0,
         "spent_eur": 0.0,
         "starting_credit_eur": starting_credit,
         "remaining_eur": starting_credit,
-        "alert_threshold_eur": ALERT_THRESHOLD_EUR,
+        "alert_threshold_eur": alert_threshold_eur(name),
         "alert_sent": False,
         "billing_url": defaults["billing_url"],
         "last_model": None,
         "last_call_at": None,
     }
+
+
+def sync_provider_config(api_name: str, provider: dict[str, Any]) -> None:
+    defaults = provider_defaults(api_name)
+    previous_threshold = provider.get("alert_threshold_eur")
+    threshold = alert_threshold_eur(api_name)
+    provider["alert_threshold_eur"] = threshold
+    provider["billing_url"] = provider.get("billing_url") or defaults.get("billing_url", "")
+    if previous_threshold is not None and float(previous_threshold) != threshold:
+        provider["alert_sent"] = False
+
+    env_credit = env_float(defaults["credit_env"]) if defaults.get("credit_env") else None
+    if env_credit is not None:
+        provider["starting_credit_eur"] = env_credit
+    if provider.get("starting_credit_eur") is not None:
+        provider["remaining_eur"] = round(
+            float(provider["starting_credit_eur"]) - float(provider.get("spent_eur") or 0),
+            6,
+        )
 
 
 def reset_run(run_id: str, note: str = "") -> dict[str, Any]:
@@ -114,7 +163,7 @@ def maybe_alert(api_name: str, provider: dict[str, Any], remaining_videos: int |
     remaining = provider.get("remaining_eur")
     if remaining is None or provider.get("alert_sent"):
         return
-    if float(remaining) >= float(provider.get("alert_threshold_eur") or ALERT_THRESHOLD_EUR):
+    if float(remaining) >= float(provider.get("alert_threshold_eur") or DEFAULT_ALERT_THRESHOLD_EUR):
         return
 
     spent = float(provider.get("spent_eur") or 0)
@@ -126,7 +175,7 @@ def maybe_alert(api_name: str, provider: dict[str, Any], remaining_videos: int |
         videos_until_empty = max(0.0, float(remaining) / avg)
         eta = f"{videos_until_empty / rate_videos_per_hour:.1f} h"
 
-    send_message_if_configured(
+    sent = send_message_if_configured(
         "\n".join(
             [
                 "API-Guthaben-Warnung",
@@ -138,7 +187,8 @@ def maybe_alert(api_name: str, provider: dict[str, Any], remaining_videos: int |
             ]
         )
     )
-    provider["alert_sent"] = True
+    provider["alert_sent"] = bool(sent)
+    provider["last_alert_at"] = now_iso() if sent else provider.get("last_alert_at")
 
 
 def record_call(
@@ -167,13 +217,14 @@ def record_call(
             "spent_eur": 0.0,
             "starting_credit_eur": None,
             "remaining_eur": None,
-            "alert_threshold_eur": ALERT_THRESHOLD_EUR,
+            "alert_threshold_eur": alert_threshold_eur(api_name),
             "alert_sent": False,
             "billing_url": "",
             "last_model": None,
             "last_call_at": None,
         }
     provider = providers[api_name]
+    sync_provider_config(api_name, provider)
     cost_eur = round(float(cost_usd or 0) * USD_TO_EUR_GUARD, 6)
     provider["calls"] = int(provider.get("calls") or 0) + 1
     provider["spent_usd"] = round(float(provider.get("spent_usd") or 0) + float(cost_usd or 0), 6)
@@ -203,6 +254,39 @@ def record_call(
     return payload
 
 
+def sync_config() -> dict[str, Any]:
+    payload = load_json(COST_FILE, {})
+    if not payload:
+        payload = reset_run("manual")
+    providers = payload.setdefault("providers", {})
+    for api_name in API_DEFAULTS:
+        if api_name not in providers:
+            providers[api_name] = empty_provider(api_name)
+        sync_provider_config(api_name, providers[api_name])
+    payload["updated_at"] = now_iso()
+    payload["config_synced_at"] = now_iso()
+    write_json(COST_FILE, payload)
+    return payload
+
+
+def send_test_alert(
+    api_name: str,
+    remaining_eur: float,
+    threshold_eur: float | None,
+    remaining_videos: int | None,
+    rate_videos_per_hour: float | None,
+) -> bool:
+    provider = empty_provider(api_name)
+    provider["spent_eur"] = 1.0
+    provider["calls"] = 1
+    provider["remaining_eur"] = remaining_eur
+    if threshold_eur is not None:
+        provider["alert_threshold_eur"] = threshold_eur
+    provider["alert_sent"] = False
+    maybe_alert(api_name, provider, remaining_videos, rate_videos_per_hour)
+    return bool(provider.get("alert_sent"))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Track API costs for Nexi video pipelines.")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -216,6 +300,13 @@ def main() -> int:
     record.add_argument("--run-id", default=None)
     record.add_argument("--video-id", default=None)
     record.add_argument("--category", default=None)
+    sub.add_parser("sync-config")
+    test = sub.add_parser("test-alert")
+    test.add_argument("--api", required=True)
+    test.add_argument("--remaining-eur", type=float, required=True)
+    test.add_argument("--threshold-eur", type=float, default=None)
+    test.add_argument("--remaining-videos", type=int, default=3000)
+    test.add_argument("--rate-videos-per-hour", type=float, default=40.0)
     summary = sub.add_parser("summary")
     summary.add_argument("--json", action="store_true")
     args = parser.parse_args()
@@ -224,6 +315,11 @@ def main() -> int:
         payload = reset_run(args.run_id, args.note)
     elif args.cmd == "record":
         payload = record_call(args.api, args.model, args.cost_usd, args.run_id, args.video_id, args.category)
+    elif args.cmd == "sync-config":
+        payload = sync_config()
+    elif args.cmd == "test-alert":
+        sent = send_test_alert(args.api, args.remaining_eur, args.threshold_eur, args.remaining_videos, args.rate_videos_per_hour)
+        payload = {"ok": sent, "api": args.api, "remaining_eur": args.remaining_eur, "threshold_eur": args.threshold_eur or alert_threshold_eur(args.api)}
     else:
         payload = load_json(COST_FILE, {})
 

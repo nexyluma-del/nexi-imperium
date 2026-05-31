@@ -2,7 +2,7 @@
   "run_id": "run-001-validation",
   "note": "Stufe 1 Validierungs-Run 50: Gemini Counter auf 0 gesetzt.",
   "reset_at": "2026-05-31T17:37:09",
-  "updated_at": "2026-05-31T18:40:44",
+  "updated_at": "2026-05-31T18:47:18",
   "currency_guard": "USD wird lokal konservativ 1:1 als EUR gerechnet.",
   "balance_notice": "API-Guthaben ist nicht ueber den Gemini/Claude/OpenAI API-Key auslesbar. Setze optional *_INITIAL_CREDIT_EUR Umgebungsvariablen fuer Restguthaben-Alarme.",
   "total_spent_usd": 0.519991,
@@ -14,7 +14,7 @@
       "spent_eur": 0.37509,
       "starting_credit_eur": null,
       "remaining_eur": null,
-      "alert_threshold_eur": 30.0,
+      "alert_threshold_eur": 60.0,
       "alert_sent": false,
       "billing_url": "https://aistudio.google.com/usage",
       "last_model": "gemini-2.5-flash",
@@ -26,7 +26,7 @@
       "spent_eur": 0.144901,
       "starting_credit_eur": null,
       "remaining_eur": null,
-      "alert_threshold_eur": 30.0,
+      "alert_threshold_eur": 60.0,
       "alert_sent": false,
       "billing_url": "https://aistudio.google.com/usage",
       "last_model": "gemini-pro-latest",
@@ -38,7 +38,7 @@
       "spent_eur": 0.0,
       "starting_credit_eur": null,
       "remaining_eur": null,
-      "alert_threshold_eur": 30.0,
+      "alert_threshold_eur": 60.0,
       "alert_sent": false,
       "billing_url": "https://console.anthropic.com/settings/billing",
       "last_model": null,
@@ -50,7 +50,7 @@
       "spent_eur": 0.0,
       "starting_credit_eur": null,
       "remaining_eur": null,
-      "alert_threshold_eur": 30.0,
+      "alert_threshold_eur": 60.0,
       "alert_sent": false,
       "billing_url": "https://platform.openai.com/settings/organization/billing/overview",
       "last_model": null,
@@ -476,5 +476,6 @@
   ],
   "related_run_ids": [
     "batch-url-pipeline"
-  ]
+  ],
+  "config_synced_at": "2026-05-31T18:47:18"
 }
