@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(npm *)",
+      "Bash(ls *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(python --version)",
+      "Bash(C:\\AI\\projects\\09-video-analyse\\.venv-win\\Scripts\\python.exe *)",
+      "Bash(C:\\Users\\nexil\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe *)",
+      "Bash(/mnt/c/AI/projects/09-video-analyse/.venv/bin/python *)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\\AI\\*)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -Command cd C:\\AI*)",
+      "Bash(wsl.exe -d Ubuntu-24.04 -- bash -lc cd /mnt/c/AI*)",
+      "Bash(wsl.exe -d Ubuntu-24.04 -- bash -lc \"cd /mnt/c/AI*)"
+    ],
+    "deny": [
+      "Bash(git reset --hard*)",
+      "Bash(git checkout --*)",
+      "Bash(rm -rf /*)",
+      "Bash(Remove-Item -Recurse C:\\Users\\*)",
+      "Bash(Remove-Item -Recurse C:\\Windows\\*)",
+      "Bash(powershell.exe -Command Remove-Item C:\\Users\\*)",
+      "Bash(powershell.exe -Command Remove-Item C:\\Windows\\*)"
+    ]
+  }
+}
