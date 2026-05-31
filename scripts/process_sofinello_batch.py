@@ -19,6 +19,12 @@ PROJECT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_ROOT = Path("/mnt/c/Users/nexil/Desktop/Instagram Videos/Sofinello")
 DEFAULT_STATUS = PROJECT_DIR / "logs" / "sofinello" / "sofinello-batch-status.json"
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".m4v"}
+QUOTA_ERROR_MARKERS = (
+    "RESOURCE_EXHAUSTED",
+    "quota",
+    "rate-limits",
+    "GenerateRequestsPerDayPerProjectPerModel",
+)
 DEFAULT_QUESTION = (
     "Was zeigt dieses Sofinello-Video, welche Zutaten/Produkte/Claims sind erkennbar, "
     "wie ist es zu kategorisieren, und was muss compliance-seitig beachtet werden?"
@@ -37,6 +43,11 @@ def load_json(path: Path, fallback: dict[str, Any]) -> dict[str, Any]:
 def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
+
+
+def is_quota_error(message: str) -> bool:
+    lowered = message.lower()
+    return any(marker.lower() in lowered for marker in QUOTA_ERROR_MARKERS)
 
 
 def scan_videos(root: Path) -> list[Path]:
@@ -183,6 +194,7 @@ def main() -> int:
                 "qdrant_point_id": (payload.get("qdrant") or {}).get("point_id"),
                 "processed_at": datetime.now().isoformat(timespec="seconds"),
             }
+            errors[:] = [item for item in errors if item.get("path") != key]
             status["last_success"] = key
             if args.progress_every and index % args.progress_every == 0:
                 send_message_if_configured(
@@ -190,14 +202,30 @@ def main() -> int:
                     f"Fehler: {len(errors)}, Kosten: ${spent:.4f}"
                 )
         except Exception as exc:  # noqa: BLE001
+            message = str(exc)
+            if is_quota_error(message):
+                stopped_reason = (
+                    "Gemini-Tageslimit erreicht; Batch pausiert automatisch "
+                    "und kann nach Quota-Reset fortgesetzt werden."
+                )
+                summary["stopped_reason"] = stopped_reason
+                status["stopped_reason"] = stopped_reason
+                status["last_quota_error"] = {
+                    "index": index,
+                    "path": key,
+                    "error": message[:2500],
+                    "failed_at": datetime.now().isoformat(timespec="seconds"),
+                }
+                send_message_if_configured(f"Sofinello Batch B pausiert: {stopped_reason}")
+                break
             error = {
                 "index": index,
                 "path": key,
-                "error": str(exc)[:2500],
+                "error": message[:2500],
                 "failed_at": datetime.now().isoformat(timespec="seconds"),
             }
             errors.append(error)
-            append_failed_video(url=key, topic="Sofinello Batch B", error=str(exc), source="process_sofinello_batch")
+            append_failed_video(url=key, topic="Sofinello Batch B", error=message, source="process_sofinello_batch")
         finally:
             status.update(
                 {
