@@ -3,13 +3,13 @@ set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VENV_DIR="$PROJECT_DIR/.venv"
-AUDIO_DIR="$PROJECT_DIR/audio"
+DEFAULT_AUDIO_DIR="$PROJECT_DIR/audio"
 LOG_DIR="$PROJECT_DIR/logs"
 
 usage() {
   cat <<'EOF'
 Usage:
-  download.sh <url> [data_class] [slug]
+  download.sh <url> [data_class] [slug] [output_dir]
 
 Examples:
   download.sh "https://www.youtube.com/watch?v=BaW_jenozKc" D0 test-video
@@ -24,6 +24,8 @@ EOF
 URL="${1:-}"
 DATA_CLASS="${2:-D0}"
 SLUG="${3:-}"
+OUTPUT_DIR="${4:-$DEFAULT_AUDIO_DIR}"
+AUDIO_DIR="$OUTPUT_DIR"
 
 if [[ -z "$URL" ]]; then
   usage

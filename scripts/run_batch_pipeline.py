@@ -357,6 +357,11 @@ def main() -> int:
                     "entry": entry.number,
                     "url": entry.url,
                     "analysis": entry.analysis,
+                    "video_dir": result.get("video_dir"),
+                    "summary_markdown": result.get("files", {}).get("summary_markdown_windows")
+                    or result.get("files", {}).get("summary_markdown"),
+                    "word_report": result.get("files", {}).get("word_report_windows")
+                    or result.get("files", {}).get("word_report"),
                     "cost_usd": cost,
                     "qdrant_id": qdrant["point_id"],
                 }
