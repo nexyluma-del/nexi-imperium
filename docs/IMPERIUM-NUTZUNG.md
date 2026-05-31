@@ -8,6 +8,7 @@ Diese Datei ist die kurze Bedienungszentrale fuer Nexis lokales KI-Imperium.
 
 Wichtige URLs:
 
+- Status-Dashboard: http://127.0.0.1:8765
 - OpenWebUI: http://127.0.0.1:3000
 - n8n: http://127.0.0.1:5678
 - Qdrant API: http://127.0.0.1:6333
@@ -43,6 +44,31 @@ Laufende Docker-Dienste:
 - `open-webui` -> OpenWebUI
 - `n8n` -> Workflow-Automatisierung
 - `qdrant` -> Vektor-Wissensspeicher
+
+## Status-Dashboard
+
+URL:
+
+```powershell
+http://127.0.0.1:8765
+```
+
+Server starten:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Users\nexil\Desktop\KI\scripts\start-status-dashboard.ps1"
+```
+
+Statischen Snapshot neu erzeugen:
+
+```powershell
+& "C:\AI\projects\09-video-analyse\.venv-win\Scripts\python.exe" -B "C:\AI\projects\09-video-analyse\scripts\status_dashboard.py" --once
+```
+
+Snapshot-Dateien:
+
+- `C:\AI\projects\09-video-analyse\dashboard\imperium-status.html`
+- `C:\AI\projects\09-video-analyse\dashboard\status.json`
 
 Docker-Volumes:
 
