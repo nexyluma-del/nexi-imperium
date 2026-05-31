@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-06-01T00:12:28",
+  "terms": [
+    "NASA",
+    "LADEE",
+    "LLCD",
+    "LLGT",
+    "Minotaur",
+    "Lunar Laser",
+    "Lasercomm",
+    "moon dust",
+    "lunar atmosphere",
+    "White Sands",
+    "nasa.gov"
+  ],
+  "collection_counts": {
+    "video_knowledge": 177,
+    "open-webui_knowledge": 0,
+    "sofinello_knowledge": 0,
+    "memory_voice": 0
+  },
+  "match_count": 1,
+  "suspect_count": 1,
+  "entries": [
+    {
+      "collection": "video_knowledge",
+      "id": "6a2112bb-00b5-e1a5-4186-a64b85705603",
+      "classification": "suspect-cross-contamination",
+      "terms": [
+        "NASA"
+      ],
+      "url": "local://C:\\Users\\nexil\\Desktop\\Instagram Videos\\KI Tools\\SnapInsta.to_AQMENBE3XIO7LXR50GOsYcaGbF8hVcj5DgDgZb-OTFDOCCIViaWRr1_HTRO2IQnQFNHxiZu8er0Thk9h5smhWwhxka8P56z2D666cNA.mp4",
+      "source_path": null,
+      "topic": "03-KI-IT",
+      "analysis_markdown": "/mnt/c/AI/projects/09-video-analyse/videos/03-KI-IT/SnapInsta.to_AQMENBE3XIO7LXR50GOsYcaGbF8hVcj5DgDgZb-OTF-fc19ece1494b/Gemini-Analyse.md",
+      "transcript_txt": "/mnt/c/AI/projects/09-video-analyse/videos/03-KI-IT/SnapInsta.to_AQMENBE3XIO7LXR50GOsYcaGbF8hVcj5DgDgZb-OTF-fc19ece1494b/Whisper-Transkript.txt",
+      "slug": "run-002-it-stress-200-134-fc19ece1494b-20260601000912-9495fe5e248f-2026-06-01_000912",
+      "tainted": false,
+      "taint_reason": null
+    }
+  ]
+}
