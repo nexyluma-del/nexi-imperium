@@ -68,6 +68,8 @@ def status_payload() -> dict[str, Any]:
         "docker": docker_status(),
         "qdrant": {
             "video_knowledge": qdrant_points("video_knowledge"),
+            "sofinello_knowledge": qdrant_points("sofinello_knowledge"),
+            "memory_voice": qdrant_points("memory_voice"),
             "open-webui_knowledge": qdrant_points("open-webui_knowledge"),
         },
         "latest_analysis": [str(path) for path in latest_files(PROJECT_DIR / "analysis", "*.md")],
@@ -93,6 +95,8 @@ def render_status(payload: dict[str, Any]) -> str:
             "",
             "Qdrant:",
             f"- video_knowledge: {payload['qdrant']['video_knowledge']}",
+            f"- sofinello_knowledge: {payload['qdrant']['sofinello_knowledge']}",
+            f"- memory_voice: {payload['qdrant']['memory_voice']}",
             f"- open-webui_knowledge: {payload['qdrant']['open-webui_knowledge']}",
             "",
             f"Failed videos: {payload['failed_videos']}",

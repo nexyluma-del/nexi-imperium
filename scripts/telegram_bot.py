@@ -30,6 +30,9 @@ Befehle:
 /help - Hilfe
 /status - Systemstatus
 /analyze <URL> [Frage] - Video/Post analysieren
+/memory <Frage> - lokale Memory-KI mit Qdrant-Wissen fragen
+/briefing [morning|midday|evening] - Memory-KI Briefing erzeugen
+/links <Text> - Verknuepfungen im lokalen Wissen suchen
 
 Share-Modus:
 - Nur eine URL senden: Auto-Analyse mit Standardfrage
@@ -196,6 +199,51 @@ def run_batch_for_urls(urls: list[str], question: str) -> dict[str, Any]:
     return payload
 
 
+def parse_json_from_completed(completed: subprocess.CompletedProcess[str]) -> dict[str, Any]:
+    output = (completed.stdout or "") + (completed.stderr or "")
+    payload = parse_json_from_output(output)
+    if completed.returncode != 0 or not payload.get("ok"):
+        raise RuntimeError(payload.get("error") or output[-2000:])
+    return payload
+
+
+def run_memory_query(question: str) -> dict[str, Any]:
+    command = [
+        str(PROJECT_DIR / ".venv" / "bin" / "python"),
+        str(PROJECT_DIR / "scripts" / "memory_query.py"),
+        "--query",
+        question,
+        "--fast",
+    ]
+    return parse_json_from_completed(
+        subprocess.run(command, cwd=PROJECT_DIR, text=True, capture_output=True, timeout=900)
+    )
+
+
+def run_memory_briefing(kind: str) -> dict[str, Any]:
+    command = [
+        str(PROJECT_DIR / ".venv" / "bin" / "python"),
+        str(PROJECT_DIR / "scripts" / "memory_briefing.py"),
+        "--kind",
+        kind,
+    ]
+    return parse_json_from_completed(
+        subprocess.run(command, cwd=PROJECT_DIR, text=True, capture_output=True, timeout=600)
+    )
+
+
+def run_memory_links(text: str) -> dict[str, Any]:
+    command = [
+        str(PROJECT_DIR / ".venv" / "bin" / "python"),
+        str(PROJECT_DIR / "scripts" / "memory_link_detector.py"),
+        "--text",
+        text,
+    ]
+    return parse_json_from_completed(
+        subprocess.run(command, cwd=PROJECT_DIR, text=True, capture_output=True, timeout=240)
+    )
+
+
 def render_batch_result(payload: dict[str, Any]) -> str:
     processed = payload.get("processed") or []
     errors = payload.get("errors") or []
@@ -292,6 +340,56 @@ def handle_text(text: str, chat_id: str) -> None:
         return
     if lower.startswith("/status"):
         send_message(render_status(status_payload()), chat_id=chat_id)
+        return
+    if lower.startswith("/memory"):
+        question = re.sub(r"^/memory(@\w+)?", "", stripped, flags=re.I).strip()
+        if not question:
+            send_message("Bitte sende /memory <deine Frage>.", chat_id=chat_id)
+            return
+        send_message("Memory-KI denkt lokal. Ich hole Qdrant-Kontext dazu.", chat_id=chat_id)
+        try:
+            payload = run_memory_query(question)
+            lines = [
+                "Memory-KI Antwort",
+                "",
+                payload.get("answer", "")[:3300],
+                "",
+                "Quellen:",
+            ]
+            for source in (payload.get("sources") or [])[:5]:
+                lines.append(f"- {source.get('collection')} | Score {source.get('score')} | {source.get('title')}")
+            send_message("\n".join(lines), chat_id=chat_id)
+        except Exception as exc:  # noqa: BLE001
+            send_message(f"Memory-KI Fehler:\n{str(exc)[:1800]}", chat_id=chat_id)
+        return
+    if lower.startswith("/briefing"):
+        kind = re.sub(r"^/briefing(@\w+)?", "", stripped, flags=re.I).strip().lower() or "manual"
+        if kind not in {"morning", "midday", "evening", "manual"}:
+            kind = "manual"
+        try:
+            payload = run_memory_briefing(kind)
+            send_message(f"Memory-KI Briefing\n\n{payload.get('briefing', '')[:3500]}", chat_id=chat_id)
+        except Exception as exc:  # noqa: BLE001
+            send_message(f"Briefing Fehler:\n{str(exc)[:1800]}", chat_id=chat_id)
+        return
+    if lower.startswith("/links"):
+        query = re.sub(r"^/links(@\w+)?", "", stripped, flags=re.I).strip()
+        if not query:
+            send_message("Bitte sende /links <Text oder Idee>.", chat_id=chat_id)
+            return
+        try:
+            payload = run_memory_links(query)
+            if not payload.get("hits"):
+                send_message("Memory-Linkcheck: keine starken Verknuepfungen gefunden.", chat_id=chat_id)
+            else:
+                lines = ["Memory-Linkcheck:"]
+                for hit in payload["hits"][:8]:
+                    lines.append(
+                        f"- {hit.get('collection')} | Score {hit.get('score')} | {hit.get('title')}"
+                    )
+                send_message("\n".join(lines), chat_id=chat_id)
+        except Exception as exc:  # noqa: BLE001
+            send_message(f"Linkcheck Fehler:\n{str(exc)[:1800]}", chat_id=chat_id)
         return
 
     urls = extract_urls(stripped)
