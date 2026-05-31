@@ -14,6 +14,7 @@ QDRANT_URL = "http://127.0.0.1:6333"
 OLLAMA_URL = "http://127.0.0.1:11434"
 COLLECTION = "video_knowledge"
 SOFINELLO_COLLECTION = "sofinello_knowledge"
+MEMORY_VOICE_COLLECTION = "memory_voice"
 EMBED_MODEL = "nomic-embed-text"
 MAX_EMBED_CHARS = 3000
 
@@ -335,3 +336,67 @@ def upsert_local_video_knowledge(
     )
     response.raise_for_status()
     return {"collection": COLLECTION, "point_id": point_id, "vector_size": len(vector), "payload": payload}
+
+
+def upsert_memory_voice_knowledge(
+    *,
+    markdown_path: Path,
+    audio_file: Path,
+    transcript: str,
+    tags: dict[str, Any],
+    data_class: str,
+    duration_seconds: float | None,
+    language: str | None,
+    source: str = "voice_capture",
+) -> dict[str, Any]:
+    tag_list = tags.get("tags") if isinstance(tags.get("tags"), list) else []
+    links = tags.get("links") if isinstance(tags.get("links"), list) else []
+    combined = "\n\n".join(
+        [
+            "Typ: memory-voice",
+            f"Quelle: {source}",
+            f"Audio-Datei: {audio_file}",
+            f"Obsidian-Notiz: {markdown_path}",
+            f"Tags: {', '.join(str(tag) for tag in tag_list)}",
+            f"Wichtigkeit: {tags.get('importance')}",
+            f"Chief/Kategorie: {tags.get('chief')}",
+            f"Kurzfassung: {tags.get('summary')}",
+            "Verknuepfungen:",
+            "\n".join(f"- {link}" for link in links),
+            "Transkript:",
+            transcript[:4200],
+        ]
+    )[:MAX_EMBED_CHARS]
+
+    vector = embedding(combined)
+    ensure_collection(len(vector), MEMORY_VOICE_COLLECTION)
+    point_id = stable_point_id(str(audio_file), "memory_voice", str(markdown_path))
+    payload = {
+        "type": "memory-voice",
+        "source": source,
+        "audio_file": str(audio_file),
+        "markdown_path": str(markdown_path),
+        "transcript": transcript[:9000],
+        "tags": tag_list,
+        "importance": tags.get("importance"),
+        "chief": tags.get("chief"),
+        "summary": tags.get("summary"),
+        "links": links,
+        "data_class": data_class,
+        "duration_seconds": duration_seconds,
+        "language": language,
+        "indexed_at": datetime.now().isoformat(timespec="seconds"),
+        "embedding_model": EMBED_MODEL,
+    }
+    response = requests.put(
+        f"{QDRANT_URL}/collections/{MEMORY_VOICE_COLLECTION}/points?wait=true",
+        json={"points": [{"id": point_id, "vector": vector, "payload": payload}]},
+        timeout=120,
+    )
+    response.raise_for_status()
+    return {
+        "collection": MEMORY_VOICE_COLLECTION,
+        "point_id": point_id,
+        "vector_size": len(vector),
+        "payload": payload,
+    }
