@@ -53,6 +53,15 @@ def base_category(payload: dict[str, Any]) -> str:
     return str(value).split("|", 1)[0].strip() or "Unkategorisiert"
 
 
+def is_setup_test_source(payload: dict[str, Any]) -> bool:
+    if payload.get("exclude_from_rag"):
+        return True
+    source = " ".join(
+        str(payload.get(key) or "") for key in ("url", "source_path", "source_info", "topic", "category", "slug")
+    ).lower()
+    return any(marker in source for marker in ("nasa.gov", "d0 nasa", "nsn-llcd", "critical-bug-verify", "critical-bug-test"))
+
+
 def stable_id(*parts: str) -> str:
     digest = hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()
     return str(uuid.UUID(digest[:32]))
@@ -202,9 +211,23 @@ def main() -> int:
 
     tenant_to_points: dict[str, list[dict[str, Any]]] = defaultdict(list)
     tenant_names: dict[str, str] = {}
+    tenant_ids_to_delete: set[str] = set()
+    skipped_sofinello = 0
+    skipped_tainted = 0
+    skipped_setup_tests = 0
     for source_point in source_points:
         payload = source_point.get("payload") or {}
         if str(payload.get("topic") or payload.get("category") or "").lower().startswith("sofinello"):
+            skipped_sofinello += 1
+            continue
+        for tenant_id, tenant_name in tenant_ids_for(payload):
+            tenant_ids_to_delete.add(tenant_id)
+            tenant_names.setdefault(tenant_id, tenant_name)
+        if payload.get("tainted"):
+            skipped_tainted += 1
+            continue
+        if is_setup_test_source(payload):
+            skipped_setup_tests += 1
             continue
         for tenant_id, tenant_name in tenant_ids_for(payload):
             converted = convert_point(source_point, tenant_id)
@@ -214,8 +237,9 @@ def main() -> int:
 
     if not args.dry_run:
         ensure_dest_collection(vector_size)
-        for tenant_id, points in tenant_to_points.items():
+        for tenant_id in sorted(tenant_ids_to_delete):
             delete_tenant(tenant_id)
+        for tenant_id, points in tenant_to_points.items():
             for index in range(0, len(points), 64):
                 upsert_points(points[index : index + 64])
 
@@ -237,6 +261,9 @@ def main() -> int:
         "dest_collection": DEST_COLLECTION,
         "vector_size": vector_size,
         "source_points": len(source_points),
+        "skipped_sofinello": skipped_sofinello,
+        "skipped_tainted": skipped_tainted,
+        "skipped_setup_tests": skipped_setup_tests,
         "synced_points_total": sum(len(points) for points in tenant_to_points.values()),
         "knowledge_bases": knowledge_bases,
         "dry_run": args.dry_run,

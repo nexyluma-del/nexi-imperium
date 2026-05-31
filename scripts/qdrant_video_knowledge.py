@@ -80,6 +80,7 @@ def upsert_video_knowledge(
     transcript_txt: Path,
     cost_usd: float | None,
     slug: str,
+    provenance: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     analysis_text = analysis_markdown.read_text(encoding="utf-8")
     transcript_text = transcript_txt.read_text(encoding="utf-8") if transcript_txt.exists() else ""
@@ -108,6 +109,7 @@ def upsert_video_knowledge(
         "transcript_txt": str(transcript_txt),
         "cost_usd": cost_usd,
         "slug": slug,
+        "provenance": provenance or {},
         "indexed_at": datetime.now().isoformat(timespec="seconds"),
         "embedding_model": EMBED_MODEL,
     }

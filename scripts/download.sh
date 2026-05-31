@@ -47,6 +47,11 @@ mkdir -p "$AUDIO_DIR" "$LOG_DIR"
 
 if [[ -n "$SLUG" ]]; then
   OUTPUT_TEMPLATE="${SLUG}.%(ext)s"
+  if find "$AUDIO_DIR" -maxdepth 1 -type f \( -name "${SLUG}.mp3" -o -name "${SLUG}.info.json" -o -name "${SLUG}.pipeline-meta.json" \) | grep -q .; then
+    echo "Refusing to reuse existing audio slug: $SLUG" >&2
+    echo "Every pipeline run must use a unique slug to prevent cross-contamination." >&2
+    exit 4
+  fi
 else
   OUTPUT_TEMPLATE="%(title).80B-%(id)s.%(ext)s"
 fi

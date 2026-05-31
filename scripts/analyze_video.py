@@ -43,6 +43,8 @@ from gemini_common import (
     DEFAULT_ANALYSIS_DIR,
     VALID_DATA_CLASSES,
     actual_cost_from_usage,
+    cleanup_gemini_files,
+    file_sha256,
     get_mime_type,
     load_settings,
     make_client,
@@ -145,6 +147,8 @@ def main() -> int:
     output_json = args.output_dir / f"{base}.visual-gemini-{stamp}.json"
 
     client = make_client(settings["api_key"])
+    input_video_sha256 = file_sha256(preflight.video_file)
+    gemini_cleanup_before = cleanup_gemini_files(client, "before-analyze-video")
     uploaded = None
     try:
         uploaded = client.files.upload(file=str(preflight.video_file))
@@ -166,6 +170,7 @@ def main() -> int:
                 client.files.delete(name=uploaded.name)
             except Exception as exc:  # noqa: BLE001
                 print(f"WARNUNG: Uploaded file konnte nicht geloescht werden: {exc}", file=sys.stderr)
+        gemini_cleanup_after = cleanup_gemini_files(client, "after-analyze-video")
 
     text = (response.text or "").strip()
     usage = usage_to_dict(getattr(response, "usage_metadata", None))
@@ -180,6 +185,7 @@ def main() -> int:
             f"Modell: {model}",
             f"Quelle: {args.source_url or 'lokale D0-Testdatei'}",
             f"Datei: `{preflight.video_file}`",
+            f"Input-Video-SHA256: `{input_video_sha256}`",
             f"Groesse: {preflight.size_mb:.3f} MB",
             f"Dauer: {preflight.duration_seconds} s",
             "",
@@ -208,6 +214,8 @@ def main() -> int:
             "data_class": args.data_class,
             "model": model,
             "mime_type": get_mime_type(preflight.video_file),
+            "input_sha256": {"video": input_video_sha256},
+            "gemini_file_cleanup": {"before": gemini_cleanup_before, "after": gemini_cleanup_after},
             "preflight": preflight.__dict__,
             "usage": usage,
             "estimated_actual_cost_usd": actual_cost_usd,

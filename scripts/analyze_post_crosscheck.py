@@ -46,12 +46,16 @@ from openai import OpenAI  # noqa: E402
 
 from gemini_common import (  # noqa: E402
     actual_cost_from_usage,
+    cleanup_gemini_files,
+    file_sha256,
     get_mime_type,
     load_settings,
     make_client,
     now_stamp,
     slugify,
+    url_hash,
     usage_to_dict,
+    validate_info_json_for_url,
     write_json,
 )
 from qdrant_video_knowledge import upsert_image_post_knowledge  # noqa: E402
@@ -205,6 +209,11 @@ def fallback_download_from_html(url: str, output_dir: Path, max_images: int, log
 
 def download_images(url: str, slug: str, max_images: int, log_file: Path) -> tuple[Path, list[Path], dict[str, Any]]:
     output_dir = PROJECT_DIR / "downloads" / "posts" / slug
+    if output_dir.exists() and any(output_dir.iterdir()):
+        raise RuntimeError(
+            f"Bild-Download-Ziel ist nicht leer: {output_dir}. "
+            "Pipeline stoppt, damit keine alten Post-Dateien wiederverwendet werden."
+        )
     output_dir.mkdir(parents=True, exist_ok=True)
     ytdlp = str(PROJECT_DIR / ".venv" / "bin" / "yt-dlp")
     run_command(
@@ -222,6 +231,11 @@ def download_images(url: str, slug: str, max_images: int, log_file: Path) -> tup
         ],
         log_file,
     )
+    info_files = list(output_dir.rglob("*.info.json"))
+    if not info_files:
+        raise RuntimeError(f"yt-dlp hat keine info.json fuer {url} erzeugt.")
+    for info_file in info_files:
+        validate_info_json_for_url(info_file, url)
     metadata = read_metadata(output_dir)
     images = collect_images(output_dir, max_images)
     if not images:
@@ -341,6 +355,7 @@ def call_openai(settings: dict[str, str], prompt: str, images: list[Path]) -> Pr
 def call_gemini(settings: dict[str, str], prompt: str, images: list[Path]) -> ProviderResult:
     started = time.perf_counter()
     client = make_client(settings["gemini_api_key"])
+    cleanup_gemini_files(client, "before-image-crosscheck")
     uploaded = []
     try:
         for image in images:
@@ -357,6 +372,7 @@ def call_gemini(settings: dict[str, str], prompt: str, images: list[Path]) -> Pr
                 client.files.delete(name=current.name)
             except Exception:
                 pass
+        cleanup_gemini_files(client, "after-image-crosscheck")
     text = (response.text or "").strip()
     usage = usage_to_dict(getattr(response, "usage_metadata", None))
     cost = actual_cost_from_usage(settings["gemini_model"], usage) or 0.0
@@ -476,7 +492,11 @@ def main() -> int:
         raise RuntimeError("D3/D4 sind ohne --allow-sensitive gesperrt.")
 
     question = " ".join(args.question).strip() or "Um was geht es hier genau?"
-    slug = slugify(args.slug or args.topic or f"image-post-{now_stamp()}")
+    requested_slug = args.slug or args.topic or f"image-post-{now_stamp()}"
+    if args.url:
+        slug = slugify(f"{requested_slug}-{url_hash(args.url)}-{now_stamp()}")
+    else:
+        slug = slugify(requested_slug)
     log_dir = PROJECT_DIR / "logs" / "pipeline"
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / f"{slug}-image-crosscheck-{now_stamp()}.log"
@@ -490,6 +510,7 @@ def main() -> int:
         "topic": args.topic,
         "question": question,
         "slug": slug,
+        "requested_slug": requested_slug,
         "log_file": str(log_file),
         "files": {},
         "cost": {},
@@ -557,6 +578,7 @@ def main() -> int:
             "input_mode": "images" if images else "metadata-only",
             "image_dir": str(image_dir),
             "images": [str(image) for image in images],
+            "image_sha256": {str(image): file_sha256(image) for image in images},
             "metadata": metadata,
             "providers": [result.__dict__ for result in results],
             "total_cost_usd": total_cost,

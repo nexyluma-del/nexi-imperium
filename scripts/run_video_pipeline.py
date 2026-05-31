@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -56,6 +57,15 @@ def slugify(value: str) -> str:
     return cleaned[:90] or "video"
 
 
+def url_hash(url: str) -> str:
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()[:12]
+
+
+def run_slug(base: str, url: str, stamp: str) -> str:
+    prefix = slugify(base)[:55] or "video"
+    return slugify(f"{prefix}-{url_hash(url)}-{stamp}")
+
+
 def wsl_to_windows(path: str | Path | None) -> str | None:
     if path is None:
         return None
@@ -70,6 +80,47 @@ def parse_prefixed_path(output: str, prefix: str) -> str | None:
         if line.startswith(prefix):
             return line.split(":", 1)[1].strip()
     return None
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def instagram_shortcode(url: str | None) -> str | None:
+    if not url:
+        return None
+    match = re.search(r"instagram\.com/(?:reel|p|tv)/([^/?#]+)/?", url, re.I)
+    return match.group(1) if match else None
+
+
+def validate_info_json(info_json: Path, source_url: str, label: str) -> dict[str, Any]:
+    if not info_json.exists():
+        raise FileNotFoundError(f"{label}: info.json fehlt: {info_json}")
+    metadata = load_json(info_json)
+    expected_shortcode = instagram_shortcode(source_url)
+    if expected_shortcode:
+        candidates = {
+            str(metadata.get("id") or ""),
+            str(metadata.get("display_id") or ""),
+            str(metadata.get("webpage_url_basename") or ""),
+        }
+        webpage_shortcode = instagram_shortcode(str(metadata.get("webpage_url") or ""))
+        if webpage_shortcode:
+            candidates.add(webpage_shortcode)
+        if expected_shortcode not in candidates:
+            raise RuntimeError(
+                f"{label}: URL-Bindung fehlgeschlagen. Erwartet {expected_shortcode}, "
+                f"gefunden id={metadata.get('id')} webpage_url={metadata.get('webpage_url')}"
+            )
+    return metadata
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def run_step(
@@ -164,7 +215,8 @@ def main() -> int:
         raise RuntimeError("D3/D4 sind fuer Aufgabe 012 ohne --allow-sensitive gesperrt.")
 
     stamp = now_stamp()
-    slug = slugify(args.slug or f"manual-{stamp}")
+    requested_slug = args.slug or f"manual-{stamp}"
+    slug = run_slug(requested_slug, args.url, stamp)
     log_dir = PROJECT_DIR / "logs" / "pipeline"
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / f"{slug}-{stamp}.log"
@@ -176,6 +228,8 @@ def main() -> int:
         "url": args.url,
         "data_class": args.data_class,
         "slug": slug,
+        "requested_slug": requested_slug,
+        "url_hash": url_hash(args.url),
         "topic": args.topic,
         "questions": args.question,
         "started_at": stamp,
@@ -215,8 +269,15 @@ def main() -> int:
         )
         if not video_file.is_file():
             video_file = find_downloaded_video(slug)
+        video_info = validate_info_json(video_file.with_suffix(".info.json"), args.url, "video-download")
         summary["steps"]["download_video_seconds"] = elapsed
         summary["files"]["video"] = str(video_file)
+        summary["files"]["video_info_json"] = str(video_file.with_suffix(".info.json"))
+        summary["provenance"] = {
+            "video_sha256": file_sha256(video_file),
+            "video_info_id": video_info.get("id"),
+            "video_info_webpage_url": video_info.get("webpage_url"),
+        }
 
         try:
             audio_output, elapsed = run_step(
@@ -228,8 +289,20 @@ def main() -> int:
             audio_file = parse_prefixed_path(audio_output, "Audio file")
             if not audio_file:
                 raise RuntimeError("Audio-Datei konnte aus download.sh Output nicht gelesen werden.")
+            audio_path = Path(audio_file)
+            audio_info = validate_info_json(audio_path.with_suffix(".info.json"), args.url, "audio-download")
+            audio_meta = load_json(audio_path.with_suffix(".pipeline-meta.json"))
+            if audio_meta.get("source_url") != args.url:
+                raise RuntimeError(
+                    "Audio-Provenance-Check fehlgeschlagen: pipeline-meta source_url passt nicht.\n"
+                    f"URL: {args.url}\nMeta: {audio_meta.get('source_url')}"
+                )
             summary["steps"]["download_audio_seconds"] = elapsed
             summary["files"]["audio"] = audio_file
+            summary["files"]["audio_info_json"] = str(audio_path.with_suffix(".info.json"))
+            summary["files"]["audio_meta_json"] = str(audio_path.with_suffix(".pipeline-meta.json"))
+            summary["provenance"]["audio_sha256"] = file_sha256(audio_path)
+            summary["provenance"]["audio_info_id"] = audio_info.get("id")
 
             transcribe_output, elapsed = run_step(
                 "whisper_transcribe",
@@ -251,25 +324,11 @@ def main() -> int:
             summary["files"]["transcript_txt"] = transcript_txt
             summary["files"]["transcript_json"] = transcript_json
         except Exception as audio_exc:  # noqa: BLE001
-            if "audio codec" not in str(audio_exc) and "download_audio" not in str(audio_exc):
-                raise
-            transcript_path = PROJECT_DIR / "transcripts" / f"{slug}.txt"
-            transcript_path.parent.mkdir(exist_ok=True)
-            transcript_path.write_text(
-                "\n".join(
-                    [
-                        f"audio_file: none",
-                        f"data_class: {args.data_class}",
-                        "Hinweis: Keine extrahierbare Audiospur gefunden. Analyse nutzt nur die visuellen Videoinhalte.",
-                    ]
-                ),
-                encoding="utf-8",
-            )
-            transcript_txt = str(transcript_path)
-            transcript_json = None
-            summary["steps"]["audio_fallback"] = "no_extractable_audio"
-            summary["files"]["transcript_txt"] = transcript_txt
-            summary["files"]["transcript_json"] = transcript_json
+            raise RuntimeError(
+                "Audio-Download oder Transkription fehlgeschlagen. "
+                "Pipeline stoppt hart, damit keine alte Datei oder kein stiller Fallback "
+                "in die Analyse geraten kann."
+            ) from audio_exc
 
         gemini_command = [
             venv_python,
@@ -305,6 +364,8 @@ def main() -> int:
             raise RuntimeError("Gemini-JSON-Pfad konnte aus analyze_full.py Output nicht gelesen werden.")
 
         gemini_meta = json.loads(Path(output_json).read_text(encoding="utf-8"))
+        if gemini_meta.get("input_sha256", {}).get("video") != summary["provenance"].get("video_sha256"):
+            raise RuntimeError("Analyse-Provenance-Check fehlgeschlagen: video_sha256 passt nicht zum Input.")
         summary["steps"]["gemini_seconds"] = elapsed
         summary["files"]["analysis_markdown"] = output_md
         summary["files"]["analysis_json"] = output_json

@@ -46,6 +46,7 @@ from analyze_local_video import (  # noqa: E402
 )
 from gemini_common import (  # noqa: E402
     actual_cost_from_usage,
+    cleanup_gemini_files,
     estimate_cost_usd,
     load_settings,
     make_client,
@@ -510,6 +511,7 @@ def main() -> int:
         )
 
         client = make_client(settings["api_key"])
+        gemini_cleanup_before = cleanup_gemini_files(client, "before-sofinello")
         uploaded = []
         try:
             for frame in frame_paths:
@@ -526,6 +528,7 @@ def main() -> int:
                         client.files.delete(name=current.name)
                     except Exception:
                         pass
+            gemini_cleanup_after = cleanup_gemini_files(client, "after-sofinello")
 
         analysis_text = (response.text or "").strip()
         usage = usage_to_dict(getattr(response, "usage_metadata", None))
@@ -604,6 +607,7 @@ def main() -> int:
             "health_mentions": health_mentions,
             "product_mentions": product_mentions,
             "usage": usage,
+            "gemini_file_cleanup": {"before": gemini_cleanup_before, "after": gemini_cleanup_after},
             "cost_usd": actual_cost,
             "preflight_estimated_cost_usd": estimated_cost,
             "upscale": upscale_report,

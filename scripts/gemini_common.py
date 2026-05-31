@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import mimetypes
 import os
 import re
@@ -75,6 +76,90 @@ def load_settings(env_file: Path = DEFAULT_ENV_FILE) -> dict[str, str]:
 
 def make_client(api_key: str) -> genai.Client:
     return genai.Client(api_key=api_key)
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def url_hash(url: str) -> str:
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()[:12]
+
+
+def instagram_shortcode(url: str | None) -> str | None:
+    if not url:
+        return None
+    match = re.search(r"instagram\.com/(?:reel|p|tv)/([^/?#]+)/?", url, re.I)
+    return match.group(1) if match else None
+
+
+def metadata_matches_url(metadata: dict[str, Any], source_url: str) -> bool:
+    expected = instagram_shortcode(source_url)
+    if expected:
+        candidates = {
+            str(metadata.get("id") or ""),
+            str(metadata.get("display_id") or ""),
+            str(metadata.get("webpage_url_basename") or ""),
+        }
+        webpage_url = str(metadata.get("webpage_url") or metadata.get("original_url") or "")
+        webpage_shortcode = instagram_shortcode(webpage_url)
+        if webpage_shortcode:
+            candidates.add(webpage_shortcode)
+        return expected in candidates
+
+    source = source_url.rstrip("/")
+    for key in ("webpage_url", "original_url", "url"):
+        value = str(metadata.get(key) or "").rstrip("/")
+        if value and (value == source or source in value or value in source):
+            return True
+    return False
+
+
+def validate_info_json_for_url(info_json: Path, source_url: str) -> dict[str, Any]:
+    if not info_json.exists():
+        raise FileNotFoundError(f"yt-dlp info.json fehlt: {info_json}")
+    metadata = json.loads(info_json.read_text(encoding="utf-8"))
+    if not metadata_matches_url(metadata, source_url):
+        raise RuntimeError(
+            "Download-Provenance-Check fehlgeschlagen: info.json passt nicht zur URL.\n"
+            f"URL: {source_url}\n"
+            f"Info: {info_json}\n"
+            f"id={metadata.get('id')} webpage_url={metadata.get('webpage_url')}"
+        )
+    return metadata
+
+
+def cleanup_gemini_files(client: Any, label: str = "pre-run") -> dict[str, Any]:
+    """Delete stale Gemini File API files before/after a run.
+
+    The pipeline never relies on persisted Gemini files. Keeping the remote
+    file store empty removes any chance of old test media being referenced.
+    """
+    deleted: list[str] = []
+    errors: list[str] = []
+    try:
+        files = client.files.list()
+        for current in files:
+            name = getattr(current, "name", None)
+            if not name:
+                continue
+            try:
+                client.files.delete(name=name)
+                deleted.append(name)
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"{name}: {exc}")
+    except Exception as exc:  # noqa: BLE001
+        errors.append(str(exc))
+    return {
+        "label": label,
+        "deleted_count": len(deleted),
+        "deleted": deleted,
+        "errors": errors,
+    }
 
 
 def slugify(value: str) -> str:

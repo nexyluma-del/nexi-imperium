@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -71,6 +72,15 @@ def now_stamp() -> str:
 def slugify(value: str) -> str:
     value = re.sub(r"[^A-Za-z0-9._-]+", "-", value).strip("-._")
     return value[:80] or "video"
+
+
+def url_hash(url: str) -> str:
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()[:12]
+
+
+def unique_slug(topic_slug: str, index: int, url: str) -> str:
+    prefix = slugify(f"{topic_slug}-{index}")[:45] or "video"
+    return slugify(f"{prefix}-{url_hash(url)}-{now_stamp()}")
 
 
 def read_topic(text: str, topic_file: Path) -> str:
@@ -174,7 +184,7 @@ def notify_batch_summary(summary: dict[str, Any]) -> None:
 
 
 def run_single(entry: BatchEntry, topic: str, topic_slug: str, index: int, budget_eur: float) -> dict[str, Any]:
-    slug = slugify(f"{topic_slug}-{index}")
+    slug = unique_slug(topic_slug, index, entry.url)
     script = "analyze_post_crosscheck.py" if is_image_post_url(entry.url) else "run_video_pipeline.py"
     entry_topic = topic_context(topic, entry)
     command = [
@@ -336,6 +346,7 @@ def main() -> int:
                 transcript_txt=transcript_txt,
                 cost_usd=cost,
                 slug=result.get("slug", topic_slug),
+                provenance=result.get("provenance") or {},
             )
             entry.status = f"analysiert am {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             entry.analysis = result["files"].get("analysis_markdown_windows") or str(analysis_md)

@@ -43,6 +43,8 @@ from gemini_common import (
     DEFAULT_ANALYSIS_DIR,
     VALID_DATA_CLASSES,
     actual_cost_from_usage,
+    cleanup_gemini_files,
+    file_sha256,
     get_mime_type,
     load_settings,
     make_client,
@@ -157,6 +159,8 @@ def main() -> int:
         return 1
 
     transcript_text = transcript_file.read_text(encoding="utf-8")
+    input_video_sha256 = file_sha256(video_file)
+    input_transcript_sha256 = file_sha256(transcript_file)
     settings = load_settings()
     model = args.model or settings["model"]
     max_cost_eur = args.max_cost_eur or float(settings["cost_cap_eur"])
@@ -194,6 +198,7 @@ def main() -> int:
     output_json = args.output_dir / f"{base}.full-gemini-{stamp}.json"
 
     client = make_client(settings["api_key"])
+    gemini_cleanup_before = cleanup_gemini_files(client, "before-analyze-full")
     uploaded = None
     try:
         uploaded = client.files.upload(file=str(video_file))
@@ -215,6 +220,7 @@ def main() -> int:
                 client.files.delete(name=uploaded.name)
             except Exception as exc:  # noqa: BLE001
                 print(f"WARNUNG: Uploaded file konnte nicht geloescht werden: {exc}", file=sys.stderr)
+        gemini_cleanup_after = cleanup_gemini_files(client, "after-analyze-full")
 
     text = (response.text or "").strip()
     usage = usage_to_dict(getattr(response, "usage_metadata", None))
@@ -229,6 +235,8 @@ def main() -> int:
             f"Datenklasse: {args.data_class}",
             f"Thema: {args.topic or 'n/a'}",
             f"Modell: {model}",
+            f"Input-Video-SHA256: `{input_video_sha256}`",
+            f"Input-Transcript-SHA256: `{input_transcript_sha256}`",
             f"Video-Datei: `{video_file}`",
             f"Whisper-Transkript: `{transcript_file}`",
             f"Groesse: {preflight.size_mb:.3f} MB",
@@ -273,6 +281,14 @@ def main() -> int:
             "questions": args.question,
             "model": model,
             "mime_type": get_mime_type(video_file),
+            "input_sha256": {
+                "video": input_video_sha256,
+                "transcript": input_transcript_sha256,
+            },
+            "gemini_file_cleanup": {
+                "before": gemini_cleanup_before,
+                "after": gemini_cleanup_after,
+            },
             "preflight": preflight.__dict__,
             "usage": usage,
             "estimated_actual_cost_usd": actual_cost_usd,

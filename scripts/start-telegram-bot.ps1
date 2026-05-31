@@ -17,8 +17,23 @@ if ($check -match "telegram_bot.py") {
     return
 }
 
-$command = "cd '$ProjectDir' && mkdir -p logs/telegram && nohup .venv/bin/python scripts/telegram_bot.py >> logs/telegram/bot.out 2>&1 & echo started"
-& wsl.exe -d $Distro -- bash -lc $command | Out-Null
+$windowsProjectDir = "C:\AI\projects\09-video-analyse"
+$logDir = Join-Path $windowsProjectDir "logs\telegram"
+New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+$stdout = Join-Path $logDir "bot.out"
+$stderr = Join-Path $logDir "bot.err"
+
+Start-Process `
+    -FilePath "wsl.exe" `
+    -ArgumentList @(
+        "-d", $Distro,
+        "--cd", $ProjectDir,
+        "--exec", ".venv/bin/python", "-u", "-B", "scripts/telegram_bot.py"
+    ) `
+    -WindowStyle Hidden `
+    -RedirectStandardOutput $stdout `
+    -RedirectStandardError $stderr
+
 Start-Sleep -Seconds 2
 
 $after = wsl.exe -d $Distro -- bash -lc "ps -ef | grep 'scripts/telegram_bot.py' | grep -v grep || true"
