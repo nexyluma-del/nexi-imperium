@@ -33,6 +33,9 @@ Befehle:
 /memory <Frage> - lokale Memory-KI mit Qdrant-Wissen fragen
 /briefing [morning|midday|evening] - Memory-KI Briefing erzeugen
 /links <Text> - Verknuepfungen im lokalen Wissen suchen
+/sync - Master-Context fuer Claude/ChatGPT/Gemini exportieren
+/sync <Thema> - Topic-Context als Markdown-Datei exportieren
+/sync-tg <Thema> - Topic-Context direkt im Telegram-Chat anzeigen
 
 Share-Modus:
 - Nur eine URL senden: Auto-Analyse mit Standardfrage
@@ -244,6 +247,29 @@ def run_memory_links(text: str) -> dict[str, Any]:
     )
 
 
+def run_sync_master() -> dict[str, Any]:
+    command = [
+        str(PROJECT_DIR / ".venv" / "bin" / "python"),
+        str(PROJECT_DIR / "scripts" / "export_master_context.py"),
+        "--archive-old",
+    ]
+    return parse_json_from_completed(
+        subprocess.run(command, cwd=PROJECT_DIR, text=True, capture_output=True, timeout=300)
+    )
+
+
+def run_sync_topic(topic: str) -> dict[str, Any]:
+    command = [
+        str(PROJECT_DIR / ".venv" / "bin" / "python"),
+        str(PROJECT_DIR / "scripts" / "export_topic_context.py"),
+        "--topic",
+        topic,
+    ]
+    return parse_json_from_completed(
+        subprocess.run(command, cwd=PROJECT_DIR, text=True, capture_output=True, timeout=300)
+    )
+
+
 def render_batch_result(payload: dict[str, Any]) -> str:
     processed = payload.get("processed") or []
     errors = payload.get("errors") or []
@@ -390,6 +416,38 @@ def handle_text(text: str, chat_id: str) -> None:
                 send_message("\n".join(lines), chat_id=chat_id)
         except Exception as exc:  # noqa: BLE001
             send_message(f"Linkcheck Fehler:\n{str(exc)[:1800]}", chat_id=chat_id)
+        return
+    if lower.startswith("/sync-tg"):
+        topic = re.sub(r"^/sync-tg(@\w+)?", "", stripped, flags=re.I).strip()
+        if not topic:
+            send_message("Bitte sende /sync-tg <Thema>.", chat_id=chat_id)
+            return
+        try:
+            payload = run_sync_topic(topic)
+            send_message(payload.get("compact", "")[:3900], chat_id=chat_id)
+            send_message(f"Volle Datei:\n{payload.get('markdown_path')}", chat_id=chat_id)
+        except Exception as exc:  # noqa: BLE001
+            send_message(f"Sync-TG Fehler:\n{str(exc)[:1800]}", chat_id=chat_id)
+        return
+    if lower.startswith("/sync"):
+        topic = re.sub(r"^/sync(@\w+)?", "", stripped, flags=re.I).strip()
+        try:
+            payload = run_sync_topic(topic) if topic else run_sync_master()
+            kind = "Topic-Context" if topic else "Master-Context"
+            message = [
+                f"{kind} erstellt",
+                f"Datei: {payload.get('markdown_path')}",
+            ]
+            if "snippet_count" in payload:
+                message.append(f"Snippets: {payload.get('snippet_count')}")
+            for warning in payload.get("warnings") or []:
+                message.append(f"Hinweis: {warning}")
+            send_message("\n".join(message), chat_id=chat_id)
+            path = local_readable_path(payload.get("markdown_path"))
+            if path and path.exists():
+                send_document(path, caption=kind, chat_id=chat_id)
+        except Exception as exc:  # noqa: BLE001
+            send_message(f"Sync Fehler:\n{str(exc)[:1800]}", chat_id=chat_id)
         return
 
     urls = extract_urls(stripped)
