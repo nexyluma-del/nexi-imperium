@@ -1,0 +1,921 @@
+{
+  "generated_at": "2026-05-31T18:38:11",
+  "raw_url_file": "/mnt/c/Users/nexil/Desktop/Instagram Liste/videos-roh.md",
+  "urls": [
+    {
+      "source_kind": "url",
+      "index": 1,
+      "url": "https://www.instagram.com/p/DYKtypgglev/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "e893ab02671e",
+      "instagram_id": "DYKtypgglev",
+      "raw_topic": "IT",
+      "category_hint": "01-IT",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Um was geht es hier genau?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 2,
+      "url": "https://www.instagram.com/reel/DWm2-Z9DHRe/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "5c6f85a34b49",
+      "instagram_id": "DWm2-Z9DHRe",
+      "raw_topic": "IT",
+      "category_hint": "01-IT",
+      "auto_gemini": true,
+      "tags": [
+        "webseiten-bauen"
+      ],
+      "questions": [
+        "Wie baue ich das, was zeigt das Video?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 3,
+      "url": "https://www.instagram.com/reel/DV_UBOZDDCG/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "2aef79310eef",
+      "instagram_id": "DV_UBOZDDCG",
+      "raw_topic": "IT",
+      "category_hint": "01-IT",
+      "auto_gemini": true,
+      "tags": [
+        "webseiten-bauen"
+      ],
+      "questions": [
+        "Was kann ich konkret hieraus für mein Imperium ableiten, was muss getan werden?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 4,
+      "url": "https://www.instagram.com/reel/DYDpdeosE_t/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "4247f2221a09",
+      "instagram_id": "DYDpdeosE_t",
+      "raw_topic": "KI-IT",
+      "category_hint": "03-KI-IT",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Was baut er da, wie kann ich das auch machen, und mit welchen Kosten ist das verbunden?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 5,
+      "url": "https://www.instagram.com/reel/DWxmz4-AZwE/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "8ce1fe386770",
+      "instagram_id": "DWxmz4-AZwE",
+      "raw_topic": "KI-IT",
+      "category_hint": "03-KI-IT",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Wie verdient man damit Geld?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 6,
+      "url": "https://www.instagram.com/reel/DWoZspWDo6F/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "6eb770b52890",
+      "instagram_id": "DWoZspWDo6F",
+      "raw_topic": "KI-IT",
+      "category_hint": "03-KI-IT",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Was ist damit gemeint, wie kann ich das nutzen und wofür?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 7,
+      "url": "https://www.instagram.com/reel/DUBMEp1CAe5/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "a5567bd8d313",
+      "instagram_id": "DUBMEp1CAe5",
+      "raw_topic": "KI-IT",
+      "category_hint": "03-KI-IT",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Was ist damit gemeint, wie kann ich das nutzen und wofür?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 8,
+      "url": "https://www.instagram.com/reel/DWWmBJMjcf7/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "8cb12bf028fc",
+      "instagram_id": "DWWmBJMjcf7",
+      "raw_topic": "KI-IT",
+      "category_hint": "03-KI-IT",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Wie nutze ich das, passe es an die Liste an?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 9,
+      "url": "https://www.instagram.com/reel/DYnWAfDpBUf/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "a227939bf0b5",
+      "instagram_id": "DYnWAfDpBUf",
+      "raw_topic": "KI-AVATARE",
+      "category_hint": "03-KI-IT",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Wie erstellt man sowas?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 10,
+      "url": "https://www.instagram.com/p/DYXb9etiOv6/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "9f7b714646f7",
+      "instagram_id": "DYXb9etiOv6",
+      "raw_topic": "NEUHEITEN-PRODUKTE",
+      "category_hint": "04-TECHNIK",
+      "auto_gemini": true,
+      "tags": [
+        "XXX"
+      ],
+      "questions": [
+        "Was ist das, wie kann man damit Geld machen, wie kann man als erster einsteigen im Trend?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 11,
+      "url": "https://www.instagram.com/reel/DS2z40KD-_d/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "8b24f5a70a64",
+      "instagram_id": "DS2z40KD-_d",
+      "raw_topic": "NEUHEITEN-PRODUKTE",
+      "category_hint": "04-TECHNIK",
+      "auto_gemini": true,
+      "tags": [
+        "XXX"
+      ],
+      "questions": [
+        "Was ist das, wie kann man damit Geld machen, wie kann man als erster einsteigen im Trend?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 12,
+      "url": "https://www.instagram.com/reel/DWmQ2SiCGHx/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "1e77304d68e2",
+      "instagram_id": "DWmQ2SiCGHx",
+      "raw_topic": "NEUHEITEN-PRODUKTE",
+      "category_hint": "04-TECHNIK",
+      "auto_gemini": true,
+      "tags": [
+        "freie-energie"
+      ],
+      "questions": [
+        "Wie kann ich so einen Motor bauen und freie Energie erzeugen?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 13,
+      "url": "https://www.instagram.com/reel/DWghbTgjDhS/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "ff94fa675c96",
+      "instagram_id": "DWghbTgjDhS",
+      "raw_topic": "NEUHEITEN-PRODUKTE",
+      "category_hint": "04-TECHNIK",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Welche Ideen gibt es hierzu?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 14,
+      "url": "https://www.instagram.com/reel/DU0yczkEafx/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "0c30cfdb7fb7",
+      "instagram_id": "DU0yczkEafx",
+      "raw_topic": "NEUHEITEN-PRODUKTE",
+      "category_hint": "04-TECHNIK",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Kann man das irgendwie nutzen und wenn ja wofür?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 15,
+      "url": "https://www.instagram.com/reel/DVYbblrj73u/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "4fd5bf82a784",
+      "instagram_id": "DVYbblrj73u",
+      "raw_topic": "NEUHEITEN-PRODUKTE",
+      "category_hint": "04-TECHNIK",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Wie baut man sowas oder wo besorgt man sowas?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 16,
+      "url": "https://www.instagram.com/reel/DWMWaSFjk4t/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "0de5b527e373",
+      "instagram_id": "DWMWaSFjk4t",
+      "raw_topic": "NEUHEITEN-PRODUKTE",
+      "category_hint": "04-TECHNIK",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Um was geht es hier, wir müssen das nutzen, aber wie?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 17,
+      "url": "https://www.instagram.com/reel/DW2SptGDUtQ/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "a65134bfe94b",
+      "instagram_id": "DW2SptGDUtQ",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Wie funktioniert das, ich will es auch verstehen, wie baut man sowas, wie analysiert man sowas, wie nutzt man sowas?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 18,
+      "url": "https://www.instagram.com/reel/DXPStRSjBVH/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "99bd76239c9c",
+      "instagram_id": "DXPStRSjBVH",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Wie funktioniert das, ich will es auch verstehen, wie baut man sowas, wie analysiert man sowas, wie nutzt man sowas?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 19,
+      "url": "https://www.instagram.com/reel/DS2z40KD-_d/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "8b24f5a70a64",
+      "instagram_id": "DS2z40KD-_d",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Wie funktioniert das, ich will es auch verstehen, wie baut man sowas, wie analysiert man sowas, wie nutzt man sowas?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 2
+    },
+    {
+      "source_kind": "url",
+      "index": 20,
+      "url": "https://www.instagram.com/reel/DWzZVztESCT/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "669e4c5f3ffa",
+      "instagram_id": "DWzZVztESCT",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Um was geht es hier, wie kann ich das lernen nicht schädlich einzusetzen?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 21,
+      "url": "https://www.instagram.com/reel/DWQpKm_PMvC/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "1fa4314a3071",
+      "instagram_id": "DWQpKm_PMvC",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [
+        "magneten",
+        "freie-energie"
+      ],
+      "questions": [
+        "Was kann man mit Magneten machen, wie kann man Energie erzeugen — das ist der Plan zum Erfahren, Nachbauen und Umsetzen?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 22,
+      "url": "https://www.instagram.com/reel/DWrXGczDt0r/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "2fcdfc590f43",
+      "instagram_id": "DWrXGczDt0r",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Wie kann ich das hier nutzen?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 23,
+      "url": "https://www.instagram.com/reel/DUPIZGyDCyx/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "2a1489860265",
+      "instagram_id": "DUPIZGyDCyx",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Wie kann ich das hier nutzen?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 24,
+      "url": "https://www.instagram.com/reel/DVrSWqHFKqd/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "108302956d9d",
+      "instagram_id": "DVrSWqHFKqd",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Will ich auch verstehen lernen und umsetzen — was ist hier zu lernen?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 25,
+      "url": "https://www.instagram.com/reel/DWMNRQTjiNN/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "629c92a343a1",
+      "instagram_id": "DWMNRQTjiNN",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Was ist das?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 26,
+      "url": "https://www.instagram.com/reel/DWYA9EAAi4p/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "0e82f311f7a0",
+      "instagram_id": "DWYA9EAAi4p",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Was ist das, ist das die Wahrheit?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 27,
+      "url": "https://www.instagram.com/reel/DWjbxGZDoOM/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "ba4d0c9b47c4",
+      "instagram_id": "DWjbxGZDoOM",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [
+        "kamera",
+        "ki-vision",
+        "schutz"
+      ],
+      "questions": [
+        "Ich will das verstehen — wie funktioniert eine Kamera, die mit MEINER KI verbunden ist, die Kennzeichen und Gesichter analysiert (z.B. Verfolger im Verkehr erkennen)?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 28,
+      "url": "https://www.instagram.com/reel/DWjFv0FgfYr/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "4ed384606f77",
+      "instagram_id": "DWjFv0FgfYr",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [
+        "kamera",
+        "ki-vision",
+        "schutz"
+      ],
+      "questions": [
+        "Ich will das verstehen — wie funktioniert eine Kamera, die mit MEINER KI verbunden ist, die Kennzeichen und Gesichter analysiert (z.B. Verfolger im Verkehr erkennen)?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 29,
+      "url": "https://www.instagram.com/p/DVxy1-djT0U/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "e06c19ab8f8f",
+      "instagram_id": "DVxy1-djT0U",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Um was geht es hier im Detail genau?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 30,
+      "url": "https://www.instagram.com/p/DVlHfHyDaAp/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "9d8f55a788df",
+      "instagram_id": "DVlHfHyDaAp",
+      "raw_topic": "IT-HACKING-SICHERHEIT",
+      "category_hint": "02-IT-HACKS",
+      "auto_gemini": true,
+      "tags": [],
+      "questions": [
+        "Um was geht es hier im Detail genau?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 31,
+      "url": "https://www.instagram.com/reel/DXOLCGmAfn2/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "d7a15bb36840",
+      "instagram_id": "DXOLCGmAfn2",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [],
+      "questions": [
+        "Was stimmt hiervon, was ist jetzt möglich was sonst nicht ging, wie kann ich das für unsere Ziele nutzen?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 32,
+      "url": "https://www.instagram.com/reel/DVqqteOjIj5/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "648dc990b3cc",
+      "instagram_id": "DVqqteOjIj5",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "design",
+        "ki-anwendung"
+      ],
+      "questions": [
+        "Design — kann eine unserer KIs das alles?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 33,
+      "url": "https://www.instagram.com/p/DV-m8_fCHcN/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "d05e934261d3",
+      "instagram_id": "DV-m8_fCHcN",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "roboter",
+        "prototyp",
+        "hardware"
+      ],
+      "questions": [
+        "Roboter bauen — können wir sowas, wie bauen wir unseren kleinen Prototypen, müssen wir eine Abteilung dafür erstellen?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 34,
+      "url": "https://www.instagram.com/reel/DV-ManfCHaJ/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "aa47d12e263b",
+      "instagram_id": "DV-ManfCHaJ",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "cybersicherheit",
+        "schutz"
+      ],
+      "questions": [
+        "Cybersicherheit — wie schützen wir uns von den Tech-Giganten?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 35,
+      "url": "https://www.instagram.com/p/DVv_7JJDIJH/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "c6391141377d",
+      "instagram_id": "DVv_7JJDIJH",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "cybersicherheit"
+      ],
+      "questions": [
+        "Wie nutzen wir das für unsere Cybersicherheit?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 36,
+      "url": "https://www.instagram.com/reel/DUvpXtWCACW/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "162ebbae00c9",
+      "instagram_id": "DUvpXtWCACW",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "openwebui"
+      ],
+      "questions": [
+        "Ist OpenWebUI (von Nexi „openclaw\" genannt) noch wichtig?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 37,
+      "url": "https://www.instagram.com/p/DVvhQW0iE4a/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "4312bcd308e3",
+      "instagram_id": "DVvhQW0iE4a",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "openwebui"
+      ],
+      "questions": [
+        "Ist OpenWebUI noch wichtig?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 38,
+      "url": "https://www.instagram.com/reel/DWFwHZ1DPu1/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "da34b2219fa8",
+      "instagram_id": "DWFwHZ1DPu1",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "elite"
+      ],
+      "questions": [
+        "Was wird hier gezeigt, ist das die Wahrheit hinter dem Mainstream?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 39,
+      "url": "https://www.instagram.com/p/DVxhoMIjATe/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "62c26370a490",
+      "instagram_id": "DVxhoMIjATe",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "afterlife",
+        "produkt",
+        "apokalypse-prep"
+      ],
+      "questions": [
+        "Welches Produkt brauchen wir hier — was zeigt das Video?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 40,
+      "url": "https://www.instagram.com/reel/DV6WeDiDh_K/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "13b2ec71fbfb",
+      "instagram_id": "DV6WeDiDh_K",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "afterlife",
+        "produkt",
+        "apokalypse-prep"
+      ],
+      "questions": [
+        "Welches Produkt brauchen wir hier — was zeigt das Video?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 41,
+      "url": "https://www.instagram.com/reel/DVg3uHLksSw/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "b1200dae3e47",
+      "instagram_id": "DVg3uHLksSw",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "afterlife",
+        "premium"
+      ],
+      "questions": [
+        "Ich weiß dass sowas preislich kaum tragbar ist — was ist das genau, warum ist es interessant?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 42,
+      "url": "https://www.instagram.com/reel/DVqz-WojGDC/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "8d06431cfbe7",
+      "instagram_id": "DVqz-WojGDC",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "afterlife",
+        "schutz",
+        "energieautarkie"
+      ],
+      "questions": [
+        "Wie hat man auch in einer Apokalypse Internet und Strom, welche Detektoren werden gezeigt?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 43,
+      "url": "https://www.instagram.com/reel/DV9utiEAgxm/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "8a269953f4b0",
+      "instagram_id": "DV9utiEAgxm",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "elite"
+      ],
+      "questions": [
+        "Was wird hier gezeigt, ist das die Wahrheit hinter dem Mainstream?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 44,
+      "url": "https://www.instagram.com/reel/DWCklSFEgEx/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "3471527976ab",
+      "instagram_id": "DWCklSFEgEx",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "elite"
+      ],
+      "questions": [
+        "Was wird hier gezeigt, ist das die Wahrheit hinter dem Mainstream?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    },
+    {
+      "source_kind": "url",
+      "index": 45,
+      "url": "https://www.instagram.com/reel/DV9Ma5wp9q3/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      "url_hash": "f19dd248f2bb",
+      "instagram_id": "DV9Ma5wp9q3",
+      "raw_topic": "IT-NEWS",
+      "category_hint": "_unsortiert",
+      "auto_gemini": false,
+      "tags": [
+        "elite"
+      ],
+      "questions": [
+        "Was wird hier gezeigt, ist das die Wahrheit hinter dem Mainstream?"
+      ],
+      "data_class": "D2",
+      "requires_download": true,
+      "anti_nasa_required": true,
+      "gemini_file_cleanup_required": true,
+      "duplicate_url_count_in_raw": 1
+    }
+  ]
+}

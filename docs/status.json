@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-31T18:32:34",
+  "generated_at": "2026-05-31T18:43:23",
   "http": {
     "Ollama": {
       "ok": true,
@@ -84,7 +84,7 @@
         "vectors": null
       },
       "video_knowledge": {
-        "points": 55,
+        "points": 56,
         "vectors": null
       }
     }
@@ -125,13 +125,14 @@
   ],
   "processes": {
     "telegram_bot": [
-      "170638 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
+      "170911 .venv/bin/python -u -B scripts/telegram_bot.py",
+      "170986 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
     ],
     "sofinello_batch": [
-      "170638 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
+      "170986 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
     ],
     "voice_capture": [
-      "170638 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
+      "170986 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
     ]
   },
   "telegram_running": true,
@@ -154,8 +155,8 @@
   "costs": {
     "path": "C:\\AI\\projects\\09-video-analyse\\videos\\_cost\\api-costs.json",
     "run_id": "run-001-validation",
-    "updated_at": "2026-05-31T18:30:42",
-    "total_spent_eur": 0.500132,
+    "updated_at": "2026-05-31T18:40:44",
+    "total_spent_eur": 0.519991,
     "providers": {
       "gemini-flash": {
         "calls": 40,
@@ -170,16 +171,16 @@
         "last_call_at": "2026-05-31T18:30:42"
       },
       "gemini-pro": {
-        "calls": 5,
-        "spent_usd": 0.125042,
-        "spent_eur": 0.125042,
+        "calls": 6,
+        "spent_usd": 0.144901,
+        "spent_eur": 0.144901,
         "starting_credit_eur": null,
         "remaining_eur": null,
         "alert_threshold_eur": 30.0,
         "alert_sent": false,
         "billing_url": "https://aistudio.google.com/usage",
-        "last_model": "gemini-2.5-pro",
-        "last_call_at": "2026-05-31T17:42:41"
+        "last_model": "gemini-pro-latest",
+        "last_call_at": "2026-05-31T18:40:44"
       },
       "claude-vision": {
         "calls": 0,

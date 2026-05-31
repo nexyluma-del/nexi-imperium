@@ -152,8 +152,12 @@ def record_call(
     rate_videos_per_hour: float | None = None,
 ) -> dict[str, Any]:
     payload = load_json(COST_FILE, {})
-    if not payload or (run_id and payload.get("run_id") != run_id):
+    if not payload:
         payload = reset_run(run_id or "manual")
+    elif run_id and payload.get("run_id") != run_id:
+        related = payload.setdefault("related_run_ids", [])
+        if run_id not in related:
+            related.append(run_id)
 
     providers = payload.setdefault("providers", {})
     if api_name not in providers:
@@ -182,6 +186,7 @@ def record_call(
     event = {
         "at": now_iso(),
         "api": api_name,
+        "run_id": run_id,
         "model": model,
         "cost_usd": round(float(cost_usd or 0), 6),
         "cost_eur": cost_eur,

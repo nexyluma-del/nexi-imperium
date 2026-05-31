@@ -17,6 +17,7 @@ from typing import Any
 from qdrant_video_knowledge import upsert_video_knowledge
 from failed_videos import append_failed_video
 from telegram_common import send_message_if_configured
+from cost_tracker import record_call
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -161,6 +162,21 @@ def is_image_post_url(url: str) -> bool:
     return "instagram.com/p/" in url.lower()
 
 
+def api_name_for_model(model: str | None) -> str:
+    value = (model or "").lower()
+    if "pro" in value:
+        return "gemini-pro"
+    if "flash" in value:
+        return "gemini-flash"
+    return "gemini-flash"
+
+
+def model_for_topic(topic: str) -> str:
+    if "sofinello" in topic.lower():
+        return "gemini-2.5-pro"
+    return "gemini-2.5-flash"
+
+
 def topic_context(topic: str, entry: BatchEntry) -> str:
     return f"{topic} | Tags: {entry.tags}" if entry.tags else topic
 
@@ -201,6 +217,8 @@ def run_single(entry: BatchEntry, topic: str, topic_slug: str, index: int, budge
         "--max-cost-eur",
         str(budget_eur),
     ]
+    if script == "run_video_pipeline.py":
+        command.extend(["--model", model_for_topic(entry_topic)])
     for question in entry.questions:
         command.extend(["--question", question])
 
@@ -316,6 +334,21 @@ def main() -> int:
             if result.get("pipeline_type") == "image-post":
                 cost = float(result.get("cost", {}).get("actual_total_usd") or 0.0)
                 qdrant = result.get("qdrant") or {}
+                providers = (result.get("cost") or {}).get("providers") or {}
+                for provider, provider_cost in providers.items():
+                    api_name = {
+                        "gemini": "gemini-flash",
+                        "claude": "claude-vision",
+                        "openai": "openai-vision",
+                    }.get(str(provider).lower(), str(provider))
+                    record_call(
+                        api_name=api_name,
+                        model=str(((result.get("cost") or {}).get("models") or {}).get(provider) or provider),
+                        cost_usd=float(provider_cost or 0),
+                        run_id="batch-url-pipeline",
+                        video_id=entry.url,
+                        category=topic_context(topic, entry),
+                    )
                 entry.status = f"analysiert am {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                 entry.analysis = result["files"].get("analysis_markdown_windows") or result["files"].get("analysis_markdown", "")
                 entry.cost_usd = f"{cost:.6f}"
@@ -335,6 +368,15 @@ def main() -> int:
 
             cost = float(result.get("cost", {}).get("estimated_actual_usd") or 0.0)
             spent += cost
+            model = (result.get("cost") or {}).get("model")
+            record_call(
+                api_name=api_name_for_model(model),
+                model=str(model or "unknown-gemini"),
+                cost_usd=cost,
+                run_id="batch-url-pipeline",
+                video_id=result.get("video_id") or entry.url,
+                category=topic_context(topic, entry),
+            )
             analysis_md = Path(result["files"]["analysis_markdown"])
             transcript_txt = Path(result["files"]["transcript_txt"])
             qdrant = upsert_video_knowledge(

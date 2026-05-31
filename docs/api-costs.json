@@ -2,11 +2,11 @@
   "run_id": "run-001-validation",
   "note": "Stufe 1 Validierungs-Run 50: Gemini Counter auf 0 gesetzt.",
   "reset_at": "2026-05-31T17:37:09",
-  "updated_at": "2026-05-31T18:30:42",
+  "updated_at": "2026-05-31T18:40:44",
   "currency_guard": "USD wird lokal konservativ 1:1 als EUR gerechnet.",
   "balance_notice": "API-Guthaben ist nicht ueber den Gemini/Claude/OpenAI API-Key auslesbar. Setze optional *_INITIAL_CREDIT_EUR Umgebungsvariablen fuer Restguthaben-Alarme.",
-  "total_spent_usd": 0.500132,
-  "total_spent_eur": 0.500132,
+  "total_spent_usd": 0.519991,
+  "total_spent_eur": 0.519991,
   "providers": {
     "gemini-flash": {
       "calls": 40,
@@ -21,16 +21,16 @@
       "last_call_at": "2026-05-31T18:30:42"
     },
     "gemini-pro": {
-      "calls": 5,
-      "spent_usd": 0.125042,
-      "spent_eur": 0.125042,
+      "calls": 6,
+      "spent_usd": 0.144901,
+      "spent_eur": 0.144901,
       "starting_credit_eur": null,
       "remaining_eur": null,
       "alert_threshold_eur": 30.0,
       "alert_sent": false,
       "billing_url": "https://aistudio.google.com/usage",
-      "last_model": "gemini-2.5-pro",
-      "last_call_at": "2026-05-31T17:42:41"
+      "last_model": "gemini-pro-latest",
+      "last_call_at": "2026-05-31T18:40:44"
     },
     "claude-vision": {
       "calls": 0,
@@ -462,6 +462,19 @@
       "cost_eur": 0.010499,
       "video_id": "SnapInsta.to_AQOlCrXq0cbhQ-nT-ApMHl0fiYYvp6PVRYgnZKRHh4-3944e5c004c4",
       "category": "09-SONSTIGES"
+    },
+    {
+      "at": "2026-05-31T18:40:44",
+      "api": "gemini-pro",
+      "run_id": "batch-url-pipeline",
+      "model": "gemini-pro-latest",
+      "cost_usd": 0.019859,
+      "cost_eur": 0.019859,
+      "video_id": "DWm2-Z9DHRe",
+      "category": "TELEGRAM-SHARE | Tags: telegram-share"
     }
+  ],
+  "related_run_ids": [
+    "batch-url-pipeline"
   ]
 }

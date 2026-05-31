@@ -582,6 +582,7 @@ def main() -> int:
         summary["files"]["analysis_markdown"] = str(canonical_analysis_md)
         summary["files"]["analysis_json"] = str(canonical_analysis_json)
         summary["cost"] = {
+            "model": gemini_meta.get("model"),
             "estimated_actual_usd": gemini_meta.get("estimated_actual_cost_usd"),
             "preflight_usd": gemini_meta.get("preflight", {}).get("estimated_cost_usd"),
             "usage": gemini_meta.get("usage"),
