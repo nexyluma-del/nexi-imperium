@@ -60,7 +60,7 @@ class Preflight:
 
 
 def load_settings(env_file: Path = DEFAULT_ENV_FILE) -> dict[str, str]:
-    load_dotenv(env_file)
+    load_dotenv(env_file, encoding="utf-8-sig")
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError(

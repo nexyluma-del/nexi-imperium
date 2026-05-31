@@ -2,23 +2,23 @@
   "run_id": "run-001-validation",
   "note": "Stufe 1 Validierungs-Run 50: Gemini Counter auf 0 gesetzt.",
   "reset_at": "2026-05-31T17:37:09",
-  "updated_at": "2026-05-31T19:16:00",
+  "updated_at": "2026-05-31T19:35:30",
   "currency_guard": "USD wird lokal konservativ 1:1 als EUR gerechnet.",
   "balance_notice": "API-Guthaben ist nicht ueber den Gemini/Claude/OpenAI API-Key auslesbar. Setze optional *_INITIAL_CREDIT_EUR Umgebungsvariablen fuer Restguthaben-Alarme.",
-  "total_spent_usd": 0.519991,
-  "total_spent_eur": 0.519991,
+  "total_spent_usd": 0.527408,
+  "total_spent_eur": 0.527408,
   "providers": {
     "gemini-flash": {
-      "calls": 40,
-      "spent_usd": 0.37509,
-      "spent_eur": 0.37509,
+      "calls": 41,
+      "spent_usd": 0.382507,
+      "spent_eur": 0.382507,
       "starting_credit_eur": null,
       "remaining_eur": null,
       "alert_threshold_eur": 60.0,
       "alert_sent": false,
       "billing_url": "https://aistudio.google.com/usage",
       "last_model": "gemini-2.5-flash",
-      "last_call_at": "2026-05-31T18:30:42"
+      "last_call_at": "2026-05-31T19:35:30"
     },
     "gemini-pro": {
       "calls": 6,
@@ -472,6 +472,16 @@
       "cost_eur": 0.019859,
       "video_id": "DWm2-Z9DHRe",
       "category": "TELEGRAM-SHARE | Tags: telegram-share"
+    },
+    {
+      "at": "2026-05-31T19:35:30",
+      "api": "gemini-flash",
+      "run_id": "batch-url-pipeline",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.007417,
+      "cost_eur": 0.007417,
+      "video_id": "DY-haKygtYL",
+      "category": "TELEGRAM-SHARE | Tags: telegram-share, claude-ki-agenten"
     }
   ],
   "related_run_ids": [
