@@ -1,0 +1,90 @@
+{
+  "ok": true,
+  "source_collection": "video_knowledge",
+  "dest_collection": "open-webui_knowledge",
+  "vector_size": 768,
+  "source_points": 61,
+  "synced_points_total": 122,
+  "knowledge_bases": [
+    {
+      "id": "nexi-video-knowledge",
+      "name": "Nexi Video Knowledge - Alle Kategorien",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 61
+    },
+    {
+      "id": "nexi-video-knowledge-d0-nasa-batch-test",
+      "name": "Nexi Video Knowledge - D0 NASA Batch Test",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 3
+    },
+    {
+      "id": "nexi-video-knowledge-d0-nasa-workflow-test",
+      "name": "Nexi Video Knowledge - D0 NASA Workflow Test",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 1
+    },
+    {
+      "id": "nexi-video-knowledge-finanzen",
+      "name": "Nexi Video Knowledge - Finanzen",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 1
+    },
+    {
+      "id": "nexi-video-knowledge-it",
+      "name": "Nexi Video Knowledge - IT",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 4
+    },
+    {
+      "id": "nexi-video-knowledge-it-hacking-sicherheit",
+      "name": "Nexi Video Knowledge - IT-HACKING-SICHERHEIT",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 14
+    },
+    {
+      "id": "nexi-video-knowledge-it-hacks",
+      "name": "Nexi Video Knowledge - IT Hacks",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 1
+    },
+    {
+      "id": "nexi-video-knowledge-it-news",
+      "name": "Nexi Video Knowledge - IT-NEWS",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 15
+    },
+    {
+      "id": "nexi-video-knowledge-ki-avatare",
+      "name": "Nexi Video Knowledge - KI-AVATARE",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 1
+    },
+    {
+      "id": "nexi-video-knowledge-ki-it",
+      "name": "Nexi Video Knowledge - KI-IT",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 6
+    },
+    {
+      "id": "nexi-video-knowledge-ki-tools",
+      "name": "Nexi Video Knowledge - KI Tools",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 3
+    },
+    {
+      "id": "nexi-video-knowledge-neuheiten-produkte",
+      "name": "Nexi Video Knowledge - NEUHEITEN-PRODUKTE",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 7
+    },
+    {
+      "id": "nexi-video-knowledge-telegram-share",
+      "name": "Nexi Video Knowledge - TELEGRAM-SHARE",
+      "description": "OpenWebUI-RAG-Spiegel aus Qdrant video_knowledge. Quelle bleibt video_knowledge; Sofinello ist nicht enthalten.",
+      "points": 5
+    }
+  ],
+  "dry_run": false,
+  "synced_at": "2026-05-31T13:24:25"
+}
