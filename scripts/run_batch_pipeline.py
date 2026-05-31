@@ -358,8 +358,11 @@ def main() -> int:
                     {
                         "entry": entry.number,
                         "url": entry.url,
+                        "category": topic_context(topic, entry),
                         "pipeline_type": "image-post",
                         "analysis": entry.analysis,
+                        "post_dir": result.get("files", {}).get("image_dir_windows")
+                        or result.get("files", {}).get("image_dir"),
                         "cost_usd": cost,
                         "qdrant_id": entry.qdrant_id,
                     }
@@ -398,6 +401,7 @@ def main() -> int:
                 {
                     "entry": entry.number,
                     "url": entry.url,
+                    "category": topic_context(topic, entry),
                     "analysis": entry.analysis,
                     "video_dir": result.get("video_dir"),
                     "summary_markdown": result.get("files", {}).get("summary_markdown_windows")

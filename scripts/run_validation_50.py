@@ -98,6 +98,14 @@ FOLDER_EXPECTED = {
     "Web Sites": "01-IT",
 }
 
+FOLDER_INTENT_ROUTES = {
+    **FOLDER_EXPECTED,
+    "Sofinello": "10-SOFINELLO",
+    "Sofinello Videos": "10-SOFINELLO",
+    "Sofinello Gerichte": "10-SOFINELLO",
+    "Sofinello To-Do": "10-SOFINELLO",
+}
+
 CATEGORY_QUESTIONS = {
     "01-IT": "Was wird technisch gezeigt, welchen Nutzen hat es fuer Nexis KI-Imperium, und welche naechsten Schritte sind sinnvoll?",
     "02-IT-HACKS": "Was wird technisch gezeigt? Erklaere es defensiv, legal und konzeptionell. Welche sicheren Lernschritte ergeben sich daraus?",
@@ -378,17 +386,32 @@ def normalize_category(value: str) -> str:
 
 def classify(path: Path, top_folder: str, transcript: Path) -> dict[str, Any]:
     excerpt = read_text(transcript, limit=6000)
+    folder_route = FOLDER_INTENT_ROUTES.get(top_folder)
+    if folder_route:
+        return {
+            "category": folder_route,
+            "confidence": 0.98,
+            "reason": f"Folder-Intent-Regel: Ordner '{top_folder}' routet stabil nach {folder_route}.",
+            "seconds": 0.0,
+            "raw": "deterministic-folder-intent",
+        }
+
     prompt = f"""Du bist Nexis lokaler Routing-Klassifizierer. Antworte NUR als JSON.
 
 Erlaubte Kategorien:
 {json.dumps(ALLOWED_CATEGORIES, ensure_ascii=False)}
 
 Regeln:
+- Der Ordnername ist ein starkes Signal fuer Nexis Geschaeftsabsicht. Wenn der Ordner eindeutig ist, folge dem Ordner statt einzelne Transcript-Woerter zu ueberbewerten.
 - Wenn der Ordnername mit "Sofinello" beginnt, ist die Kategorie PFLICHT: 10-SOFINELLO. Das gilt auch fuer Meditation, Frequenzen, Third Eye, Dr. Sebi, Kraeuter, natuerliche Heilung, Mixturen, Nahrungsergaenzung, Verpackungen, Rezepte oder allgemeine Gesundheitsinhalte in diesem Ordner.
 - Gesundheitsbezogene Inhalte aus Sofinello-Ordnern duerfen NIEMALS 09-SONSTIGES oder _unsortiert werden.
 - Sofinello, Dr. Sebi, Kraeuter, natuerliche Heilung, Mixturen, Nahrungsergaenzung, Verpackungen oder Rezepturen fuer Nexis Heilungsfirma => 10-SOFINELLO.
 - Cybersecurity, Hacking, IT-Sicherheit, Tools gegen Angriffe => 02-IT-HACKS.
 - KI-Tools, Agenten, Automatisierung, LLMs, Coding mit KI => 03-KI-IT.
+- Filmproduktion, KI-Filme, Serienideen, Storytelling, Trailer, visuelle Filmproduktion => 07-FILME.
+- Webseiten, Website-Bau, Website-Cloning, Frontend, Apps, Dev-Tools ohne klaren Security-Fokus => 01-IT.
+- Finanz-, Krypto-, Business-, Markt-, Geldsystem- oder Investmentthemen => 06-FINANZEN.
+- News-Ordner bleibt 05-NEWS, ausser Nexi markiert es spaeter manuell als Finanzen.
 - Unklare Faelle => _unsortiert.
 
 Datei: {path.name}

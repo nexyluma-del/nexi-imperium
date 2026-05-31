@@ -2,7 +2,7 @@
   "run_id": "run-001-validation",
   "note": "Stufe 1 Validierungs-Run 50: Gemini Counter auf 0 gesetzt.",
   "reset_at": "2026-05-31T17:37:09",
-  "updated_at": "2026-05-31T18:47:18",
+  "updated_at": "2026-05-31T19:16:00",
   "currency_guard": "USD wird lokal konservativ 1:1 als EUR gerechnet.",
   "balance_notice": "API-Guthaben ist nicht ueber den Gemini/Claude/OpenAI API-Key auslesbar. Setze optional *_INITIAL_CREDIT_EUR Umgebungsvariablen fuer Restguthaben-Alarme.",
   "total_spent_usd": 0.519991,
@@ -477,5 +477,5 @@
   "related_run_ids": [
     "batch-url-pipeline"
   ],
-  "config_synced_at": "2026-05-31T18:47:18"
+  "config_synced_at": "2026-05-31T19:16:00"
 }

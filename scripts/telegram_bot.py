@@ -22,6 +22,8 @@ DEFAULT_DATA_CLASS = "D2"
 MAX_TELEGRAM_BATCH_COST_EUR = 5.0
 PER_URL_ESTIMATE_EUR = 0.08
 MAX_CHAT_ANALYSIS_CHARS = 3200
+DASHBOARD_LINK = "http://127.0.0.1:8765"
+DASHBOARD_FILE = PROJECT_DIR / "dashboard" / "imperium-status.html"
 
 
 HELP_TEXT = """Nexis Imperium Bot
@@ -279,18 +281,21 @@ def render_batch_result(payload: dict[str, Any]) -> str:
         f"- Fehler: {len(errors)}",
         f"- Kosten: ${float(payload.get('actual_cost_usd') or 0):.4f}",
     ]
-    for item in processed[:5]:
+    for index, item in enumerate(processed[:10], start=1):
+        label = item.get("entry") or index
+        category = item.get("category") or item.get("topic") or "unbekannt"
+        folder = item.get("video_dir") or item.get("post_dir") or item.get("analysis")
         lines.append("")
+        lines.append(f"✓ Video {label} (Kategorie {category}) verarbeitet")
         lines.append(f"Quelle: {item.get('url')}")
-        if item.get("analysis"):
-            excerpt = excerpt_markdown(item.get("analysis"))
-            if excerpt:
-                lines.append("")
-                lines.append(excerpt)
-            lines.append("")
-            lines.append(f"Datei: {item.get('analysis')}")
+        if folder:
+            lines.append(f"Ordner: {folder}")
+        lines.append(f"Dashboard: {DASHBOARD_LINK}")
         if item.get("qdrant_id"):
             lines.append(f"Qdrant: {item.get('qdrant_id')}")
+    if len(processed) > 10:
+        lines.append("")
+        lines.append(f"+ {len(processed) - 10} weitere verarbeitet. Details liegen in den Video-Ordnern.")
     if errors:
         lines.append("")
         lines.append("Fehler:")
@@ -299,6 +304,7 @@ def render_batch_result(payload: dict[str, Any]) -> str:
 
 
 def send_analysis_documents(payload: dict[str, Any], chat_id: str) -> None:
+    return None
     processed = payload.get("processed") or []
     for item in processed[:5]:
         path = local_readable_path(item.get("analysis"))
@@ -477,7 +483,7 @@ def handle_text(text: str, chat_id: str) -> None:
                 f"Starte Analyse fuer {len(urls)} URL(s).",
                 f"Schaetzung: ca. {estimated:.2f} EUR.",
                 f"Frage/Kontext: {display_question(question)}",
-                "Ergebnis kommt hier als Kurzfassung + Markdown-Datei.",
+                "Telegram meldet nur Status; die volle Analyse landet im Video-Ordner.",
             ]
         ),
         chat_id=chat_id,
