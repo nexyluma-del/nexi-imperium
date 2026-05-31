@@ -101,6 +101,16 @@ def wait_for_file(client, uploaded_file, poll_seconds: float = 2.0, timeout_seco
 
 def build_prompt(transcript_text: str, topic: str | None, questions: list[str]) -> str:
     topic_block = f"\nThema / Kontext: {topic}\n" if topic else ""
+    compliance_block = ""
+    if topic and "sofinello" in topic.lower():
+        compliance_block = """
+Sofinello-Compliance-Pflicht:
+- Keine Heilversprechen, keine Diagnosen, keine Therapieanweisungen.
+- Keine Aussagen, dass ein Produkt Krankheiten heilen, lindern oder sicher verhindern kann.
+- Formuliere vorsichtig: "traditionell verwendet", "Sebi vertrat die Auffassung", "nicht medizinisch belegt".
+- Nenne bei oeffentlich nutzbaren Aussagen einen Disclaimer: keine medizinische Beratung, bei Beschwerden aerztlich abklaeren.
+- Markiere kritische Claims klar als Compliance-Risiko.
+"""
     questions_block = ""
     if questions:
         formatted_questions = "\n".join(f"- {question}" for question in questions)
@@ -115,6 +125,8 @@ Nexis konkrete Fragen, die du spezifisch beantworten musst:
 Analysiere das Video visuell und nutze das lokale Whisper-Transkript als Audiokontext.
 Antworte in strukturiertem Markdown auf Deutsch.
 Sicherheitsregel: Bei Cybersecurity, Hacking, Ueberwachung, Kennzeichen/Gesichter, Waffen, Medizin, Finanzen oder riskanten Bauanleitungen gib keine illegalen, schädlichen oder invasiven Schritt-fuer-Schritt-Anleitungen. Erklaere stattdessen defensiv, legal, konzeptionell, mit Risiken, Grenzen und sicheren Lernpfaden.
+
+{compliance_block}
 
 ## Antworten auf Nexis konkrete Fragen
 Beantworte diese Fragen zuerst, kurz, konkret und entscheidungsorientiert.

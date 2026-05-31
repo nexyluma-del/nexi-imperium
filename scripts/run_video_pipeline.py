@@ -282,7 +282,7 @@ def run_step(
 
         should_retry = any(marker in output for marker in retry_on)
         if attempt < attempts and should_retry:
-            time.sleep(30)
+            time.sleep(min(300, 30 * (2 ** (attempt - 1))))
             continue
         raise RuntimeError(f"Step failed: {name}\n{output[-4000:]}")
 
@@ -310,6 +310,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--topic", default=None)
     parser.add_argument("--question", action="append", default=[])
     parser.add_argument("--max-cost-eur", default="0.30")
+    parser.add_argument("--max-video-mb", default=None)
+    parser.add_argument("--max-duration-sec", default=None)
+    parser.add_argument("--approve-large", action="store_true")
+    parser.add_argument("--existing-transcript", type=Path, default=None)
     parser.add_argument("--allow-sensitive", action="store_true")
     args = parser.parse_args()
     if not args.url and not args.video_file:
@@ -447,70 +451,84 @@ def main() -> int:
             "video_info_webpage_url": video_info.get("webpage_url"),
         }
 
-        try:
-            if args.url:
-                audio_output, elapsed = run_step(
-                    "download_audio",
-                    [str(PROJECT_DIR / "scripts" / "download.sh"), args.url, args.data_class, "Whisper-Audio", str(run_dir)],
-                    log_file,
-                    timeout_seconds=900,
-                )
-                audio_file = parse_prefixed_path(audio_output, "Audio file")
-                if not audio_file:
-                    raise RuntimeError("Audio-Datei konnte aus download.sh Output nicht gelesen werden.")
-                audio_path = Path(audio_file)
-                audio_info = validate_info_json(audio_path.with_suffix(".info.json"), args.url, "audio-download")
-                audio_meta = load_json(audio_path.with_suffix(".pipeline-meta.json"))
-                if audio_meta.get("source_url") != args.url:
-                    raise RuntimeError(
-                        "Audio-Provenance-Check fehlgeschlagen: pipeline-meta source_url passt nicht.\n"
-                        f"URL: {args.url}\nMeta: {audio_meta.get('source_url')}"
-                    )
-                summary["steps"]["download_audio_seconds"] = elapsed
-                summary["files"]["audio"] = audio_file
-                summary["files"]["audio_info_json"] = str(audio_path.with_suffix(".info.json"))
-                summary["files"]["audio_meta_json"] = str(audio_path.with_suffix(".pipeline-meta.json"))
-                summary["provenance"]["audio_sha256"] = file_sha256(audio_path)
-                summary["provenance"]["audio_info_id"] = audio_info.get("id")
-                transcribe_input = audio_file
-            else:
-                transcribe_input = str(video_file)
-                summary["steps"]["audio_source"] = "local_video_file"
-
-            transcribe_output, elapsed = run_step(
-                "whisper_transcribe",
-                [
-                    venv_python,
-                    str(PROJECT_DIR / "scripts" / "transcribe.py"),
-                    transcribe_input,
-                    "--data-class",
-                    args.data_class,
-                    "--output-dir",
-                    str(run_dir),
-                ],
-                log_file,
-                timeout_seconds=1800,
-            )
-            transcript_txt = parse_prefixed_path(transcribe_output, "Transcript TXT")
-            transcript_json = parse_prefixed_path(transcribe_output, "Transcript JSON")
-            if not transcript_txt:
-                raise RuntimeError("Transkript-Pfad konnte aus transcribe.py Output nicht gelesen werden.")
+        existing_transcript = args.existing_transcript.resolve() if args.existing_transcript else None
+        if existing_transcript:
+            if not existing_transcript.exists():
+                raise FileNotFoundError(f"Vorhandenes Transkript nicht gefunden: {existing_transcript}")
             canonical_transcript_txt = run_dir / "Whisper-Transkript.txt"
-            canonical_transcript_json = run_dir / "Whisper-Transkript.json"
-            shutil.copy2(transcript_txt, canonical_transcript_txt)
-            if transcript_json:
-                shutil.copy2(transcript_json, canonical_transcript_json)
+            shutil.copy2(existing_transcript, canonical_transcript_txt)
             transcript_txt = str(canonical_transcript_txt)
-            transcript_json = str(canonical_transcript_json) if transcript_json else None
-            summary["steps"]["whisper_seconds"] = elapsed
+            transcript_json = None
+            summary["steps"]["existing_transcript_seconds"] = 0.0
             summary["files"]["transcript_txt"] = transcript_txt
             summary["files"]["transcript_json"] = transcript_json
-        except Exception as audio_exc:  # noqa: BLE001
-            raise RuntimeError(
-                "Audio-Download oder Transkription fehlgeschlagen. "
-                "Pipeline stoppt hart, damit keine alte Datei oder kein stiller Fallback "
-                "in die Analyse geraten kann."
-            ) from audio_exc
+            summary["provenance"]["transcript_source"] = str(existing_transcript)
+            summary["provenance"]["transcript_sha256"] = file_sha256(canonical_transcript_txt)
+        else:
+            try:
+                if args.url:
+                    audio_output, elapsed = run_step(
+                        "download_audio",
+                        [str(PROJECT_DIR / "scripts" / "download.sh"), args.url, args.data_class, "Whisper-Audio", str(run_dir)],
+                        log_file,
+                        timeout_seconds=900,
+                    )
+                    audio_file = parse_prefixed_path(audio_output, "Audio file")
+                    if not audio_file:
+                        raise RuntimeError("Audio-Datei konnte aus download.sh Output nicht gelesen werden.")
+                    audio_path = Path(audio_file)
+                    audio_info = validate_info_json(audio_path.with_suffix(".info.json"), args.url, "audio-download")
+                    audio_meta = load_json(audio_path.with_suffix(".pipeline-meta.json"))
+                    if audio_meta.get("source_url") != args.url:
+                        raise RuntimeError(
+                            "Audio-Provenance-Check fehlgeschlagen: pipeline-meta source_url passt nicht.\n"
+                            f"URL: {args.url}\nMeta: {audio_meta.get('source_url')}"
+                        )
+                    summary["steps"]["download_audio_seconds"] = elapsed
+                    summary["files"]["audio"] = audio_file
+                    summary["files"]["audio_info_json"] = str(audio_path.with_suffix(".info.json"))
+                    summary["files"]["audio_meta_json"] = str(audio_path.with_suffix(".pipeline-meta.json"))
+                    summary["provenance"]["audio_sha256"] = file_sha256(audio_path)
+                    summary["provenance"]["audio_info_id"] = audio_info.get("id")
+                    transcribe_input = audio_file
+                else:
+                    transcribe_input = str(video_file)
+                    summary["steps"]["audio_source"] = "local_video_file"
+
+                transcribe_output, elapsed = run_step(
+                    "whisper_transcribe",
+                    [
+                        venv_python,
+                        str(PROJECT_DIR / "scripts" / "transcribe.py"),
+                        transcribe_input,
+                        "--data-class",
+                        args.data_class,
+                        "--output-dir",
+                        str(run_dir),
+                    ],
+                    log_file,
+                    timeout_seconds=1800,
+                )
+                transcript_txt = parse_prefixed_path(transcribe_output, "Transcript TXT")
+                transcript_json = parse_prefixed_path(transcribe_output, "Transcript JSON")
+                if not transcript_txt:
+                    raise RuntimeError("Transkript-Pfad konnte aus transcribe.py Output nicht gelesen werden.")
+                canonical_transcript_txt = run_dir / "Whisper-Transkript.txt"
+                canonical_transcript_json = run_dir / "Whisper-Transkript.json"
+                shutil.copy2(transcript_txt, canonical_transcript_txt)
+                if transcript_json:
+                    shutil.copy2(transcript_json, canonical_transcript_json)
+                transcript_txt = str(canonical_transcript_txt)
+                transcript_json = str(canonical_transcript_json) if transcript_json else None
+                summary["steps"]["whisper_seconds"] = elapsed
+                summary["files"]["transcript_txt"] = transcript_txt
+                summary["files"]["transcript_json"] = transcript_json
+            except Exception as audio_exc:  # noqa: BLE001
+                raise RuntimeError(
+                    "Audio-Download oder Transkription fehlgeschlagen. "
+                    "Pipeline stoppt hart, damit keine alte Datei oder kein stiller Fallback "
+                    "in die Analyse geraten kann."
+                ) from audio_exc
 
         gemini_command = [
             venv_python,
@@ -527,6 +545,12 @@ def main() -> int:
             "--max-cost-eur",
             args.max_cost_eur,
         ]
+        if args.max_video_mb:
+            gemini_command.extend(["--max-video-mb", args.max_video_mb])
+        if args.max_duration_sec:
+            gemini_command.extend(["--max-duration-sec", args.max_duration_sec])
+        if args.approve_large:
+            gemini_command.append("--approve-large")
         if args.model:
             gemini_command.extend(["--model", args.model])
         if args.topic:
@@ -539,8 +563,8 @@ def main() -> int:
             gemini_command,
             log_file,
             timeout_seconds=1200,
-            attempts=2,
-            retry_on=("503 UNAVAILABLE", "high demand"),
+            attempts=5,
+            retry_on=("429", "RESOURCE_EXHAUSTED", "rate limit", "quota", "503 UNAVAILABLE", "high demand"),
         )
         output_md = parse_prefixed_path(gemini_output, "Output Markdown")
         output_json = parse_prefixed_path(gemini_output, "Output JSON")

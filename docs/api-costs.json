@@ -1,0 +1,467 @@
+{
+  "run_id": "run-001-validation",
+  "note": "Stufe 1 Validierungs-Run 50: Gemini Counter auf 0 gesetzt.",
+  "reset_at": "2026-05-31T17:37:09",
+  "updated_at": "2026-05-31T18:30:42",
+  "currency_guard": "USD wird lokal konservativ 1:1 als EUR gerechnet.",
+  "balance_notice": "API-Guthaben ist nicht ueber den Gemini/Claude/OpenAI API-Key auslesbar. Setze optional *_INITIAL_CREDIT_EUR Umgebungsvariablen fuer Restguthaben-Alarme.",
+  "total_spent_usd": 0.500132,
+  "total_spent_eur": 0.500132,
+  "providers": {
+    "gemini-flash": {
+      "calls": 40,
+      "spent_usd": 0.37509,
+      "spent_eur": 0.37509,
+      "starting_credit_eur": null,
+      "remaining_eur": null,
+      "alert_threshold_eur": 30.0,
+      "alert_sent": false,
+      "billing_url": "https://aistudio.google.com/usage",
+      "last_model": "gemini-2.5-flash",
+      "last_call_at": "2026-05-31T18:30:42"
+    },
+    "gemini-pro": {
+      "calls": 5,
+      "spent_usd": 0.125042,
+      "spent_eur": 0.125042,
+      "starting_credit_eur": null,
+      "remaining_eur": null,
+      "alert_threshold_eur": 30.0,
+      "alert_sent": false,
+      "billing_url": "https://aistudio.google.com/usage",
+      "last_model": "gemini-2.5-pro",
+      "last_call_at": "2026-05-31T17:42:41"
+    },
+    "claude-vision": {
+      "calls": 0,
+      "spent_usd": 0.0,
+      "spent_eur": 0.0,
+      "starting_credit_eur": null,
+      "remaining_eur": null,
+      "alert_threshold_eur": 30.0,
+      "alert_sent": false,
+      "billing_url": "https://console.anthropic.com/settings/billing",
+      "last_model": null,
+      "last_call_at": null
+    },
+    "openai-vision": {
+      "calls": 0,
+      "spent_usd": 0.0,
+      "spent_eur": 0.0,
+      "starting_credit_eur": null,
+      "remaining_eur": null,
+      "alert_threshold_eur": 30.0,
+      "alert_sent": false,
+      "billing_url": "https://platform.openai.com/settings/organization/billing/overview",
+      "last_model": null,
+      "last_call_at": null
+    }
+  },
+  "events": [
+    {
+      "at": "2026-05-31T17:38:19",
+      "api": "gemini-pro",
+      "model": "gemini-2.5-pro",
+      "cost_usd": 0.014476,
+      "cost_eur": 0.014476,
+      "video_id": "SnapInsta.to_AQNOlnZ6vs07tQSxxjZs6aP9Qozuy5wqX3OXutrQ-2-42105a4ddae2",
+      "category": "10-SOFINELLO"
+    },
+    {
+      "at": "2026-05-31T17:39:45",
+      "api": "gemini-pro",
+      "model": "gemini-2.5-pro",
+      "cost_usd": 0.058536,
+      "cost_eur": 0.058536,
+      "video_id": "SnapInsta.to_AQMoB0rQDC9FmcITN3YgIL11oq13G-FLVyVGmNcYGs-06bafaa011a3",
+      "category": "10-SOFINELLO"
+    },
+    {
+      "at": "2026-05-31T17:40:49",
+      "api": "gemini-pro",
+      "model": "gemini-2.5-pro",
+      "cost_usd": 0.019168,
+      "cost_eur": 0.019168,
+      "video_id": "1-97873b2032a1",
+      "category": "10-SOFINELLO"
+    },
+    {
+      "at": "2026-05-31T17:41:38",
+      "api": "gemini-pro",
+      "model": "gemini-2.5-pro",
+      "cost_usd": 0.015518,
+      "cost_eur": 0.015518,
+      "video_id": "SnapInsta.to_AQOAQCdTw3bAyR-wUDneAUl8i681o_8m7QM57AzQJk-a9007d2d98cb",
+      "category": "10-SOFINELLO"
+    },
+    {
+      "at": "2026-05-31T17:42:41",
+      "api": "gemini-pro",
+      "model": "gemini-2.5-pro",
+      "cost_usd": 0.017344,
+      "cost_eur": 0.017344,
+      "video_id": "SnapInsta.to_AQNrUu8nDrTuEtWdZNJ-irpCwgXySmGVm3OqV2NH2E-5e2c276f47c1",
+      "category": "10-SOFINELLO"
+    },
+    {
+      "at": "2026-05-31T17:43:33",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.005156,
+      "cost_eur": 0.005156,
+      "video_id": "SnapInsta.to_AQPMXd8qxVvangkyftKjnmEiSETtBO3utOVbJZaUcG-c60d1556ad60",
+      "category": "03-KI-IT"
+    },
+    {
+      "at": "2026-05-31T17:44:35",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.008083,
+      "cost_eur": 0.008083,
+      "video_id": "SnapInsta.to_AQOGL17_VLArv5gmoMMffFKzywnUwa8AvKHM23WStq-1afb3af9ad28",
+      "category": "03-KI-IT"
+    },
+    {
+      "at": "2026-05-31T17:45:54",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.011632,
+      "cost_eur": 0.011632,
+      "video_id": "SnapInsta.to_AQOTuuJTygLhW13npgfYAWrqn5Dq4CB_paxE6Gquz1-70a86101313e",
+      "category": "02-IT-HACKS"
+    },
+    {
+      "at": "2026-05-31T17:47:12",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.01321,
+      "cost_eur": 0.01321,
+      "video_id": "SnapInsta.to_AQO5sXVAcOJDSZu1NgkNhWqSqnPA1xjYSeKGsPhc4R-34fdfcd4603a",
+      "category": "03-KI-IT"
+    },
+    {
+      "at": "2026-05-31T17:48:09",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.005567,
+      "cost_eur": 0.005567,
+      "video_id": "SnapInsta.to_AQM7rq6x8MozqeQ6IxnDSq5qxmiNsmIuALhB_vSV-e-1e657b94a2f7",
+      "category": "02-IT-HACKS"
+    },
+    {
+      "at": "2026-05-31T17:49:15",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.009789,
+      "cost_eur": 0.009789,
+      "video_id": "SnapInsta.to_AQNck_GhudZ0zNJO6Y055p3M4fwe3vHLkEy5EDbxvk-8996fcf8499f",
+      "category": "03-KI-IT"
+    },
+    {
+      "at": "2026-05-31T17:50:04",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.010337,
+      "cost_eur": 0.010337,
+      "video_id": "SnapInsta.to_AQO-GaP3_878sYnKpU8QyTPag06vRCo5wg4sr2WhtX-deea00c8f848",
+      "category": "02-IT-HACKS"
+    },
+    {
+      "at": "2026-05-31T17:51:04",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.006234,
+      "cost_eur": 0.006234,
+      "video_id": "SnapInsta.to_AQOifRaol3XQXO052T4xVuM5Ty9qRFhJl77uviL-pW-c7d9dcf79ce4",
+      "category": "02-IT-HACKS"
+    },
+    {
+      "at": "2026-05-31T17:52:10",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.012665,
+      "cost_eur": 0.012665,
+      "video_id": "SnapInsta.to_AQN0xVNfL7hqmC-RUAoqACPTGK7D6Q4kAwAw9xhaIy-8e780be44f18",
+      "category": "03-KI-IT"
+    },
+    {
+      "at": "2026-05-31T17:53:14",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.004533,
+      "cost_eur": 0.004533,
+      "video_id": "SnapInsta.to_AQMyT0jhWnhipgcZxSVlQpUrgOJVEWJgCAKUOr5ZUU-1fb8fc1113db",
+      "category": "06-FINANZEN"
+    },
+    {
+      "at": "2026-05-31T17:54:40",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.019315,
+      "cost_eur": 0.019315,
+      "video_id": "SnapInsta.to_AQPP-aZXhwP26gL2iq9k77qXEaUSRJ9Y8P-IcijqcS-5e751a289487",
+      "category": "04-TECHNIK"
+    },
+    {
+      "at": "2026-05-31T17:55:29",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.007327,
+      "cost_eur": 0.007327,
+      "video_id": "SnapInsta.to_AQOX7vTlo7y5rz_0_MYDBWglsj8To-sHYyYitRFfMm-3dd326226566",
+      "category": "08-MUSIK"
+    },
+    {
+      "at": "2026-05-31T17:56:54",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.005898,
+      "cost_eur": 0.005898,
+      "video_id": "SnapInsta.to_AQOqhFpoe83UWJEX-hP_dMsy-SeS-kCL9xYxmZNDEm-22bbbd56faab",
+      "category": "05-NEWS"
+    },
+    {
+      "at": "2026-05-31T17:58:26",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.012631,
+      "cost_eur": 0.012631,
+      "video_id": "SnapInsta.to_AQNTrs_xLDAzMdopC-FKORVliZxoK6jPsdTiqWlgq8-31179405bfa2",
+      "category": "06-FINANZEN"
+    },
+    {
+      "at": "2026-05-31T17:59:26",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.007694,
+      "cost_eur": 0.007694,
+      "video_id": "SnapInsta.to_AQMsC6n7hKDIvkbLKcxM6B1B0a0bAuvDcBuuHogaNx-b3a77e15a567",
+      "category": "06-FINANZEN"
+    },
+    {
+      "at": "2026-05-31T18:01:06",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.013784,
+      "cost_eur": 0.013784,
+      "video_id": "SnapInsta.to_AQMTQ96vP4NmQgPvCw9iW6yt8CnrSVOg129B2LN5bs-5100cf03bd01",
+      "category": "05-NEWS"
+    },
+    {
+      "at": "2026-05-31T18:02:31",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.017287,
+      "cost_eur": 0.017287,
+      "video_id": "SnapInsta.to_AQN5wThEZUp6HC0MOGB3ZAiMrsCJ2n0gIN9mbFiMFT-cb96e22184a0",
+      "category": "06-FINANZEN"
+    },
+    {
+      "at": "2026-05-31T18:03:45",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.012176,
+      "cost_eur": 0.012176,
+      "video_id": "SnapInsta.to_AQPJEpEdO-eYx75YD93c0hR_FofTy-u_xn2Q7d-I-4-f601588f1a7b",
+      "category": "06-FINANZEN"
+    },
+    {
+      "at": "2026-05-31T18:05:23",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.013195,
+      "cost_eur": 0.013195,
+      "video_id": "SnapInsta.to_AQOzSEXTmF7E8_8iPraBxBCoERf7EFq0PAC7gQg6zB-96fd36e6bdd8",
+      "category": "06-FINANZEN"
+    },
+    {
+      "at": "2026-05-31T18:06:39",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.009888,
+      "cost_eur": 0.009888,
+      "video_id": "SnapInsta.to_AQOWGcgDzmdToEbyL95bGaftnzXz82NUGBlCzV39dY-ba4406ba69a7",
+      "category": "06-FINANZEN"
+    },
+    {
+      "at": "2026-05-31T18:08:12",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.017122,
+      "cost_eur": 0.017122,
+      "video_id": "SnapInsta.to_AQOTkMhKbHm-43B2YK-15_LcoBFKshTW5xSYbuJAcj-5d3c732cfaf6",
+      "category": "06-FINANZEN"
+    },
+    {
+      "at": "2026-05-31T18:09:41",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.005733,
+      "cost_eur": 0.005733,
+      "video_id": "SnapInsta.to_AQOIeIuG70ohzwBGpLNPPBgfNLebZ81DNat-RsyHOr-041e55c3533f",
+      "category": "03-KI-IT"
+    },
+    {
+      "at": "2026-05-31T18:10:49",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.009077,
+      "cost_eur": 0.009077,
+      "video_id": "SnapInsta.to_AQP_OvdJPclUIPAnFiOAqnvlZBrsH7zquzQiWkWaIy-75899af81b93",
+      "category": "03-KI-IT"
+    },
+    {
+      "at": "2026-05-31T18:11:47",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.004121,
+      "cost_eur": 0.004121,
+      "video_id": "SnapInsta.to_AQOWxQ8Z6Jg-_6ecZypX4sXzfIcXWhwtRc9tRxOtD5-85ddf49d6f2d",
+      "category": "08-MUSIK"
+    },
+    {
+      "at": "2026-05-31T18:13:34",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.006287,
+      "cost_eur": 0.006287,
+      "video_id": "SnapInsta.to_AQPMc-oMFDazvG-TNFNNPMMxJ-QTKcXE9R4Az5JElm-5f7632a3e745",
+      "category": "08-MUSIK"
+    },
+    {
+      "at": "2026-05-31T18:14:33",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.008735,
+      "cost_eur": 0.008735,
+      "video_id": "SnapInsta.to_AQOeaedEybyA_H9xbL7D2Ag-fjxRVD2S9nG-k-DUEL-18dac3d7fb66",
+      "category": "08-MUSIK"
+    },
+    {
+      "at": "2026-05-31T18:15:39",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.006196,
+      "cost_eur": 0.006196,
+      "video_id": "SnapInsta.to_AQMPHu_E4Glt1jyFHAqO97SXi7p-I9DS_QhfXNI3hz-073024bec9bd",
+      "category": "03-KI-IT"
+    },
+    {
+      "at": "2026-05-31T18:17:10",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.015117,
+      "cost_eur": 0.015117,
+      "video_id": "SnapInsta.to_AQMzPpc8ZMFvRvgYTDG3JdkH3yf_JGKx7M2eANkXM--e89d60b2db94",
+      "category": "09-SONSTIGES"
+    },
+    {
+      "at": "2026-05-31T18:18:27",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.003387,
+      "cost_eur": 0.003387,
+      "video_id": "SnapInsta.to_AQMrNmIoQGLPsmtQRtkFJh2et9wPU-kpncvplc8iW0-bb1b7d9d1aaf",
+      "category": "09-SONSTIGES"
+    },
+    {
+      "at": "2026-05-31T18:19:32",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.006928,
+      "cost_eur": 0.006928,
+      "video_id": "SnapInsta.to_AQMKew-qCqPv5EvPxgK0JGvTza0z7ulXcCwzqzVHCH-a770d7528bee",
+      "category": "02-IT-HACKS"
+    },
+    {
+      "at": "2026-05-31T18:20:31",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.008356,
+      "cost_eur": 0.008356,
+      "video_id": "SnapInsta.to_AQPuiavMoghEqYmw44OO-QQqD5ip0n83QRtEC_k1Y7-89729354bda4",
+      "category": "02-IT-HACKS"
+    },
+    {
+      "at": "2026-05-31T18:22:16",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.025493,
+      "cost_eur": 0.025493,
+      "video_id": "SnapInsta.to_AQMiDhOKs7-JKiNeouNPRA2bX73dl8GFVjuGBveyGn-55914ef08952",
+      "category": "09-SONSTIGES"
+    },
+    {
+      "at": "2026-05-31T18:23:23",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.004304,
+      "cost_eur": 0.004304,
+      "video_id": "SnapInsta.to_AQMk0e9WqqcZ23CwOugmfwQ0M8Veli4Uf9nNDsg4SU-48841b19cb3f",
+      "category": "09-SONSTIGES"
+    },
+    {
+      "at": "2026-05-31T18:24:17",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.00681,
+      "cost_eur": 0.00681,
+      "video_id": "SnapInsta.to_AQNYduX2A2YWFk-JVHfhlUhfJMOIeUI_6VmThsm7gx-302e76390434",
+      "category": "09-SONSTIGES"
+    },
+    {
+      "at": "2026-05-31T18:25:28",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.007961,
+      "cost_eur": 0.007961,
+      "video_id": "SnapInsta.to_AQNlx4jTT3j986Apez1mNdkbAedk_Cmvp7ZkjFQ4dU-1fda106f6358",
+      "category": "09-SONSTIGES"
+    },
+    {
+      "at": "2026-05-31T18:26:38",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.005596,
+      "cost_eur": 0.005596,
+      "video_id": "SnapInsta.to_AQNBBNgBX7FmP83z0WSdVKGdWJ5Ye-XHMIgkB1IG1_-4c202b9219b0",
+      "category": "09-SONSTIGES"
+    },
+    {
+      "at": "2026-05-31T18:27:33",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.004678,
+      "cost_eur": 0.004678,
+      "video_id": "SnapInsta.to_AQNG7wYA4hKMAU69LzsbuoxsTMDEiFiYSUGyvktfz6-c8ac06806f37",
+      "category": "03-KI-IT"
+    },
+    {
+      "at": "2026-05-31T18:28:35",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.005897,
+      "cost_eur": 0.005897,
+      "video_id": "SnapInsta.to_AQNrBreR11SBvGofrKGolNDW91l1oqefo35sYxuADN-ee5e7efff136",
+      "category": "01-IT"
+    },
+    {
+      "at": "2026-05-31T18:29:34",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.006392,
+      "cost_eur": 0.006392,
+      "video_id": "SnapInsta.to_AQMam8miRtgSVkJOPe7iuj0FYfYsTie_iLno-Y7j0H-fb292c4bafb8",
+      "category": "09-SONSTIGES"
+    },
+    {
+      "at": "2026-05-31T18:30:42",
+      "api": "gemini-flash",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.010499,
+      "cost_eur": 0.010499,
+      "video_id": "SnapInsta.to_AQOlCrXq0cbhQ-nT-ApMHl0fiYYvp6PVRYgnZKRHh4-3944e5c004c4",
+      "category": "09-SONSTIGES"
+    }
+  ]
+}

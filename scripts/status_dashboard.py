@@ -23,6 +23,7 @@ STATUS_JSON = DASHBOARD_DIR / "status.json"
 STATUS_HTML = DASHBOARD_DIR / "imperium-status.html"
 SOFINELLO_STATUS = PROJECT_DIR / "logs" / "sofinello" / "sofinello-batch-b-status.json"
 FAILED_VIDEOS = PROJECT_DIR / "failed-videos.md"
+COST_JSON = PROJECT_DIR / "videos" / "_cost" / "api-costs.json"
 
 HTTP_ENDPOINTS = {
     "Ollama": "http://127.0.0.1:11434/api/tags",
@@ -232,6 +233,20 @@ def collect_failed_videos() -> dict[str, Any]:
     }
 
 
+def collect_costs() -> dict[str, Any]:
+    payload = load_json(COST_JSON)
+    providers = payload.get("providers") if isinstance(payload, dict) else None
+    if not isinstance(providers, dict):
+        providers = {}
+    return {
+        "path": str(COST_JSON),
+        "run_id": payload.get("run_id") if isinstance(payload, dict) else None,
+        "updated_at": payload.get("updated_at") if isinstance(payload, dict) else None,
+        "total_spent_eur": payload.get("total_spent_eur") if isinstance(payload, dict) else 0,
+        "providers": providers,
+    }
+
+
 def collect_status() -> dict[str, Any]:
     processes = collect_processes()
     status = {
@@ -247,6 +262,7 @@ def collect_status() -> dict[str, Any]:
         "sofinello_running": bool(processes.get("sofinello_batch")),
         "sofinello": collect_sofinello(),
         "failed_videos": collect_failed_videos(),
+        "costs": collect_costs(),
         "recent_analysis": list_recent_files(PROJECT_DIR / "analysis", "*.md", limit=6),
         "recent_sync": list_recent_files(DESKTOP_KI / "sync", "*.md", limit=6),
         "recent_backup_logs": list_recent_files(DESKTOP_KI / "logs" / "backup", "*.log", limit=5),
@@ -306,6 +322,17 @@ def render_html(status: dict[str, Any]) -> str:
     backup_logs = "\n".join(
         f"<li><span>{esc(item['name'])}</span><small>{esc(item['updated'])}</small></li>"
         for item in status["recent_backup_logs"]
+    )
+    costs = status.get("costs", {})
+    cost_rows = "\n".join(
+        "<tr>"
+        f"<td>{esc(name)}</td>"
+        f"<td>{esc(info.get('calls', 0))}</td>"
+        f"<td>{esc(info.get('spent_eur', 0))}</td>"
+        f"<td>{esc(info.get('remaining_eur'))}</td>"
+        f"<td>{esc(info.get('last_model'))}</td>"
+        "</tr>"
+        for name, info in (costs.get("providers") or {}).items()
     )
 
     return f"""<!doctype html>
@@ -411,6 +438,7 @@ def render_html(status: dict[str, Any]) -> str:
       {metric_card("Sofinello Batch", f"{sofinello.get('processed') or 0}/{sofinello.get('total') or 0}", f"{progress}% · Kosten {sofinello.get('cost_usd') or 0} USD", "warn" if not status["sofinello_running"] else "good")}
       {metric_card("Failed Videos", status["failed_videos"]["count"], status["failed_videos"].get("updated", ""), "warn" if status["failed_videos"]["count"] else "good")}
       {metric_card("Memory Voice", status["qdrant"]["counts"].get("memory_voice", {}).get("points", 0), "Qdrant Punkte", "good")}
+      {metric_card("API Costs", costs.get("total_spent_eur", 0), f"Run {costs.get('run_id') or 'n/a'}", "warn")}
     </div>
 
     <section class="panel">
@@ -436,10 +464,15 @@ def render_html(status: dict[str, Any]) -> str:
         <table><thead><tr><th>Task</th><th>Status</th></tr></thead><tbody>{scheduler_rows}</tbody></table>
       </section>
       <section class="panel">
-        <h2>Ollama Modelle</h2>
-        <table><thead><tr><th>Modell</th><th>Groesse</th></tr></thead><tbody>{model_rows}</tbody></table>
+        <h2>API Costs</h2>
+        <table><thead><tr><th>API</th><th>Calls</th><th>EUR</th><th>Rest</th><th>Modell</th></tr></thead><tbody>{cost_rows}</tbody></table>
       </section>
     </div>
+
+    <section class="panel">
+      <h2>Ollama Modelle</h2>
+      <table><thead><tr><th>Modell</th><th>Groesse</th></tr></thead><tbody>{model_rows}</tbody></table>
+    </section>
 
     <div class="two">
       <section class="panel">

@@ -1,0 +1,281 @@
+{
+  "generated_at": "2026-05-31T18:32:34",
+  "http": {
+    "Ollama": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:11434/api/tags",
+      "body": null
+    },
+    "Qdrant": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:6333/collections",
+      "body": null
+    },
+    "OpenWebUI": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:3000/health",
+      "body": null
+    },
+    "n8n": {
+      "ok": true,
+      "status": 200,
+      "url": "http://127.0.0.1:5678/healthz",
+      "body": null
+    }
+  },
+  "docker": [
+    {
+      "name": "open-webui",
+      "image": "ghcr.io/open-webui/open-webui:main",
+      "status": "Up 5 hours (healthy)",
+      "ports": "127.0.0.1:3000->8080/tcp",
+      "ok": true
+    },
+    {
+      "name": "n8n",
+      "image": "docker.n8n.io/n8nio/n8n",
+      "status": "Up 24 hours",
+      "ports": "127.0.0.1:5678->5678/tcp",
+      "ok": true
+    },
+    {
+      "name": "qdrant",
+      "image": "qdrant/qdrant",
+      "status": "Up 24 hours",
+      "ports": "127.0.0.1:6333-6334->6333-6334/tcp",
+      "ok": true
+    }
+  ],
+  "models": [
+    {
+      "name": "nomic-embed-text:latest",
+      "size_gb": 0.26
+    },
+    {
+      "name": "qwen3:4b",
+      "size_gb": 2.33
+    },
+    {
+      "name": "qwen3:30b",
+      "size_gb": 17.28
+    }
+  ],
+  "qdrant": {
+    "collections": [
+      "memory_voice",
+      "open-webui_knowledge",
+      "sofinello_knowledge",
+      "video_knowledge"
+    ],
+    "counts": {
+      "memory_voice": {
+        "points": 0,
+        "vectors": null
+      },
+      "open-webui_knowledge": {
+        "points": 0,
+        "vectors": null
+      },
+      "sofinello_knowledge": {
+        "points": 0,
+        "vectors": null
+      },
+      "video_knowledge": {
+        "points": 55,
+        "vectors": null
+      }
+    }
+  },
+  "scheduler": [
+    {
+      "TaskName": "Nexi KI-Sync Master-Context Wochenexport",
+      "State": 3
+    },
+    {
+      "TaskName": "Nexi Memory-KI KI-PUSH Wochen-Scan",
+      "State": 3
+    },
+    {
+      "TaskName": "Nexi Memory-KI Mittagscheck",
+      "State": 3
+    },
+    {
+      "TaskName": "Nexi Memory-KI Morgenbriefing",
+      "State": 3
+    },
+    {
+      "TaskName": "Nexi Memory-KI Tagesabschluss",
+      "State": 3
+    },
+    {
+      "TaskName": "Nexi Sofinello Batch B Resume",
+      "State": 1
+    },
+    {
+      "TaskName": "Nexi Voice Memory Daily Review",
+      "State": 3
+    },
+    {
+      "TaskName": "Nexi Voice Memory Weekly Review",
+      "State": 3
+    }
+  ],
+  "processes": {
+    "telegram_bot": [
+      "170638 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
+    ],
+    "sofinello_batch": [
+      "170638 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
+    ],
+    "voice_capture": [
+      "170638 bash -lc pgrep -af 'scripts/telegram_bot.py|scripts/process_sofinello_batch.py|scripts/voice_capture.py' || true"
+    ]
+  },
+  "telegram_running": true,
+  "voice_running": true,
+  "sofinello_running": true,
+  "sofinello": {
+    "total": 722,
+    "processed": 197,
+    "errors": 9,
+    "cost_usd": 3.735829,
+    "complete": false,
+    "updated_at": "2026-05-31T06:27:25",
+    "progress_percent": 27.3
+  },
+  "failed_videos": {
+    "count": 10,
+    "path": "C:\\AI\\projects\\09-video-analyse\\failed-videos.md",
+    "updated": "2026-05-31T17:33:39"
+  },
+  "costs": {
+    "path": "C:\\AI\\projects\\09-video-analyse\\videos\\_cost\\api-costs.json",
+    "run_id": "run-001-validation",
+    "updated_at": "2026-05-31T18:30:42",
+    "total_spent_eur": 0.500132,
+    "providers": {
+      "gemini-flash": {
+        "calls": 40,
+        "spent_usd": 0.37509,
+        "spent_eur": 0.37509,
+        "starting_credit_eur": null,
+        "remaining_eur": null,
+        "alert_threshold_eur": 30.0,
+        "alert_sent": false,
+        "billing_url": "https://aistudio.google.com/usage",
+        "last_model": "gemini-2.5-flash",
+        "last_call_at": "2026-05-31T18:30:42"
+      },
+      "gemini-pro": {
+        "calls": 5,
+        "spent_usd": 0.125042,
+        "spent_eur": 0.125042,
+        "starting_credit_eur": null,
+        "remaining_eur": null,
+        "alert_threshold_eur": 30.0,
+        "alert_sent": false,
+        "billing_url": "https://aistudio.google.com/usage",
+        "last_model": "gemini-2.5-pro",
+        "last_call_at": "2026-05-31T17:42:41"
+      },
+      "claude-vision": {
+        "calls": 0,
+        "spent_usd": 0.0,
+        "spent_eur": 0.0,
+        "starting_credit_eur": null,
+        "remaining_eur": null,
+        "alert_threshold_eur": 30.0,
+        "alert_sent": false,
+        "billing_url": "https://console.anthropic.com/settings/billing",
+        "last_model": null,
+        "last_call_at": null
+      },
+      "openai-vision": {
+        "calls": 0,
+        "spent_usd": 0.0,
+        "spent_eur": 0.0,
+        "starting_credit_eur": null,
+        "remaining_eur": null,
+        "alert_threshold_eur": 30.0,
+        "alert_sent": false,
+        "billing_url": "https://platform.openai.com/settings/organization/billing/overview",
+        "last_model": null,
+        "last_call_at": null
+      }
+    }
+  },
+  "recent_analysis": [],
+  "recent_sync": [
+    {
+      "name": "master-context-20260531-180001.md",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\sync\\master-context-20260531-180001.md",
+      "updated": "2026-05-31T18:00:01",
+      "size": 98600
+    },
+    {
+      "name": "master-context-20260531-134016.md",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\sync\\master-context-20260531-134016.md",
+      "updated": "2026-05-31T13:40:18",
+      "size": 119769
+    },
+    {
+      "name": "master-context-20260531-123740.md",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\sync\\master-context-20260531-123740.md",
+      "updated": "2026-05-31T12:37:41",
+      "size": 97208
+    },
+    {
+      "name": "topic-sofinello-compliance-20260531-123739.md",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\sync\\topic-sofinello-compliance-20260531-123739.md",
+      "updated": "2026-05-31T12:37:39",
+      "size": 69271
+    },
+    {
+      "name": "topic-sofinello-compliance-20260531-122539.md",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\sync\\topic-sofinello-compliance-20260531-122539.md",
+      "updated": "2026-05-31T12:25:39",
+      "size": 18422
+    },
+    {
+      "name": "master-context-20260531-122455.md",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\sync\\master-context-20260531-122455.md",
+      "updated": "2026-05-31T12:24:56",
+      "size": 103035
+    }
+  ],
+  "recent_backup_logs": [
+    {
+      "name": "backup-2026-05-31_161042.log",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\logs\\backup\\backup-2026-05-31_161042.log",
+      "updated": "2026-05-31T16:13:18",
+      "size": 5092
+    },
+    {
+      "name": "backup-2026-05-30_205634.log",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\logs\\backup\\backup-2026-05-30_205634.log",
+      "updated": "2026-05-30T20:56:40",
+      "size": 1434
+    },
+    {
+      "name": "restore-test-2026-05-29_182612.log",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\logs\\backup\\restore-test-2026-05-29_182612.log",
+      "updated": "2026-05-29T18:26:24",
+      "size": 3382
+    },
+    {
+      "name": "backup-2026-05-29_182512.log",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\logs\\backup\\backup-2026-05-29_182512.log",
+      "updated": "2026-05-29T18:25:42",
+      "size": 4002
+    },
+    {
+      "name": "restore-test-2026-05-29_115822.log",
+      "path": "C:\\Users\\nexil\\Desktop\\KI\\logs\\backup\\restore-test-2026-05-29_115822.log",
+      "updated": "2026-05-29T11:58:34",
+      "size": 3632
+    }
+  ]
+}
