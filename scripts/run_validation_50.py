@@ -33,6 +33,7 @@ VIDEO_SUFFIXES = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v"}
 NASA_TERMS = ("LADEE", "LLCD", "lunar laser communication", "laser communications demonstration")
 NASA_SOFT_TERM = "NASA"
 QUALITY_FLAGS_JSON = PROJECT_DIR / "videos" / "_quality_flags.json"
+GEMINI_PIPELINE_TIMEOUT_SECONDS = 30000
 ALLOWED_CATEGORIES = [
     "01-IT",
     "02-IT-HACKS",
@@ -512,7 +513,7 @@ def run_gemini_pipeline(entry: dict[str, Any], transcript: Path, index: int, rem
             "--existing-transcript",
             str(transcript),
         ],
-        timeout=4800,
+        timeout=GEMINI_PIPELINE_TIMEOUT_SECONDS,
     )
     payload = parse_json_from_output(output)
     if not payload.get("ok"):

@@ -61,3 +61,12 @@ Lebendes Fehler- und Lernprotokoll fuer Nexis KI-Imperium. Bei jedem echten Bug 
 **Fix:** Telegram-Sends schreiben Erfolg und Fehler jetzt in `logs/telegram/telegram-delivery.log`, ohne Token zu loggen. `send_message_if_configured()` bleibt fehlertolerant, aber nicht mehr still.
 
 **Lehre:** Alarmwege müssen selbst auditierbar sein. Ein Alert, dessen Zustellung nicht nachvollziehbar ist, ist im Betrieb nur eine Hoffnung.
+## 2026-06-01 - Aeusserer Runner-Timeout passte nicht zur langen Gemini-Retry-Policy
+
+**Symptom:** Run-002 stoppte bei 159/200 bzw. Video 160. Die innere Gemini-Logik war korrekt im 503-Backoff und wollte nach einem 60-Minuten-Pausezyklus erneut versuchen, aber der uebergeordnete Stage-Runner brach `run_video_pipeline.py` nach 4800 Sekunden ab.
+
+**Root Cause:** Die Retry-Policy wurde fuer echte Hochlastfenster auf zwei lange Zyklen gehaertet, aber der aeussere Subprocess-Timeout blieb auf dem alten Wert. Dadurch konnte die neue robuste Backoff-Strategie nicht vollstaendig greifen.
+
+**Fix:** Der Gemini-Pipeline-Timeout im aeusseren Runner wurde auf 30000 Sekunden erhoeht. Der alte 4800s-Timeout wird beim Resume als transienter Fehler in `resolved_errors` verschoben, damit das betroffene Video erneut verarbeitet wird statt den Run dauerhaft als failed zu blockieren.
+
+**Lehre:** Wenn Retry-Fenster verlaengert werden, muessen alle uebergeordneten Timeouts mitgezogen werden. Sonst wirkt die innere Resilienz nur auf dem Papier.

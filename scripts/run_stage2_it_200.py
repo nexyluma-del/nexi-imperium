@@ -186,6 +186,11 @@ def is_transient_gemini_503_error(error: dict[str, Any]) -> bool:
     return "503 unavailable" in text or "high demand" in text
 
 
+def is_transient_stage_timeout_error(error: dict[str, Any]) -> bool:
+    text = str(error.get("error") or "").lower()
+    return "timed out after 4800 seconds" in text and "run_video_pipeline.py" in text
+
+
 def clear_resolved_transient_503_errors(result: dict[str, Any]) -> None:
     errors = result.get("errors") or []
     transient = [error for error in errors if is_transient_gemini_503_error(error)]
@@ -197,6 +202,23 @@ def clear_resolved_transient_503_errors(result: dict[str, Any]) -> None:
             "resolved_at": now_iso(),
             "source": "run-002-resume",
             "resolution": "transient_gemini_503_high_demand; retry_policy_hardened_7_attempts_2_cycles; resume_from_failed_video",
+            "original_errors": transient,
+        }
+    )
+    result["counts"]["failed"] = max(0, int(result["counts"].get("failed") or 0) - len(transient))
+
+
+def clear_resolved_transient_stage_timeout_errors(result: dict[str, Any]) -> None:
+    errors = result.get("errors") or []
+    transient = [error for error in errors if is_transient_stage_timeout_error(error)]
+    if not transient:
+        return
+    result["errors"] = [error for error in errors if not is_transient_stage_timeout_error(error)]
+    result.setdefault("resolved_errors", []).append(
+        {
+            "resolved_at": now_iso(),
+            "source": "run-002-resume",
+            "resolution": "outer_stage_timeout_4800s_increased_to_30000s; resume_from_failed_video",
             "original_errors": transient,
         }
     )
@@ -328,6 +350,7 @@ def main() -> int:
     selection = select_200()
     result = load_or_init(selection)
     clear_resolved_transient_503_errors(result)
+    clear_resolved_transient_stage_timeout_errors(result)
     result["status"] = "running"
     result["finished_at"] = None
     result["quality_flags"] = read_quality_flags()
