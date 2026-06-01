@@ -22,6 +22,8 @@ from telegram_common import send_message_if_configured
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 VALID_DATA_CLASSES = {"D0", "D1", "D2", "D3", "D4"}
+GEMINI_503_EVENTS_JSON = PROJECT_DIR / "videos" / "_runs" / "gemini-503-events.json"
+GEMINI_RETRY_DELAYS_SECONDS = (0, 30, 60, 120, 300, 900, 1800)
 
 
 def ensure_project_venv() -> None:
@@ -250,6 +252,65 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def read_json_file(path: Path, default: Any) -> Any:
+    if not path.exists():
+        return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8-sig"))
+    except Exception:
+        return default
+
+
+def write_json_file(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
+    tmp.replace(path)
+
+
+def is_gemini_503(output: str) -> bool:
+    text = output.lower()
+    return (
+        "503 unavailable" in text
+        or "high demand" in text
+        or "status': 'unavailable" in text
+        or '"status": "unavailable' in text
+    )
+
+
+def append_gemini_503_event(
+    *,
+    video_id: str | None,
+    step_name: str,
+    cycle: int,
+    attempt: int,
+    attempts: int,
+    next_delay_seconds: int | None,
+    output: str,
+    log_file: Path,
+) -> None:
+    payload = read_json_file(GEMINI_503_EVENTS_JSON, {"events": []})
+    events = payload.setdefault("events", [])
+    events.append(
+        {
+            "at": datetime.now().isoformat(timespec="seconds"),
+            "video_id": video_id,
+            "step": step_name,
+            "cycle": cycle,
+            "attempt": attempt,
+            "attempts_per_cycle": attempts,
+            "global_attempt": ((cycle - 1) * attempts) + attempt,
+            "next_delay_seconds": next_delay_seconds,
+            "log_file": str(log_file),
+            "error_signature": "503 UNAVAILABLE / high demand",
+            "snippet": output[-1000:],
+        }
+    )
+    payload["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    payload["event_count"] = len(events)
+    write_json_file(GEMINI_503_EVENTS_JSON, payload)
+
+
 def run_step(
     name: str,
     command: list[str],
@@ -257,34 +318,85 @@ def run_step(
     timeout_seconds: int,
     attempts: int = 1,
     retry_on: tuple[str, ...] = (),
+    retry_delays_seconds: tuple[int, ...] | None = None,
+    retry_cycles: int = 1,
+    cycle_pause_seconds: int = 0,
+    retry_video_id: str | None = None,
 ) -> tuple[str, float]:
     started = time.perf_counter()
     last_output = ""
-    for attempt in range(1, attempts + 1):
-        with log_file.open("a", encoding="utf-8") as log:
-            log.write(f"\n=== {name} attempt {attempt}/{attempts} ===\n")
-            log.write("Command: " + " ".join(command) + "\n")
-        completed = subprocess.run(
-            command,
-            cwd=PROJECT_DIR,
-            text=True,
-            capture_output=True,
-            timeout=timeout_seconds,
-        )
-        output = (completed.stdout or "") + (completed.stderr or "")
-        last_output = output
-        with log_file.open("a", encoding="utf-8") as log:
-            log.write(output)
-            log.write(f"\nExit code: {completed.returncode}\n")
+    retry_delays_seconds = retry_delays_seconds or tuple(0 if index == 0 else min(300, 30 * (2 ** (index - 1))) for index in range(attempts))
 
-        if completed.returncode == 0:
-            return output, round(time.perf_counter() - started, 3)
+    for cycle in range(1, retry_cycles + 1):
+        for attempt in range(1, attempts + 1):
+            with log_file.open("a", encoding="utf-8") as log:
+                if retry_cycles > 1:
+                    log.write(f"\n=== {name} cycle {cycle}/{retry_cycles} attempt {attempt}/{attempts} ===\n")
+                else:
+                    log.write(f"\n=== {name} attempt {attempt}/{attempts} ===\n")
+                log.write("Command: " + " ".join(command) + "\n")
+            completed = subprocess.run(
+                command,
+                cwd=PROJECT_DIR,
+                text=True,
+                capture_output=True,
+                timeout=timeout_seconds,
+            )
+            output = (completed.stdout or "") + (completed.stderr or "")
+            last_output = output
+            with log_file.open("a", encoding="utf-8") as log:
+                log.write(output)
+                log.write(f"\nExit code: {completed.returncode}\n")
 
-        should_retry = any(marker in output for marker in retry_on)
-        if attempt < attempts and should_retry:
-            time.sleep(min(300, 30 * (2 ** (attempt - 1))))
-            continue
-        raise RuntimeError(f"Step failed: {name}\n{output[-4000:]}")
+            if completed.returncode == 0:
+                return output, round(time.perf_counter() - started, 3)
+
+            should_retry = any(marker in output for marker in retry_on)
+            if not should_retry:
+                raise RuntimeError(f"Step failed: {name}\n{output[-4000:]}")
+
+            next_delay: int | None = None
+            if attempt < attempts:
+                next_delay = retry_delays_seconds[attempt] if attempt < len(retry_delays_seconds) else retry_delays_seconds[-1]
+            elif cycle < retry_cycles:
+                next_delay = cycle_pause_seconds
+
+            gemini_503 = is_gemini_503(output)
+            if gemini_503:
+                append_gemini_503_event(
+                    video_id=retry_video_id,
+                    step_name=name,
+                    cycle=cycle,
+                    attempt=attempt,
+                    attempts=attempts,
+                    next_delay_seconds=next_delay,
+                    output=output,
+                    log_file=log_file,
+                )
+
+            if attempt < attempts:
+                delay = int(next_delay or 0)
+                if gemini_503 and delay >= 300:
+                    send_message_if_configured(
+                        f"⏸ Gemini-503, warte {delay // 60} Min, Versuch {attempt + 1}/{attempts}"
+                    )
+                with log_file.open("a", encoding="utf-8") as log:
+                    log.write(f"\nRetryable error. Sleeping {delay}s before attempt {attempt + 1}/{attempts}.\n")
+                time.sleep(delay)
+                continue
+
+            if cycle < retry_cycles:
+                delay = int(cycle_pause_seconds)
+                if gemini_503 and delay >= 300:
+                    send_message_if_configured(
+                        f"⏸ Gemini-503, warte {delay // 60} Min, Versuch 1/{attempts} (Zyklus {cycle + 1}/{retry_cycles})"
+                    )
+                with log_file.open("a", encoding="utf-8") as log:
+                    log.write(f"\nRetry cycle {cycle}/{retry_cycles} exhausted. Sleeping {delay}s before next cycle.\n")
+                time.sleep(delay)
+                continue
+
+            raise RuntimeError(f"Step failed after {retry_cycles} cycle(s): {name}\n{output[-4000:]}")
 
     raise RuntimeError(f"Step failed: {name}\n{last_output[-4000:]}")
 
@@ -563,8 +675,12 @@ def main() -> int:
             gemini_command,
             log_file,
             timeout_seconds=1200,
-            attempts=5,
+            attempts=7,
             retry_on=("429", "RESOURCE_EXHAUSTED", "rate limit", "quota", "503 UNAVAILABLE", "high demand"),
+            retry_delays_seconds=GEMINI_RETRY_DELAYS_SECONDS,
+            retry_cycles=2,
+            cycle_pause_seconds=3600,
+            retry_video_id=video_id,
         )
         output_md = parse_prefixed_path(gemini_output, "Output Markdown")
         output_json = parse_prefixed_path(gemini_output, "Output JSON")

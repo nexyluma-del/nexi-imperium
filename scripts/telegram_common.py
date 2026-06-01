@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,7 @@ import requests
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 ENV_FILE = PROJECT_DIR / ".env"
 MAX_TELEGRAM_CHARS = 3900
+DELIVERY_LOG = PROJECT_DIR / "logs" / "telegram" / "telegram-delivery.log"
 
 
 def read_env_file() -> dict[str, str]:
@@ -38,6 +40,19 @@ def require_token() -> str:
 
 def get_chat_id() -> str:
     return get_setting("TELEGRAM_CHAT_ID")
+
+
+def log_delivery(event: dict[str, Any]) -> None:
+    try:
+        DELIVERY_LOG.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "at": datetime.now().isoformat(timespec="seconds"),
+            **event,
+        }
+        with DELIVERY_LOG.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, ensure_ascii=False, default=str) + "\n")
+    except Exception:
+        return
 
 
 def set_env_value(name: str, value: str) -> None:
@@ -104,23 +119,50 @@ def split_message(text: str) -> list[str]:
 def send_message(text: str, chat_id: str | None = None, disable_web_preview: bool = True) -> bool:
     target_chat = chat_id or get_chat_id()
     if not target_chat:
+        log_delivery({"kind": "send_message", "ok": False, "error": "missing_chat_id"})
         return False
-    for chunk in split_message(text):
-        telegram_api(
-            "sendMessage",
-            {
-                "chat_id": target_chat,
-                "text": chunk,
-                "disable_web_page_preview": disable_web_preview,
-            },
-            timeout=30,
-        )
+    chunks = split_message(text)
+    for index, chunk in enumerate(chunks, start=1):
+        try:
+            telegram_api(
+                "sendMessage",
+                {
+                    "chat_id": target_chat,
+                    "text": chunk,
+                    "disable_web_page_preview": disable_web_preview,
+                },
+                timeout=30,
+            )
+            log_delivery(
+                {
+                    "kind": "send_message",
+                    "ok": True,
+                    "chat_id": str(target_chat),
+                    "chunk": index,
+                    "chunks": len(chunks),
+                    "chars": len(chunk),
+                }
+            )
+        except Exception as exc:
+            log_delivery(
+                {
+                    "kind": "send_message",
+                    "ok": False,
+                    "chat_id": str(target_chat),
+                    "chunk": index,
+                    "chunks": len(chunks),
+                    "chars": len(chunk),
+                    "error": f"{type(exc).__name__}: {str(exc)[:500]}",
+                }
+            )
+            raise
     return True
 
 
 def send_document(file_path: str | Path, caption: str = "", chat_id: str | None = None) -> bool:
     target_chat = chat_id or get_chat_id()
     if not target_chat:
+        log_delivery({"kind": "send_document", "ok": False, "error": "missing_chat_id", "file": str(file_path)})
         return False
     path = Path(file_path)
     if not path.exists():
@@ -137,15 +179,30 @@ def send_document(file_path: str | Path, caption: str = "", chat_id: str | None 
             files={"document": (path.name, handle)},
             timeout=120,
         )
-    response.raise_for_status()
-    payload = response.json()
-    if not payload.get("ok"):
-        raise RuntimeError(f"Telegram API Fehler bei sendDocument: {json.dumps(payload, ensure_ascii=False)}")
+    try:
+        response.raise_for_status()
+        payload = response.json()
+        if not payload.get("ok"):
+            raise RuntimeError(f"Telegram API Fehler bei sendDocument: {json.dumps(payload, ensure_ascii=False)}")
+        log_delivery({"kind": "send_document", "ok": True, "chat_id": str(target_chat), "file": str(path), "caption_chars": len(caption or "")})
+    except Exception as exc:
+        log_delivery(
+            {
+                "kind": "send_document",
+                "ok": False,
+                "chat_id": str(target_chat),
+                "file": str(path),
+                "caption_chars": len(caption or ""),
+                "error": f"{type(exc).__name__}: {str(exc)[:500]}",
+            }
+        )
+        raise
     return True
 
 
 def send_message_if_configured(text: str) -> bool:
     try:
         return send_message(text)
-    except Exception:
+    except Exception as exc:
+        log_delivery({"kind": "send_message_if_configured", "ok": False, "error": f"{type(exc).__name__}: {str(exc)[:500]}"})
         return False

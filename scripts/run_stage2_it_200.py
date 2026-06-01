@@ -181,6 +181,28 @@ def seed_sha_seen_from_result(sha_seen: dict[str, dict[str, Any]], result: dict[
         )
 
 
+def is_transient_gemini_503_error(error: dict[str, Any]) -> bool:
+    text = str(error.get("error") or "").lower()
+    return "503 unavailable" in text or "high demand" in text
+
+
+def clear_resolved_transient_503_errors(result: dict[str, Any]) -> None:
+    errors = result.get("errors") or []
+    transient = [error for error in errors if is_transient_gemini_503_error(error)]
+    if not transient:
+        return
+    result["errors"] = [error for error in errors if not is_transient_gemini_503_error(error)]
+    result.setdefault("resolved_errors", []).append(
+        {
+            "resolved_at": now_iso(),
+            "source": "run-002-resume",
+            "resolution": "transient_gemini_503_high_demand; retry_policy_hardened_7_attempts_2_cycles; resume_from_failed_video",
+            "original_errors": transient,
+        }
+    )
+    result["counts"]["failed"] = max(0, int(result["counts"].get("failed") or 0) - len(transient))
+
+
 def read_quality_flags() -> list[dict[str, Any]]:
     payload = read_json(QUALITY_FLAGS_JSON, default={}) or {}
     return [flag for flag in payload.get("flags", []) if flag.get("run_id") == RUN_ID]
@@ -305,6 +327,7 @@ def main() -> int:
     WORK_DIR.mkdir(parents=True, exist_ok=True)
     selection = select_200()
     result = load_or_init(selection)
+    clear_resolved_transient_503_errors(result)
     result["status"] = "running"
     result["finished_at"] = None
     result["quality_flags"] = read_quality_flags()
