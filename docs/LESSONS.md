@@ -31,3 +31,13 @@ Lebendes Fehler- und Lernprotokoll fuer Nexis KI-Imperium. Bei jedem echten Bug 
 **Fix:** Notnagel-Flow: temporaeres Passwort bewusst als Klartext nur lokal in einem nicht versionierten Skript bzw. als `RESTIC_PASSWORD` in `.env` gesetzt. `restic init` und `restic backup` liefen damit non-interaktiv in derselben Logik. Alte Repository-Ordner wurden nur umbenannt, nicht geloescht. Snapshot `3ec4e511` mit Tag `stufe2-pre` bestaetigt.
 
 **Lehre:** Bei Backup-/Recovery-Bootstrap zaehlt Reproduzierbarkeit vor Eleganz. Fuer Notfaelle keine mehrfachen Passwort-Prompts, kein SecureString-Paste-Raten, kein Clipboard-Raetsel. Erst ein gruenes, wiederholbar verifizierbares Backup herstellen; sichere Passwort-Rotation erst danach als separaten Auftrag durchfuehren.
+
+## 2026-06-01 - Anti-NASA-Waechter zu grob
+
+**Symptom:** Stufe 2 stoppte bei Video 134 wegen `NASA`, obwohl das Video korrekt zu Elon Musk/Grok gehoerte. Gemini erkannte visuell ein NASA-Logo auf der Jacke einer animierten Figur; Whisper sprach nur ueber Grok/xAI und erwaehnte NASA nicht.
+
+**Root Cause:** Der Waechter nutzte den generischen Begriff `NASA` als harten Stop-Marker. Das ist fuer Cross-Contamination zu breit, weil NASA-Logos, Kleidung, Plakate oder allgemeine Referenzen legitim in Tech-Videos auftauchen koennen.
+
+**Fix:** Harte Stops werden auf die spezifischen Signaturen des urspruenglichen Bugs begrenzt: `LADEE`, `LLCD`, `lunar laser communication`, `laser communications demonstration`. `NASA` allein wird nur noch als Soft-Flag in `videos/_quality_flags.json` geloggt, wenn es in Gemini, aber nicht im Whisper-Transkript auftaucht.
+
+**Lehre:** Waechter muessen spezifische Bug-Marker pruefen, nicht generische Woerter. Generische Begriffe verursachen False Positives und duerfen hoechstens in eine Review-Queue laufen.

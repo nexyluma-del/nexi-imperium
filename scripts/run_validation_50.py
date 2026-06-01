@@ -30,7 +30,9 @@ REPORT_MD = RUN_DIR / "run-001-validation.md"
 REPORT_JSON = RUN_DIR / "run-001-validation.json"
 SELECTION_JSON = RUN_DIR / "selection-50.json"
 VIDEO_SUFFIXES = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v"}
-NASA_TERMS = ("NASA", "LADEE", "LLCD", "Lunar Laser Communication")
+NASA_TERMS = ("LADEE", "LLCD", "lunar laser communication", "laser communications demonstration")
+NASA_SOFT_TERM = "NASA"
+QUALITY_FLAGS_JSON = PROJECT_DIR / "videos" / "_quality_flags.json"
 ALLOWED_CATEGORIES = [
     "01-IT",
     "02-IT-HACKS",
@@ -149,6 +151,29 @@ def read_text(path: Path, limit: int | None = None) -> str:
     except UnicodeError:
         text = path.read_text(encoding="utf-16", errors="replace")
     return text[:limit] if limit else text
+
+
+def term_snippet(text: str, term: str, radius: int = 350) -> str:
+    index = text.lower().find(term.lower())
+    if index == -1:
+        return ""
+    start = max(0, index - radius)
+    end = min(len(text), index + len(term) + radius)
+    return text[start:end].replace("\r", "").strip()
+
+
+def append_quality_flag(flag: dict[str, Any]) -> None:
+    QUALITY_FLAGS_JSON.parent.mkdir(parents=True, exist_ok=True)
+    if QUALITY_FLAGS_JSON.exists():
+        try:
+            payload = json.loads(QUALITY_FLAGS_JSON.read_text(encoding="utf-8-sig"))
+        except Exception:
+            payload = {"flags": []}
+    else:
+        payload = {"flags": []}
+    payload.setdefault("flags", []).append(flag)
+    payload["updated_at"] = now_iso()
+    write_json(QUALITY_FLAGS_JSON, payload)
 
 
 def file_sha256(path: Path) -> str:
@@ -528,9 +553,39 @@ def run_gemini_pipeline(entry: dict[str, Any], transcript: Path, index: int, rem
         rate_videos_per_hour=rate,
     )
     text = read_text(analysis_markdown)
+    transcript_text = read_text(transcript_txt)
     for term in NASA_TERMS:
         if term.lower() in text.lower():
-            raise RuntimeError(f"Anti-NASA-Waechter Treffer in {analysis_markdown}: {term}")
+            raise RuntimeError(
+                "Anti-NASA-HARD-STOP: "
+                f"{term} in {analysis_markdown}\n"
+                f"Gemini-Snippet: {term_snippet(text, term)}\n"
+                f"Whisper-Snippet: {term_snippet(transcript_text, term) or 'kein Treffer im Whisper-Transkript'}"
+            )
+    if NASA_SOFT_TERM.lower() in text.lower() and NASA_SOFT_TERM.lower() not in transcript_text.lower():
+        append_quality_flag(
+            {
+                "created_at": now_iso(),
+                "run_id": RUN_ID,
+                "type": "soft_nasa_visual_only",
+                "status": "needs_review",
+                "term": NASA_SOFT_TERM,
+                "source_path": str(source),
+                "source_path_windows": wsl_to_windows(source),
+                "video_id": payload.get("video_id"),
+                "slug": payload.get("slug"),
+                "topic": category,
+                "analysis_markdown": str(analysis_markdown),
+                "analysis_markdown_windows": wsl_to_windows(analysis_markdown),
+                "transcript_txt": str(transcript_txt),
+                "transcript_txt_windows": wsl_to_windows(transcript_txt),
+                "video_sha256": (payload.get("provenance") or {}).get("video_sha256"),
+                "transcript_sha256": (payload.get("provenance") or {}).get("transcript_sha256"),
+                "gemini_snippet": term_snippet(text, NASA_SOFT_TERM),
+                "whisper_snippet": "",
+                "note": "NASA kommt nur im Gemini-Output vor, nicht im Whisper-Transkript. Kein Stop; Review-Queue.",
+            }
+        )
     return payload
 
 

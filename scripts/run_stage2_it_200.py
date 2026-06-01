@@ -32,6 +32,7 @@ VALIDATION_SELECTION_JSON = PROJECT_DIR / "videos" / "_runs" / "run-001-validati
 SANITY_JSON = PROJECT_DIR / "docs" / "classifier-sanity-30.json"
 RESTIC_SNAPSHOT = "3ec4e511"
 NASA_TERMS = rv.NASA_TERMS
+QUALITY_FLAGS_JSON = PROJECT_DIR / "videos" / "_quality_flags.json"
 
 
 def now_iso() -> str:
@@ -127,7 +128,8 @@ def init_result(selection: list[dict[str, Any]]) -> dict[str, Any]:
             "categories": list(IT_CATEGORIES),
             "telegram_every": TELEGRAM_EVERY,
             "max_stage_cost_usd": MAX_STAGE_COST_USD,
-            "anti_nasa_terms": list(NASA_TERMS),
+            "anti_nasa_hard_terms": list(NASA_TERMS),
+            "anti_nasa_soft_flag": "NASA in Gemini, aber nicht in Whisper",
             "exclude_validation_50": True,
             "exclude_sanity_30": True,
         },
@@ -139,6 +141,7 @@ def init_result(selection: list[dict[str, Any]]) -> dict[str, Any]:
         "cost_total_usd": 0.0,
         "category_counts": {},
         "nasa_audit": None,
+        "quality_flags": [],
         "last_telegram_at": 0,
     }
 
@@ -159,6 +162,28 @@ def completed_sources(result: dict[str, Any]) -> set[str]:
         for item in result.get("items") or []
         if item.get("source_path") and item.get("status") in done_statuses
     }
+
+
+def seed_sha_seen_from_result(sha_seen: dict[str, dict[str, Any]], result: dict[str, Any]) -> None:
+    for item in result.get("items") or []:
+        if item.get("status") != "processed" or not item.get("sha256"):
+            continue
+        payload = item.get("pipeline") or {}
+        files = payload.get("files") or {}
+        sha_seen.setdefault(
+            item["sha256"],
+            {
+                "manifest": files.get("run_manifest"),
+                "video_dir": payload.get("video_dir"),
+                "topic": (item.get("classified") or {}).get("category"),
+                "video_id": payload.get("video_id"),
+            },
+        )
+
+
+def read_quality_flags() -> list[dict[str, Any]]:
+    payload = read_json(QUALITY_FLAGS_JSON, default={}) or {}
+    return [flag for flag in payload.get("flags", []) if flag.get("run_id") == RUN_ID]
 
 
 def send_progress(result: dict[str, Any], force: bool = False) -> None:
@@ -217,6 +242,7 @@ def render_report(result: dict[str, Any]) -> str:
         "## Anti-NASA Audit",
         "",
         f"- Match Count: `{(result.get('nasa_audit') or {}).get('match_count')}`",
+        f"- Quality Flags: `{len(result.get('quality_flags') or [])}`",
         "",
         "## Erste Review-Outputs",
         "",
@@ -279,11 +305,16 @@ def main() -> int:
     WORK_DIR.mkdir(parents=True, exist_ok=True)
     selection = select_200()
     result = load_or_init(selection)
+    result["status"] = "running"
+    result["finished_at"] = None
+    result["quality_flags"] = read_quality_flags()
+    save_result(result)
     done = completed_sources(result)
     sha_seen = rv.existing_sha_index()
+    seed_sha_seen_from_result(sha_seen, result)
     send_message_if_configured(
         "Stufe 2 gestartet: 200er IT-Stress-Test. Kategorien: 01-IT, 02-IT-HACKS, 03-KI-IT, 04-TECHNIK. "
-        "Telegram alle 50. Hard Stop bei NASA/LADEE/LLCD oder Klassifizierer-Fehler."
+        "Telegram alle 50. Hard Stop nur bei LADEE/LLCD/lunar laser communication/laser communications demonstration oder Klassifizierer-Fehler. NASA-only wird als Quality-Flag geloggt."
     )
 
     try:
@@ -340,6 +371,7 @@ def main() -> int:
 
             remaining = max(0, TARGET_COUNT - selected_index)
             payload = rv.run_gemini_pipeline(item, transcript, selected_index, remaining, STARTED_PERF)
+            result["quality_flags"] = read_quality_flags()
             item["pipeline"] = payload
             item["cost_usd"] = float(payload.get("cost", {}).get("estimated_actual_usd") or 0.0)
             item["status"] = "processed"
@@ -361,14 +393,16 @@ def main() -> int:
             if completed and completed % TELEGRAM_EVERY == 0:
                 audit = rv.run_nasa_audit()
                 result["nasa_audit"] = audit
+                result["quality_flags"] = read_quality_flags()
                 save_result(result)
                 if audit.get("match_count"):
-                    hard_stop(result, f"Anti-NASA-Audit meldet Treffer: {audit.get('match_count')}")
+                    hard_stop(result, f"Anti-NASA-Hard-Audit meldet Treffer: {audit.get('match_count')}")
 
         audit = rv.run_nasa_audit()
         result["nasa_audit"] = audit
+        result["quality_flags"] = read_quality_flags()
         if audit.get("match_count"):
-            hard_stop(result, f"Anti-NASA-Audit meldet Treffer am Ende: {audit.get('match_count')}")
+            hard_stop(result, f"Anti-NASA-Hard-Audit meldet Treffer am Ende: {audit.get('match_count')}")
         result["status"] = "complete"
         result["finished_at"] = now_iso()
         save_result(result)
