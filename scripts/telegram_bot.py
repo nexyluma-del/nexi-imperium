@@ -11,6 +11,7 @@ from typing import Any
 
 import requests
 
+from cost_tracker import reset_api_cost
 from failed_videos import append_failed_video
 from telegram_common import get_chat_id, get_updates, send_document, send_message, set_env_value
 from telegram_status import render_status, status_payload
@@ -38,6 +39,7 @@ Befehle:
 /sync - Master-Context fuer Claude/ChatGPT/Gemini exportieren
 /sync <Thema> - Topic-Context als Markdown-Datei exportieren
 /sync-tg <Thema> - Topic-Context direkt im Telegram-Chat anzeigen
+/reset_cost <api_name> - Verbrauchs-Counter einer API auf 0 setzen
 
 Share-Modus:
 - Nur eine URL senden: Auto-Analyse mit Standardfrage
@@ -372,6 +374,30 @@ def handle_text(text: str, chat_id: str) -> None:
         return
     if lower.startswith("/status"):
         send_message(render_status(status_payload()), chat_id=chat_id)
+        return
+    if lower.startswith("/reset_cost"):
+        api_name = re.sub(r"^/reset_cost(@\w+)?", "", stripped, flags=re.I).strip()
+        if not api_name:
+            send_message("Bitte sende /reset_cost <api_name>, z.B. /reset_cost gemini-flash.", chat_id=chat_id)
+            return
+        try:
+            payload = reset_api_cost(api_name)
+            provider = (payload.get("providers") or {}).get(api_name) or {}
+            previous = provider.get("last_reset_previous") or {}
+            send_message(
+                "\n".join(
+                    [
+                        "Cost-Counter zurueckgesetzt",
+                        f"API: {api_name}",
+                        f"Vorher: {float(previous.get('spent_eur') or 0):.4f} EUR bei {int(previous.get('calls') or 0)} Calls",
+                        "Jetzt: 0.0000 EUR",
+                        f"Naechster Alarm ab: {float(provider.get('alert_threshold_eur') or 60):.2f} EUR",
+                    ]
+                ),
+                chat_id=chat_id,
+            )
+        except Exception as exc:  # noqa: BLE001
+            send_message(f"Reset-Cost Fehler:\n{str(exc)[:1800]}", chat_id=chat_id)
         return
     if lower.startswith("/memory"):
         question = re.sub(r"^/memory(@\w+)?", "", stripped, flags=re.I).strip()
