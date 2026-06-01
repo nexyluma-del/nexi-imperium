@@ -41,3 +41,42 @@ Lebendes Fehler- und Lernprotokoll fuer Nexis KI-Imperium. Bei jedem echten Bug 
 **Fix:** Harte Stops werden auf die spezifischen Signaturen des urspruenglichen Bugs begrenzt: `LADEE`, `LLCD`, `lunar laser communication`, `laser communications demonstration`. `NASA` allein wird nur noch als Soft-Flag in `videos/_quality_flags.json` geloggt, wenn es in Gemini, aber nicht im Whisper-Transkript auftaucht.
 
 **Lehre:** Waechter muessen spezifische Bug-Marker pruefen, nicht generische Woerter. Generische Begriffe verursachen False Positives und duerfen hoechstens in eine Review-Queue laufen.
+
+## 2026-06-01 - Gemini-503 High-Demand Stop bei Stufe 2
+
+**Symptom:** Run-002 stoppte bei Video 149/200. Whisper und Klassifizierung waren fertig, aber `gemini_analyze_full` brach nach 5 Versuchen mit `503 UNAVAILABLE` und `This model is currently experiencing high demand` ab.
+
+**Root Cause:** Temporaere Gemini-Modell-Ueberlastung. Die alte Retry-Strategie war fuer kurze Rate-Limits ausreichend, aber nicht robust genug fuer laengere Hochlastfenster im 24/7-Betrieb.
+
+**Fix:** Gemini-Retry-Logik auf 7 Versuche pro Zyklus gehärtet: sofort, 30s, 60s, 2min, 5min, 15min, 30min. Nach einem kompletten Fehlzyklus pausiert die Pipeline 60min und versucht einen zweiten 7er-Zyklus. Erst danach harter Abbruch mit Telegram-Alarm. 503-Ereignisse werden in `videos/_runs/gemini-503-events.json` protokolliert.
+
+**Lehre:** Für große Läufe sind temporäre Cloud-Fehler normal, keine Ausnahme. Retry-Strategien brauchen lange Backoff-Fenster, sichtbare Pausenmeldungen und ein Eventlog, damit Hochlastmuster später ausgewertet werden können.
+
+## 2026-06-01 - Telegram-Delivery darf nicht still scheitern
+
+**Symptom:** Nach dem Run-002-Fehler war lokal nicht beweisbar, ob der Telegram-Fehleralarm wirklich zugestellt wurde, weil `send_message_if_configured()` Exceptions still geschluckt hat.
+
+**Root Cause:** Convenience-Wrapper ohne Delivery-Logging. Das verhindert zwar Folgefehler, macht aber Alarme im Ernstfall audit-schwach.
+
+**Fix:** Telegram-Sends schreiben Erfolg und Fehler jetzt in `logs/telegram/telegram-delivery.log`, ohne Token zu loggen. `send_message_if_configured()` bleibt fehlertolerant, aber nicht mehr still.
+
+**Lehre:** Alarmwege müssen selbst auditierbar sein. Ein Alert, dessen Zustellung nicht nachvollziehbar ist, ist im Betrieb nur eine Hoffnung.
+## 2026-06-01 - Aeusserer Runner-Timeout passte nicht zur langen Gemini-Retry-Policy
+
+**Symptom:** Run-002 stoppte bei 159/200 bzw. Video 160. Die innere Gemini-Logik war korrekt im 503-Backoff und wollte nach einem 60-Minuten-Pausezyklus erneut versuchen, aber der uebergeordnete Stage-Runner brach `run_video_pipeline.py` nach 4800 Sekunden ab.
+
+**Root Cause:** Die Retry-Policy wurde fuer echte Hochlastfenster auf zwei lange Zyklen gehaertet, aber der aeussere Subprocess-Timeout blieb auf dem alten Wert. Dadurch konnte die neue robuste Backoff-Strategie nicht vollstaendig greifen.
+
+**Fix:** Der Gemini-Pipeline-Timeout im aeusseren Runner wurde auf 30000 Sekunden erhoeht. Der alte 4800s-Timeout wird beim Resume als transienter Fehler in `resolved_errors` verschoben, damit das betroffene Video erneut verarbeitet wird statt den Run dauerhaft als failed zu blockieren.
+
+**Lehre:** Wenn Retry-Fenster verlaengert werden, muessen alle uebergeordneten Timeouts mitgezogen werden. Sonst wirkt die innere Resilienz nur auf dem Papier.
+
+## 2026-06-01 - Restic-Haertung nach Notnagel
+
+**Symptom:** Nach dem Stufe-2-Notnagel existierte ein funktionierendes Restic-Repo, aber nur mit bewusst temporaerem Passwort in `.env`. Das war als Uebergangsloesung richtig, aber fuer Dauerbetrieb zu schwach.
+
+**Root Cause:** Der erste saubere Restic-Aufbau war durch Passwort-Drift und Clipboard/SecureString-Probleme gescheitert. Deshalb wurde kurzfristig auf ein fixes Notpasswort gewechselt, um vor Stufe 2 ueberhaupt ein verifiziertes Backup zu haben.
+
+**Fix:** Nach BitLocker-Bestaetigung wurde ein neues 32-Zeichen-Passwort per Crypto-RNG erzeugt, vor Repository-Aenderungen per Telegram an Nexi gesendet, in `.env` hinterlegt und ein frisches `D:\Restic-Backup` initialisiert. Das alte Notnagel-Repo wurde nur archiviert (`D:\Restic-Backup-notnagel-archiv-20260601-211539`), nicht geloescht. Frisches Vollbackup und Restore-Test liefen gruen; Snapshot `7c64db30`, Repo-Groesse ca. `39,23 GiB`.
+
+**Lehre:** Backup-Haertung braucht eine klare Reihenfolge: erst BitLocker/physischer Schutz, dann Passwort generieren, dann Passwort ausserhalb des Rechners speichern/versenden, dann Repo wechseln, dann Restore-Test. Ein Backup ist erst dann "done", wenn ein Restore mit Hashvergleich bestanden ist.

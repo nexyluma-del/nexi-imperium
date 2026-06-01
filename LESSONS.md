@@ -70,3 +70,13 @@ Lebendes Fehler- und Lernprotokoll fuer Nexis KI-Imperium. Bei jedem echten Bug 
 **Fix:** Der Gemini-Pipeline-Timeout im aeusseren Runner wurde auf 30000 Sekunden erhoeht. Der alte 4800s-Timeout wird beim Resume als transienter Fehler in `resolved_errors` verschoben, damit das betroffene Video erneut verarbeitet wird statt den Run dauerhaft als failed zu blockieren.
 
 **Lehre:** Wenn Retry-Fenster verlaengert werden, muessen alle uebergeordneten Timeouts mitgezogen werden. Sonst wirkt die innere Resilienz nur auf dem Papier.
+
+## 2026-06-01 - Restic-Haertung nach Notnagel
+
+**Symptom:** Nach dem Stufe-2-Notnagel existierte ein funktionierendes Restic-Repo, aber nur mit bewusst temporaerem Passwort in `.env`. Das war als Uebergangsloesung richtig, aber fuer Dauerbetrieb zu schwach.
+
+**Root Cause:** Der erste saubere Restic-Aufbau war durch Passwort-Drift und Clipboard/SecureString-Probleme gescheitert. Deshalb wurde kurzfristig auf ein fixes Notpasswort gewechselt, um vor Stufe 2 ueberhaupt ein verifiziertes Backup zu haben.
+
+**Fix:** Nach BitLocker-Bestaetigung wurde ein neues 32-Zeichen-Passwort per Crypto-RNG erzeugt, vor Repository-Aenderungen per Telegram an Nexi gesendet, in `.env` hinterlegt und ein frisches `D:\Restic-Backup` initialisiert. Das alte Notnagel-Repo wurde nur archiviert (`D:\Restic-Backup-notnagel-archiv-20260601-211539`), nicht geloescht. Frisches Vollbackup und Restore-Test liefen gruen; Snapshot `7c64db30`, Repo-Groesse ca. `39,23 GiB`.
+
+**Lehre:** Backup-Haertung braucht eine klare Reihenfolge: erst BitLocker/physischer Schutz, dann Passwort generieren, dann Passwort ausserhalb des Rechners speichern/versenden, dann Repo wechseln, dann Restore-Test. Ein Backup ist erst dann "done", wenn ein Restore mit Hashvergleich bestanden ist.
