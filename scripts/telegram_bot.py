@@ -13,7 +13,7 @@ import requests
 
 from cost_tracker import reset_api_cost
 from failed_videos import append_failed_video
-from telegram_common import get_chat_id, get_updates, send_document, send_message, set_env_value
+from telegram_common import get_chat_id, get_setting, get_updates, send_document, send_message, set_env_value
 from telegram_status import render_status, status_payload
 
 
@@ -23,8 +23,11 @@ DEFAULT_DATA_CLASS = "D2"
 MAX_TELEGRAM_BATCH_COST_EUR = 5.0
 PER_URL_ESTIMATE_EUR = 0.08
 MAX_CHAT_ANALYSIS_CHARS = 3200
-DASHBOARD_LINK = "http://127.0.0.1:8765"
+MAX_LAST_ITEMS = 20
+MAX_TELEGRAM_LINE_CHARS = 220
+DASHBOARD_LINK = get_setting("DASHBOARD_LINK", "http://127.0.0.1:8765")
 DASHBOARD_FILE = PROJECT_DIR / "dashboard" / "imperium-status.html"
+COST_FILE = PROJECT_DIR / "videos" / "_cost" / "api-costs.json"
 
 
 HELP_TEXT = """Nexis Imperium Bot
@@ -32,6 +35,7 @@ HELP_TEXT = """Nexis Imperium Bot
 Befehle:
 /help - Hilfe
 /status - Systemstatus
+/last 5 - letzte verarbeitete Videos mit Ordner-Link
 /analyze <URL> [Frage] - Video/Post analysieren
 /memory <Frage> - lokale Memory-KI mit Qdrant-Wissen fragen
 /briefing [morning|midday|evening] - Memory-KI Briefing erzeugen
@@ -100,6 +104,232 @@ def local_readable_path(value: str | None) -> Path | None:
         rest = match.group(2).replace("\\", "/")
         return Path(f"/mnt/{drive}/{rest}")
     return Path(raw)
+
+
+def path_for_telegram(value: str | None, max_chars: int = MAX_TELEGRAM_LINE_CHARS) -> str:
+    if not value:
+        return "unbekannt"
+    raw = str(value).strip()
+    match = re.match(r"^/mnt/([a-zA-Z])/(.*)$", raw)
+    if match:
+        rest = match.group(2).replace("/", "\\")
+        raw = f"{match.group(1).upper()}:\\{rest}"
+    raw = re.sub(r"[\r\n\t]+", " ", raw)
+    if len(raw) <= max_chars:
+        return raw
+    return "..." + raw[-(max_chars - 3):]
+
+
+def clean_one_line(value: Any, max_chars: int = MAX_TELEGRAM_LINE_CHARS) -> str:
+    text = str(value or "").strip()
+    text = re.sub(r"[\r\n\t]+", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text if len(text) <= max_chars else text[: max_chars - 3].rstrip() + "..."
+
+
+def load_json_file(path: Path, default: Any) -> Any:
+    try:
+        if not path.exists():
+            return default
+        return json.loads(path.read_text(encoding="utf-8", errors="replace"))
+    except Exception:
+        return default
+
+
+def latest_run_file() -> Path | None:
+    runs_dir = PROJECT_DIR / "videos" / "_runs"
+    if not runs_dir.exists():
+        return None
+    files = [path for path in runs_dir.glob("*/*.json") if path.is_file()]
+    return max(files, key=lambda path: path.stat().st_mtime) if files else None
+
+
+def latest_run_payload() -> dict[str, Any]:
+    path = latest_run_file()
+    if not path:
+        return {}
+    payload = load_json_file(path, {})
+    if isinstance(payload, dict):
+        payload["_run_file"] = str(path)
+        return payload
+    return {}
+
+
+def item_category(item: dict[str, Any]) -> str:
+    pipeline = item.get("pipeline") or {}
+    classified = item.get("classified") or {}
+    return clean_one_line(
+        pipeline.get("topic")
+        or classified.get("category")
+        or item.get("category")
+        or item.get("expected_category")
+        or item.get("topic")
+        or "unbekannt",
+        80,
+    )
+
+
+def item_video_label(item: dict[str, Any], fallback_index: int | None = None) -> str:
+    pipeline = item.get("pipeline") or {}
+    label = (
+        item.get("entry")
+        or item.get("video_id")
+        or pipeline.get("video_id")
+        or item.get("index")
+        or fallback_index
+        or "?"
+    )
+    return clean_one_line(label, 90)
+
+
+def item_folder(item: dict[str, Any]) -> str | None:
+    pipeline = item.get("pipeline") or {}
+    files = pipeline.get("files") or {}
+    return (
+        item.get("video_dir")
+        or item.get("post_dir")
+        or pipeline.get("video_dir")
+        or pipeline.get("post_dir")
+        or files.get("run_manifest_windows")
+        or files.get("run_manifest")
+        or item.get("analysis")
+    )
+
+
+def processed_items_from_run(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    items = payload.get("items") or []
+    return [item for item in items if isinstance(item, dict) and item.get("status") == "processed"]
+
+
+def latest_processed_from_manifests(limit: int) -> list[dict[str, Any]]:
+    videos_dir = PROJECT_DIR / "videos"
+    if not videos_dir.exists():
+        return []
+    manifest_paths = [
+        path for path in videos_dir.glob("*/*/pipeline-manifest.json")
+        if "_runs" not in path.parts
+    ]
+    latest = sorted(manifest_paths, key=lambda path: path.stat().st_mtime, reverse=True)[:limit]
+    items: list[dict[str, Any]] = []
+    for path in latest:
+        manifest = load_json_file(path, {})
+        if isinstance(manifest, dict):
+            items.append({"status": "processed", "pipeline": manifest, "index": path.parent.name})
+    return items
+
+
+def format_compact_video(item: dict[str, Any], fallback_index: int | None = None) -> str:
+    label = item_video_label(item, fallback_index)
+    category = item_category(item)
+    folder = path_for_telegram(item_folder(item))
+    return "\n".join(
+        [
+            f"Video {label} ({category})",
+            f"Ordner: {folder}",
+            f"Dashboard: {DASHBOARD_LINK}",
+        ]
+    )
+
+
+def format_eta(seconds: float | None) -> str:
+    if seconds is None or seconds <= 0:
+        return "unbekannt"
+    minutes = int(round(seconds / 60))
+    if minutes < 90:
+        return f"{minutes} min"
+    return f"{minutes / 60:.1f} h"
+
+
+def compact_cost_line() -> str:
+    payload = load_json_file(COST_FILE, {})
+    providers = payload.get("providers") if isinstance(payload, dict) else {}
+    if not isinstance(providers, dict) or not providers:
+        return "Cost: unbekannt"
+    parts = []
+    for api_name in ["gemini-flash", "gemini-pro", "claude-vision", "openai-vision"]:
+        provider = providers.get(api_name) or {}
+        spent = float(provider.get("spent_eur") or 0)
+        if spent > 0 or api_name.startswith("gemini"):
+            parts.append(f"{api_name} {spent:.2f} EUR")
+    return "Cost: " + "; ".join(parts[:4])
+
+
+def stage_process_hint() -> str:
+    try:
+        completed = subprocess.run(
+            ["bash", "-lc", "ps -eo cmd | grep -F 'run_stage2_it_200.py' | grep -v grep >/dev/null"],
+            cwd=PROJECT_DIR,
+            text=True,
+            capture_output=True,
+            timeout=5,
+        )
+        return "laeuft" if completed.returncode == 0 else "nicht aktiv"
+    except Exception:
+        return "unbekannt"
+
+
+def render_compact_status() -> str:
+    service_payload = status_payload()
+    run_payload = latest_run_payload()
+    counts = run_payload.get("counts") or {}
+    processed = int(counts.get("processed") or 0)
+    duplicates = int(counts.get("duplicate_reference") or 0)
+    failed = int(counts.get("failed") or 0)
+    done = processed + duplicates + failed
+    total = int(run_payload.get("planned_count") or 0)
+    remaining = max(total - done, 0) if total else 0
+    process_hint = stage_process_hint()
+
+    eta = "unbekannt"
+    started_at = run_payload.get("started_at")
+    try:
+        if process_hint != "laeuft":
+            eta = "gestoppt/pausiert"
+        elif started_at and done > 0 and remaining > 0:
+            started_ts = datetime.fromisoformat(str(started_at).replace("Z", "+00:00")).timestamp()
+            elapsed = max(time.time() - started_ts, 1)
+            eta = format_eta(remaining / (done / elapsed))
+    except Exception:
+        eta = "unbekannt"
+
+    services = service_payload.get("services") or {}
+    services_ok = sum(1 for ok in services.values() if ok)
+    services_total = len(services)
+    processed_items = processed_items_from_run(run_payload)
+    last_categories = [item_category(item) for item in processed_items[-3:]]
+    last_categories_text = ", ".join(last_categories) if last_categories else "keine"
+    run_id = clean_one_line(run_payload.get("run_id") or "kein Run", 80)
+    run_status = clean_one_line(run_payload.get("status") or "unbekannt", 40)
+
+    return "\n".join(
+        [
+            "Pipeline-Status",
+            f"Run: {run_id} | {run_status} | Prozess: {process_hint}",
+            f"Fortschritt: {done}/{total or '?'} (ok {processed}, dup {duplicates}, fail {failed})",
+            f"ETA: {eta}",
+            compact_cost_line(),
+            f"Services: {services_ok}/{services_total} OK",
+            f"Letzte Kategorien: {last_categories_text}",
+            f"Dashboard: {DASHBOARD_LINK}",
+        ]
+    )
+
+
+def render_last_processed(limit: int) -> str:
+    requested = limit
+    limit = max(1, min(limit, MAX_LAST_ITEMS))
+    run_payload = latest_run_payload()
+    items = processed_items_from_run(run_payload)
+    selected = items[-limit:] if items else latest_processed_from_manifests(limit)
+    if not selected:
+        return "Keine verarbeiteten Videos gefunden."
+    lines = [f"Letzte {len(selected)} Videos"]
+    if requested > MAX_LAST_ITEMS:
+        lines.append(f"Hinweis: maximal {MAX_LAST_ITEMS} pro Anfrage.")
+    for item in selected:
+        lines.append("")
+        lines.append(format_compact_video(item))
+    return "\n".join(lines)[:3900]
 
 
 def excerpt_markdown(markdown_path: str | None) -> str:
@@ -284,17 +514,8 @@ def render_batch_result(payload: dict[str, Any]) -> str:
         f"- Kosten: ${float(payload.get('actual_cost_usd') or 0):.4f}",
     ]
     for index, item in enumerate(processed[:10], start=1):
-        label = item.get("entry") or index
-        category = item.get("category") or item.get("topic") or "unbekannt"
-        folder = item.get("video_dir") or item.get("post_dir") or item.get("analysis")
         lines.append("")
-        lines.append(f"✓ Video {label} (Kategorie {category}) verarbeitet")
-        lines.append(f"Quelle: {item.get('url')}")
-        if folder:
-            lines.append(f"Ordner: {folder}")
-        lines.append(f"Dashboard: {DASHBOARD_LINK}")
-        if item.get("qdrant_id"):
-            lines.append(f"Qdrant: {item.get('qdrant_id')}")
+        lines.append(format_compact_video(item, fallback_index=index))
     if len(processed) > 10:
         lines.append("")
         lines.append(f"+ {len(processed) - 10} weitere verarbeitet. Details liegen in den Video-Ordnern.")
@@ -373,7 +594,15 @@ def handle_text(text: str, chat_id: str) -> None:
         send_message(HELP_TEXT, chat_id=chat_id)
         return
     if lower.startswith("/status"):
-        send_message(render_status(status_payload()), chat_id=chat_id)
+        send_message(render_compact_status(), chat_id=chat_id)
+        return
+    if lower.startswith("/last"):
+        raw_limit = re.sub(r"^/last(@\w+)?", "", stripped, flags=re.I).strip()
+        try:
+            limit = int(raw_limit.split()[0]) if raw_limit else 5
+        except ValueError:
+            limit = 5
+        send_message(render_last_processed(limit), chat_id=chat_id)
         return
     if lower.startswith("/reset_cost"):
         api_name = re.sub(r"^/reset_cost(@\w+)?", "", stripped, flags=re.I).strip()
