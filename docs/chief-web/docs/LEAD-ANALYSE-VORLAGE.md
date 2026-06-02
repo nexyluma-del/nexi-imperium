@@ -1,13 +1,14 @@
-# Chief Web - Lead Analyse Vorlage
+# Nexyl Studio - Beauty Lead Analyse Vorlage
 
 Status: intern, kein Kontakt  
+Datum: 2026-06-02  
 Datenklasse: D1/D2 je nach Quelle  
-Risiko: R1-R2  
+Risiko: R1-R2 intern, R3 bei Kontakt  
 
 ## Lead
 
-- Firma:
-- Branche:
+- Studio:
+- Beauty-Untersegment:
 - Ort:
 - Website:
 - Social:
@@ -17,11 +18,20 @@ Risiko: R1-R2
 
 - Mobil gut?
 - klare Headline?
-- Kontakt leicht sichtbar?
+- Termin/WhatsApp leicht sichtbar?
 - Leistungen klar?
+- Preise oder Ab-Preise sichtbar?
 - Vertrauen/Referenzen?
+- Galerie/Studioeindruck?
 - Ladezeit grob okay?
 - Design zeitgemaess?
+
+## Social-vs-Website-Luecke
+
+- Instagram stark, Website schwach?
+- gute Bilder, aber keine klare Buchung?
+- viele Services, aber unklare Struktur?
+- Bio-Link unklar?
 
 ## Chancen
 
@@ -29,11 +39,13 @@ Risiko: R1-R2
 - moeglicher Onepager-Fit:
 - moeglicher Preisrahmen:
 - moeglicher Wartungsfit:
+- moegliche Terminbuchungs-Verbesserung:
 
 ## Risiko
 
-- Branche sensibel?
-- Heilung/Recht/Finanzen?
+- Gesundheits-/Haut-/Heilclaims sichtbar?
+- Vorher/Nachher-Bilder ohne erkennbare Freigabe?
+- medizinisch klingende Angebote?
 - rechtliche Claims sichtbar?
 - Kontaktaufnahme erlaubt? Nein, bis Nexi Go gibt.
 
@@ -42,4 +54,4 @@ Risiko: R1-R2
 - Angebot:
 - Prioritaet:
 - Begruendung:
-
+- Naechster Schritt:

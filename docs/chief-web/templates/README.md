@@ -1,15 +1,32 @@
-# Chief Web Templates
+# Nexyl Studio - Templates
 
-Die Template-Entscheidung ist bewusst verschoben.
+Status: intern  
+Datum: 2026-06-02  
 
-Aktuell werden zwei Cases vorbereitet:
+## Aktiver Template-Track
 
-1. Handwerker / lokales Gewerbe
-2. Beauty / Salon / Kosmetik
+Der erste Template-Track ist:
 
-Nexi entscheidet nach Sichtung des Demo-Onepagers, welcher Case zuerst als vollwertiges Template gebaut wird.
+**Beauty / Salon**
 
-## Warum verschoben?
+Handwerker bleibt als zweiter Track im Backlog.
 
-Handwerker ist sachlich klar und risikoarm. Beauty kann visuell staerker wirken und wahrscheinlich bessere Conversion/Preise erzielen. Die Entscheidung soll nicht theoretisch fallen, sondern anhand der Demo-Wirkung.
+## Template-Regeln
 
+- mobile first
+- keine externen Assets ohne Freigabe
+- keine echten Kundendaten
+- keine Heil-, Medizin- oder Garantieclaims
+- keine Veroeffentlichung ohne Nexis Go
+
+## Aktuelle Unterordner
+
+- `beauty-salon-onepager/` - Spezifikation fuer das erste echte Beauty-Onepager-Template
+
+## Demo
+
+Die aktuelle Demo liegt unter:
+
+- `demo/studio-onepager/`
+
+Diese Demo ist ein interner Onepager fuer Nexyl Studio und zeigt den Beauty-Fokus.

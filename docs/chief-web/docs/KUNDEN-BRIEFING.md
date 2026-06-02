@@ -1,45 +1,47 @@
-# Chief Web - Kunden-Briefing
+# Nexyl Studio - Beauty Kunden-Briefing
 
 Status: Vorlage  
+Datum: 2026-06-02  
 Datenklasse: D1 bis D2 je nach Kundendaten  
 
 ## Ziel
 
-Dieses Briefing sammelt nur das, was fuer ein klares Angebot und einen schnellen Website-Draft gebraucht wird.
+Dieses Briefing sammelt nur das, was fuer ein klares Beauty-Angebot und einen schnellen Website-Draft gebraucht wird.
 
 ## Basisdaten
 
 - Firmenname:
 - Ansprechpartner:
-- Branche:
+- Beauty-Untersegment:
 - Ort / Einzugsgebiet:
 - Bestehende Website:
-- Social-Links:
+- Instagram / TikTok / Social:
 - Wunsch-Launch:
 
 ## Ziel der Website
 
 - Was soll die Website hauptsaechlich bringen?
-- Mehr Anfragen?
-- mehr Termine?
+- Mehr Termine?
 - bessere Wirkung?
 - Leistungen klarer erklaeren?
-- Online verkaufen?
+- Preise transparenter zeigen?
+- neue Behandlung hervorheben?
 
 ## Zielkunden
 
 - Wer soll die Website besuchen?
-- Welche Probleme haben diese Kunden?
+- Welche Kundinnen/Kunden passen am besten?
 - Was ist ihnen wichtig?
-- Warum sollen sie genau dieses Unternehmen waehlen?
+- Warum sollen sie genau dieses Studio waehlen?
 
 ## Angebot / Leistungen
 
-- Welche Leistungen muessen auf die Seite?
+- Welche Services muessen auf die Seite?
 - Welche Leistung bringt den meisten Umsatz?
 - Welche Leistung soll besonders beworben werden?
-- Gibt es Preise oder Preisrahmen?
+- Gibt es Preise oder Ab-Preise?
 - Gibt es Leistungen, die nicht beworben werden sollen?
+- Gibt es Gesundheits-, Haut- oder Wirkversprechen, die geprueft werden muessen?
 
 ## Material
 
@@ -49,20 +51,22 @@ Dieses Briefing sammelt nur das, was fuer ein klares Angebot und einen schnellen
 - Texte vorhanden?
 - Kundenbewertungen vorhanden?
 - Zertifikate / Referenzen vorhanden?
+- Vorher/Nachher-Bilder vorhanden und freigegeben?
 
 ## Stil
 
-- modern / ruhig / edel / freundlich / technisch / luxurioes?
+- modern / ruhig / edel / freundlich / clean / premium?
 - Beispiele von Websites, die gefallen:
 - Beispiele von Websites, die nicht gefallen:
 
 ## Kontakt und CTA
 
 - Was ist die wichtigste Aktion?
-- Anrufen?
 - WhatsApp?
+- Telefon?
 - Kontaktformular?
 - Termin buchen?
+- Instagram DM?
 - E-Mail?
 
 ## Rechtliches
@@ -70,6 +74,8 @@ Dieses Briefing sammelt nur das, was fuer ein klares Angebot und einen schnellen
 - Impressum vorhanden?
 - Datenschutztext vorhanden?
 - Cookie-/Tracking-Wunsch?
+- Bildrechte geklaert?
+- Vorher/Nachher-Freigaben geklaert?
 - Rechtstexte werden vom Kunden gestellt oder extern geprueft.
 
 ## Scope-Klaerung

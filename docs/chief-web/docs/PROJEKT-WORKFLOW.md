@@ -1,13 +1,15 @@
-# Chief Web - Projekt Workflow
+# Nexyl Studio - Projekt Workflow
 
 Status: intern  
+Datum: 2026-06-02  
 Datenklasse: D1  
-Risiko-Level: R1  
+Risiko-Level: R1 intern, R3 bei echter Aussenwirkung  
 
 ## Workflow Uebersicht
 
 ```text
 Lead/Idee
+  -> Beauty-Fit pruefen
   -> Briefing
   -> Angebot
   -> Nexi Approval
@@ -23,8 +25,11 @@ Lead/Idee
 
 Input:
 
-- Branche
+- Studio-Name
+- Beauty-Untersegment
 - bestehende Website
+- Instagram/Social
+- Ort
 - grobes Ziel
 - moeglicher Preisrahmen
 
@@ -38,8 +43,19 @@ Wichtig:
 
 - Keine Kontaktaufnahme ohne Freigabe.
 - Keine automatisierte Kaltakquise ohne Rechtscheck.
+- Keine medizinischen oder garantierten Beauty-Claims uebernehmen.
 
-## Phase 2 - Briefing
+## Phase 2 - Beauty-Fit
+
+Pruefen:
+
+- Ist der Kunde ein Beauty-/Salon-Fit?
+- Sind Services und Preise klar?
+- Gibt es riskante Heil-, Haut- oder Medizinversprechen?
+- Gibt es genug Material fuer einen Onepager?
+- Ist Terminbuchung oder WhatsApp als CTA moeglich?
+
+## Phase 3 - Briefing
 
 Output:
 
@@ -50,9 +66,11 @@ Output:
 Stop:
 
 - Kundendaten D2/D3 unklar
-- Heilung/Finanzen/Recht mit Claims
+- medizinische Claims
+- Vorher/Nachher-Bilder ohne Freigabe
+- Rechtstexte unklar
 
-## Phase 3 - Angebot
+## Phase 4 - Angebot
 
 Output:
 
@@ -66,7 +84,7 @@ Approval:
 
 - Vor Versand immer Nexi-Go.
 
-## Phase 4 - Draft
+## Phase 5 - Draft
 
 Output:
 
@@ -78,22 +96,24 @@ Output:
 Qualitaetscheck:
 
 - klare Headline
-- sichtbarer CTA
-- Leistungen verstaendlich
+- sichtbarer Termin-CTA
+- Services verstaendlich
+- Preise oder Ab-Preise scanbar
 - keine leeren Versprechen
 - keine rechtlich riskanten Aussagen
 
-## Phase 5 - Review
+## Phase 6 - Review
 
 Review-Fragen:
 
-- Versteht man in 5 Sekunden, was angeboten wird?
+- Versteht man in 5 Sekunden, welches Studio wofuer steht?
 - Ist der naechste Schritt klar?
 - Ist die Seite mobil sauber?
-- Fuehlt die Seite zur Branche passend?
+- Fuehlt die Seite hochwertig und zur Beauty-Branche passend?
 - Gibt es fehlende Inhalte?
+- Sind alle Claims risikoarm?
 
-## Phase 6 - Launch
+## Phase 7 - Launch
 
 Nur mit Go:
 
@@ -104,7 +124,7 @@ Nur mit Go:
 - Tracking
 - oeffentliche Website
 
-## Phase 7 - Wartung
+## Phase 8 - Wartung
 
 Immer anbieten:
 
@@ -112,4 +132,3 @@ Immer anbieten:
 - kleine Aenderungen
 - monatlicher Kurzreport
 - Weiterentwicklung
-

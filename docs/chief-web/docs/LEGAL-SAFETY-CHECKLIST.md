@@ -1,11 +1,12 @@
-# Chief Web - Legal Safety Checklist
+# Nexyl Studio - Legal Safety Checklist
 
 Status: Arbeitscheckliste, keine Rechtsberatung  
+Datum: 2026-06-02  
 Risiko: R1 intern, R3/R4 bei Aussenwirkung  
 
 ## Grundregel
 
-Chief Web erstellt keine rechtlich verbindlichen Texte. Impressum, Datenschutz, AGB, Widerruf und Vertragsdetails muessen von Nexi geprueft oder extern rechtlich abgesichert werden, bevor sie oeffentlich genutzt werden.
+Nexyl Studio erstellt keine rechtlich verbindlichen Texte. Impressum, Datenschutz, AGB, Widerruf, Bildrechte, Tracking und Vertragsdetails muessen von Nexi geprueft oder extern rechtlich abgesichert werden, bevor sie oeffentlich genutzt werden.
 
 ## Nie ohne Nexis Go
 
@@ -19,7 +20,7 @@ Chief Web erstellt keine rechtlich verbindlichen Texte. Impressum, Datenschutz, 
 - Heilungs-/Gesundheitsaussagen veroeffentlichen
 - garantierte Umsatzversprechen machen
 
-## Claims vermeiden
+## Allgemeine Claims vermeiden
 
 Nicht schreiben:
 
@@ -38,6 +39,25 @@ Besser:
 - rechtliche Texte werden vom Kunden gestellt oder geprueft
 - Inhalte nach Kundenfreigabe
 
+## Beauty-Claims vermeiden
+
+Nicht schreiben ohne Rechtscheck:
+
+- heilt Akne
+- entfernt Falten dauerhaft
+- garantiert reine Haut
+- medizinisch wirksam
+- ersetzt Behandlung
+- sichere Ergebnisse
+
+Besser:
+
+- gepflegter Auftritt
+- klare Services
+- wohlfuehlende Studio-Atmosphaere
+- professionelle Behandlung
+- individuelle Ergebnisse koennen variieren
+
 ## Website Pflichtpunkte Deutschland
 
 Vor Launch klaeren:
@@ -47,6 +67,7 @@ Vor Launch klaeren:
 - Cookie-/Tracking-Situation
 - Kontaktformular Datenschutz
 - Bildrechte
+- Vorher/Nachher-Freigaben
 - Schrift-/Asset-Lizenzen
 - Preisangaben falls relevant
 - Branchenpflichten
@@ -67,4 +88,3 @@ Sicherer Start:
 - organischer Content
 - manuelle Analyse ohne Kontakt
 - Kontakt nur nach Nexis Go und Rechtscheck
-

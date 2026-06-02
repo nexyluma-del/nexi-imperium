@@ -1,12 +1,13 @@
-# Chief Web - Angebote und Preise
+# Nexyl Studio - Angebote und Preise
 
 Status: intern, nicht als finales Kundenangebot nutzen  
+Datum: 2026-06-02  
 Datenklasse: D1  
-Risiko-Level: R1  
+Risiko-Level: R1 intern, R3 bei echter Aussenwirkung  
 
 ## Preislogik
 
-Wir starten nicht billig, sondern klar. Preise muessen fuer lokale Kunden verstaendlich sein und Nexis Zeit schuetzen.
+Nexyl Studio startet nicht billig, sondern klar. Beauty-Kunden kaufen nicht nur eine technische Website, sondern einen professionellen Auftritt, der Vertrauen und Terminbuchung leichter macht.
 
 Grundsatz:
 
@@ -14,33 +15,36 @@ Grundsatz:
 - Scope eng halten.
 - Zusatzwuensche nicht verschenken.
 - Wartung immer anbieten.
+- Keine rechtlich riskanten Beauty- oder Gesundheitsversprechen.
 
-## Angebot 1 - Starter Onepager
+## Angebot 1 - Beauty Starter Onepager
 
-Preis:
+Empfohlener Startpreis:
 
-- Start: 790 EUR
-- Spielraum: 690-990 EUR
+- Start: 890 EUR
+- Spielraum: 790-1.190 EUR
 
 Lieferzeit:
 
-- 2-4 Werktage nach vollstaendigem Material
+- 3-5 Werktage nach vollstaendigem Material
 
 Geeignet fuer:
 
-- Beauty-Salon
+- Kosmetikstudio
+- Brow/Lash Studio
+- Nail Studio
+- Skin Studio ohne medizinische Heilclaims
 - Barbershop
-- Handwerker
-- lokale Dienstleister
-- kleine Studios
+- Beauty Freelancer
 
 Enthalten:
 
 - 1 Seite
 - Hero mit klarer Positionierung
-- Leistungen
-- Vertrauenselemente
-- Kontakt/CTA
+- 3-6 Leistungen
+- Preis- oder Ab-Preis-Sektion
+- Studio-/Vertrauenssektion
+- Kontakt/Termin-CTA
 - Mobiloptimierung
 - Basis-SEO
 - einfache technische Uebergabe
@@ -54,70 +58,72 @@ Nicht enthalten:
 - Online-Shop
 - mehrsprachige Version
 - bezahlte Ads
+- medizinische oder heilbezogene Copy
 
 Upsells:
 
-- Wartung: 79 EUR/Monat
-- Zusatzsektion: 120-250 EUR
-- Terminbuchung: 150-350 EUR
+- Wartung Basis: 79 EUR/Monat
+- Wartung Standard: 149 EUR/Monat
+- Zusatzsektion: 150-300 EUR
+- Terminbuchungs-Einbindung: 150-350 EUR
+- Galerie/Portfolio: 250-500 EUR
 - Foto-/Bildaufbereitung: nach Aufwand
 
-## Angebot 2 - Local Business Website
+## Angebot 2 - Beauty Local Website
 
 Preis:
 
-- 1.400-1.900 EUR
+- 1.600-2.400 EUR
 
 Lieferzeit:
 
-- 5-10 Werktage
+- 7-12 Werktage
 
 Enthalten:
 
 - 4-6 Seiten
 - Startseite
 - Leistungen
+- Preise
+- Galerie oder Studio
 - Ueber uns
-- Referenzen/Galerie
-- Kontakt
+- Kontakt/Buchung
 - Local-SEO-Basis
 
 Geeignet fuer:
 
-- Restaurants
-- Praxen ohne Heilclaim
-- Studios
-- Beratungen
-- groessere lokale Dienstleister
+- etablierte Beauty-Studios
+- Salons mit mehreren Leistungen
+- Studios mit Team
+- Studios mit Galerie und Bewertungen
 
-## Angebot 3 - Premium Service Website
+## Angebot 3 - Beauty Premium Conversion Website
 
 Preis:
 
-- 2.400-3.900 EUR
+- 2.900-4.900 EUR
 
 Lieferzeit:
 
-- 10-20 Werktage
+- 12-20 Werktage
 
 Enthalten:
 
-- bessere Copy
-- Angebotsstruktur
+- bessere Angebotsstruktur
+- Conversion-Copy
+- mehrere Leistungs-Landing-Sektionen
 - Trust-Elemente
-- mehrere Landing-Sektionen
-- Lead-Funnel
+- Galerie-/Ergebnislogik
+- Termin-Funnel
 - Performance-Optimierung
 
 Geeignet fuer:
 
-- Kanzleien
-- Steuerberater
-- hochwertige Beratungen
-- Agenturen
-- B2B-Dienstleister
+- Premium-Salons
+- Studios mit hohem Ticket
+- Standorte mit starkem Wettbewerb
 
-## Angebot 4 - Landingpage Funnel
+## Angebot 4 - Landingpage fuer Aktion oder neues Angebot
 
 Preis:
 
@@ -129,15 +135,16 @@ Lieferzeit:
 
 Ziel:
 
-- eine klare Kampagne
-- ein Angebot
+- ein neues Treatment
 - eine Aktion
+- eine klare Buchung
+- keine komplette Website
 
-## Angebot 5 - Website Relaunch
+## Angebot 5 - Website Relaunch Beauty
 
 Preis:
 
-- 1.500-4.000 EUR
+- 1.800-4.000 EUR
 
 Lieferzeit:
 
@@ -147,8 +154,9 @@ Geeignet fuer:
 
 - vorhandene schlechte Website
 - veraltetes Design
-- unklare Struktur
+- unklare Services
 - schlechte mobile Ansicht
+- Instagram stark, Website schwach
 
 ## Angebot 6 - Wartung und Wachstum
 
@@ -180,8 +188,8 @@ Premium:
 
 Empfehlung:
 
-1. Starter Onepager lokal demonstrieren.
-2. Beauty und Handwerker beide im Demo-Onepager anteasern.
-3. Nexi entscheidet anhand Wirkung.
-4. Danach eine Zielgruppe fuer den ersten Aussenkanal waehlen.
-
+1. Beauty-Demo-Onepager lokal fertig zeigen.
+2. Angebot als Starter Onepager fuer 890 EUR formulieren.
+3. Vor echter Akquise Legal-/Kaltkontakt-Regeln pruefen.
+4. Ersten Aussenkanal nur nach Nexis Go waehlen.
+5. Bei erstem Auftrag Wartung direkt mit anbieten.

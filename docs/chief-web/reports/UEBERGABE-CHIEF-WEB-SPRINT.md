@@ -1,52 +1,52 @@
 # Uebergabe - Chief Web Sprint
 
-Status: lokal vorbereitet  
+Datum: 2026-06-02  
+Status: lokal fertig  
 Kosten: 0 EUR  
-Externe Aktion: keine  
-Datenklasse: D1  
-Risiko-Level: R1  
+Externe Aktionen: keine  
 
-## Ergebnis
+## Entscheidung
 
-Chief Web hat jetzt ein lokales Operating Pack und einen Demo-Onepager. Der alte, Lumia-nahe Name wurde entfernt. Die konkrete Studio-Marke bleibt austauschbar, bis Nexi eine der drei Optionen waehlt.
+Chief Web startet unter dem Namen:
 
-## Erstellte Bausteine
+**Nexyl Studio**
 
-- `docs/NAMENSENTSCHEIDUNG.md`
-- `docs/CHIEF-WEB-OPERATING-SYSTEM.md`
-- `docs/ANGEBOTE-UND-PREISE.md`
-- `docs/KUNDEN-BRIEFING.md`
-- `docs/ANGEBOT-TEMPLATE.md`
-- `docs/PROJEKT-WORKFLOW.md`
-- `docs/LEGAL-SAFETY-CHECKLIST.md`
-- `docs/LEAD-ANALYSE-VORLAGE.md`
-- `templates/README.md`
-- `demo/studio-onepager/index.html`
-- `demo/studio-onepager/styles.css`
+Der erste Template- und Cashflow-Track ist:
 
-## Offene Entscheidungen
+**Beauty / Salon**
 
-1. Name:
-   - Nexyl Studio
-   - Nexi Web Studio
-   - Nexora Web Studio
+Handwerker bleibt als zweiter Track im Backlog.
 
-2. Erstes vollwertiges Template:
-   - Beauty / Salon
-   - Handwerker / lokales Gewerbe
+## Gebaut
 
-3. Erster Aussenkanal nach Bau-Sprint:
-   - Netzwerk
-   - Fiverr/Upwork
-   - organischer Content
-   - rechtlich gepruefter Outreach
+- Namensentscheidung aktualisiert.
+- Chief Web Operating System auf Nexyl Studio und Beauty-Fokus umgestellt.
+- Angebote und Preise auf Beauty/Salon zugeschnitten.
+- Beauty/Salon Operating Pack erstellt.
+- Template-Spezifikation fuer Beauty Salon Onepager erstellt.
+- Demo-Onepager auf Beauty zugeschnitten.
 
-## Empfehlung
+## Wichtige Dateien
 
-Name: **Nexyl Studio**  
-Erster Template-Case: **Beauty / Salon**, wenn der Demo-Look ueberzeugt.  
-Grund: Beauty kann visuell hochwertiger wirken und wahrscheinlich bessere Preise/Conversion tragen. Handwerker bleibt als sachlicher zweiter Case bereit.
+| Datei | Zweck |
+|---|---|
+| `docs/NAMENSENTSCHEIDUNG.md` | Entscheidung Nexyl Studio |
+| `docs/CHIEF-WEB-OPERATING-SYSTEM.md` | Chief-Web-Regeln und Rollen |
+| `docs/ANGEBOTE-UND-PREISE.md` | Beauty-Angebote und Preise |
+| `docs/BEAUTY-SALON-OPERATING-PACK.md` | Branchenspezifisches Operating Pack |
+| `templates/beauty-salon-onepager/README.md` | Template-Spezifikation |
+| `demo/studio-onepager/index.html` | lokaler Demo-Onepager |
 
-## Stop-Regeln bleiben aktiv
+## Noch nicht gemacht
 
-Keine Veroeffentlichung, kein Domainkauf, keine Akquise, keine Kundenkommunikation und keine Vertragsnutzung ohne Nexis Go.
+- Keine Domain gekauft.
+- Keine Website veroeffentlicht.
+- Keine Kunden kontaktiert.
+- Keine echten Rechts-/Datenschutztexte finalisiert.
+- Kein Handwerker-Template gebaut.
+
+## Naechste Entscheidung durch Nexi
+
+1. Soll der Beauty-Onepager als echtes wiederverwendbares Template gebaut werden?
+2. Soll der erste Aussenkanal Instagram, lokale Suche, Empfehlungen oder eine Demo-Nachricht sein?
+3. Soll vor Aussenkontakt ein Rechtscheck fuer Kaltkontakt und Impressum/Datenschutz geplant werden?

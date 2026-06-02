@@ -1,88 +1,46 @@
 # Chief Web - Namensentscheidung
 
-Status: Auswahl offen  
+Status: entschieden  
+Datum: 2026-06-02  
 Kosten: 0 EUR  
 Externe Aktion: keine  
 
-## Kurzfazit
+## Entscheidung
 
-Der alte Arbeitsname ist raus, weil er zu nah an Lumia liegt. Die drei brauchbaren Optionen sind Nexyl Studio, Nexi Web Studio und Nexora Web Studio. Meine Empfehlung ist aktuell **Nexyl Studio**, weil es am eigenstaendigsten wirkt und weniger direkte Kollisionen im Webdesign-/Payment-Umfeld sichtbar sind.
+Der Name fuer den ersten Cashflow-Web-Track ist:
 
-## Option 1 - Nexyl Studio
+**Nexyl Studio**
 
-Empfehlung: **Platz 1**
+## Begruendung
 
-Warum:
+Nexyl Studio wirkt eigenstaendig, kurz und hochwertig. Der Name ist nah genug an Nexis Marke, aber weit genug weg von Lumia, damit Voice-KI und Web-Cashflow nicht verwechselt werden.
 
-- Kurz, eigenstaendig und gut merkbar.
-- Klingt modern, aber nicht zu verspielt.
-- Funktioniert spaeter nicht nur fuer Websites, sondern auch fuer KI-Workflows, Automationen und digitale Produkte.
-- Aussprache: "Nex-yl" oder "Nexil" ist fuer Deutsch/Englisch akzeptabel, muss aber in der Marke einmal festgelegt werden.
+## Sprachwirkung
 
-Domain-Vorcheck:
+- Deutsch: "Nexil Studio" ist einfach aussprechbar.
+- Englisch: "Nex-yl Studio" funktioniert ebenfalls.
+- Marke: modern, digital, ruhig, nicht verspielt.
+- Erweiterbar: passt spaeter auch zu Automationen, KI-Workflows und digitalen Produkten.
 
-- `nexyl-studio.de`: lokaler DNS-Vorcheck ohne Treffer. Das ist kein Beweis fuer freie Domain.
-- Vor Kauf final bei DENIC/Registrar pruefen.
+## Domain- und Markenhinweis
 
-Marken-/Kollisionsrisiko:
+Es wurde kein Kauf, keine Registrierung und keine externe Aktion ausgefuehrt.
 
-- Sichtbare Treffer zu "Nexyl" existieren in anderen Bereichen, unter anderem Medizin/Pharma international.
-- Fuer Webstudio/Agentur wirkt das Risiko niedriger als bei Nexi oder Nexora, aber vor oeffentlicher Nutzung trotzdem DPMA/EUIPO/Google final pruefen.
-
-## Option 2 - Nexi Web Studio
-
-Empfehlung: **Platz 2**
-
-Warum:
-
-- Passt direkt zu Nexi und deiner persoenlichen Marke.
-- Sehr einfach auszusprechen.
-- Klarer Bezug: Web Studio = sofort verstaendlich.
-
-Domain-Vorcheck:
-
-- `nexi-web-studio.de`: lokaler DNS-Vorcheck ohne Treffer. Das ist kein Beweis fuer freie Domain.
-- Vor Kauf final bei DENIC/Registrar pruefen.
-
-Marken-/Kollisionsrisiko:
-
-- Hoeher, weil "Nexi" bereits als grosse europaeische PayTech-/Payment-Marke sichtbar ist.
-- Wenn spaeter Payments, E-Commerce oder Shops angeboten werden, kann die Naehe stoeren.
-- Fuer internes Arbeiten okay, fuer oeffentlichen Markenaufbau nur nach sauberem Markencheck.
-
-## Option 3 - Nexora Web Studio
-
-Empfehlung: **Platz 3**
-
-Warum:
-
-- Klingt professionell und agenturartig.
-- Hat gute Sprachwirkung.
-
-Domain-Vorcheck:
-
-- `nexora-web-studio.de`: lokaler DNS-Vorcheck ohne Treffer. Das ist kein Beweis fuer freie Domain.
-- Vor Kauf final bei DENIC/Registrar pruefen.
-
-Marken-/Kollisionsrisiko:
-
-- Sichtbar hoeher, weil "Nexora Web Studio" beziehungsweise sehr nahe Varianten online bereits als Web-/Development-Studio auftauchen.
-- Deshalb nicht meine erste Wahl, obwohl der Name gut klingt.
-
-## Empfehlung an Nexi
-
-Waehle **Nexyl Studio**, wenn du eine eigenstaendige Cashflow-Marke willst, die nicht mit Lumia verwechselt wird und nicht direkt an eine bekannte Payment-Marke erinnert.
-
-Waehle **Nexi Web Studio**, wenn die persoenliche Marke "Nexi" bewusst im Vordergrund stehen soll und du den Markencheck spaeter sauber nachziehst.
-
-Waehle **Nexora Web Studio** nur, wenn dir der Klang extrem wichtig ist und du bereit bist, die Kollisionslage genauer zu pruefen.
-
-## Pflicht vor echter Aussenwirkung
-
-Vor Domainkauf, oeffentlicher Website, Impressum, Social-Profilen oder Akquise:
+Vor echter Aussenwirkung sind Pflicht:
 
 1. DENIC/Registrar Domaincheck.
 2. DPMAregister Suche.
-3. EUIPO eSearch Suche.
-4. Google/LinkedIn Suche nach identischen Agenturnamen.
+3. EUIPO Suche.
+4. Google/LinkedIn Suche nach identischen oder sehr nahen Agenturnamen.
 5. Bei ernsthaftem Markenaufbau optional Rechtscheck.
+
+## Aktueller Einsatz
+
+Nexyl Studio wird ab sofort intern verwendet fuer:
+
+- Chief-Web-Operating-Pack
+- Beauty/Salon Demo-Onepager
+- Angebotslogik
+- Workflow- und Template-Dokumente
+
+Oeffentliche Nutzung startet erst nach Nexis separatem Go.

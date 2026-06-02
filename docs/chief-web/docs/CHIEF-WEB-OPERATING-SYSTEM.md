@@ -1,69 +1,89 @@
 # Chief Web Operating System
 
-Status: v1.0 lokal  
+Status: v1.1 lokal  
+Datum: 2026-06-02  
 Datenklasse: D1  
-Risiko-Level: R1  
+Risiko-Level: R1 intern, R3 bei echter Aussenwirkung  
 Kosten: 0 EUR  
 Externe Aktion: keine  
+Marke: Nexyl Studio  
+Erster Track: Beauty / Salon  
 
 ## Mission
 
-Chief Web ist der erste Cashflow-Chief. Ziel ist, innerhalb kurzer Zeit verkaufbare, professionell wirkende Websites und Landingpages fuer lokale Unternehmen und Dienstleister zu liefern. Der Chief arbeitet schnell, strukturiert und qualitativ sauber, aber ohne voreilige externe Aktionen.
+Chief Web ist der erste Cashflow-Chief. Ziel ist, mit Nexyl Studio schnell verkaufbare, professionell wirkende Websites und Landingpages fuer lokale Unternehmen zu liefern.
+
+Der erste operative Markt ist **Beauty / Salon**, weil dort visuelle Wirkung, schnelle Terminlogik und klare Pakete voraussichtlich besser verkaufen als ein generischer lokaler Business-Ansatz.
 
 ## Positionierung
 
-Arbeitsname bis Nexis Entscheidung: `{{STUDIO_NAME}}`
+Nexyl Studio baut klare, hochwertige Webauftritte fuer lokale Dienstleister, zuerst fuer Beauty-Studios, Kosmetik, Brows, Lashes, Nails, Skin und Barbershop.
 
 Kernversprechen:
 
-> Moderne Websites fuer lokale Unternehmen, schnell gebaut, sauber strukturiert und auf echte Anfragen optimiert.
+> Ein sauberer Online-Auftritt, der Leistungen, Vertrauen und Buchung in wenigen Sekunden verstaendlich macht.
 
-Die Marke soll nicht wie eine Bastel-Agentur wirken. Sie soll ruhig, klar, hochwertig und loesungsorientiert auftreten.
+## Cashflow-Prioritaet
+
+1. Beauty Starter Onepager
+2. Beauty Local Website
+3. Wartungs- und Aenderungspaket
+4. Spaeter: Handwerker-Track
+5. Spaeter: weitere Branchen
+
+Sofinello und Heilungs-Themen bleiben bewusst ausserhalb dieses ersten Web-Cashflow-Tracks, weil oeffentliche Heilungs-Kommunikation Compliance-Pflicht hat.
 
 ## Standard-Angebot
 
-Der erste Cashflow-Baustein ist der **Starter Onepager**.
+Der erste Cashflow-Baustein ist der **Beauty Starter Onepager**.
 
 Ziel:
 
-- 1 zahlender Auftrag moeglichst schnell.
-- Wenig Projektkomplexitaet.
-- Hohe Wiederverwendbarkeit.
-- Gute Demo-Faehigkeit fuer Handwerker und Beauty.
+- schnell erklaerbar
+- visuell gut demonstrierbar
+- enger Scope
+- wiederverwendbares Template
+- verkaufbar in 3-5 Tagen Lieferzeit
 
 ## Zielkunden
 
 Prioritaet 1:
 
-- Beauty / Salon / Kosmetik / Barbershop
-- Handwerker / lokales Gewerbe
-- kleine Dienstleister mit schlechter oder keiner Website
+- Beauty-Salons
+- Kosmetikstudios
+- Brow- und Lash-Studios
+- Nail-Studios
+- Skin- und Aesthetik-Studios ohne medizinische Heilclaims
+- Barbershops mit hochwertigem Auftritt
 
 Prioritaet 2:
 
-- Coaches
-- lokale Studios
-- Restaurants
+- Handwerker
+- lokale Dienstleister
+- kleine Studios
 - Beratungen
 
 Nicht jetzt:
 
-- Heilung/Sofinello mit oeffentlicher Wirkung, weil dort Compliance-Pflicht besteht.
-- grosse E-Commerce-Shops, weil der Aufwand vor Cashflow zu hoch ist.
+- echte Heilungs-/Therapie-Websites ohne separaten Compliance-Check
+- grosse E-Commerce-Shops
+- komplexe Portale
+- Kampagnen mit Kaltkontakt ohne Rechtscheck
 
 ## Agentenrollen
 
 | Rolle | Aufgabe | Output |
 |---|---|---|
 | Chief Web | Prioritaet, Angebot, Qualitaet, Go/No-Go | Chief-Report |
-| Briefing-Agent | Kundenfragen und Scope klaeren | Briefing-Dokument |
+| Beauty-Market-Agent | Zielgruppe, Preislogik, Einwaende | Marktbriefing |
+| Briefing-Agent | Kundenfragen und Scope klaeren | Kundenbriefing |
 | Angebot-Agent | Paket, Preis, Nicht-Scope formulieren | Angebot |
 | Design-Agent | Look, Layout, Zielgruppenfit | Onepager/Demo |
 | Content-Agent | Hero, Leistungen, Trust, CTA | Website-Texte |
-| SEO-Agent | Meta, Local SEO, Schema-Basis | SEO-Check |
-| Legal-Safety-Agent | keine Rechtsberatung, nur Checkliste | Warnliste |
+| SEO-Agent | Local SEO, Meta, Struktur | SEO-Check |
+| Legal-Safety-Agent | Risiko-Claims markieren | Warnliste |
 | Launch-Agent | Deployment nur nach Go | Launch-Plan |
-| Wartungs-Agent | monatliches Paket | Wartungsangebot |
+| Wartungs-Agent | Monatliches Paket | Wartungsangebot |
 
 ## Approval-Regeln
 
@@ -71,9 +91,10 @@ Autonom erlaubt:
 
 - lokale Dateien erstellen
 - Demo lokal bauen
-- Angebote/Briefings vorbereiten
+- Angebote und Briefings vorbereiten
 - interne Lead-Analyse ohne Kontakt
 - Preislogik entwerfen
+- Templates lokal verbessern
 
 Stoppt bei Approval:
 
@@ -81,16 +102,16 @@ Stoppt bei Approval:
 - Website veroeffentlichen
 - Impressum/Datenschutz final nutzen
 - Kunden kontaktieren
-- Mails/DMs/Anrufe senden
+- Mails, DMs oder Anrufe senden
 - Geld ausgeben
-- echte Vertrags-/Rechnungstexte nach aussen geben
+- echte Vertrags- oder Rechnungstexte nach aussen geben
 
 ## Standard-Workflow pro Auftrag
 
 1. Anfrage oder Lead verstehen.
 2. Datenklasse und Risiko-Level bestimmen.
-3. Kundenbranche und Ziel klaeren.
-4. Starter-Angebot oder Spezialangebot waehlen.
+3. Beauty-Untersegment klaeren.
+4. Starter-Angebot oder groesseres Paket waehlen.
 5. Briefing ausfuellen.
 6. Preis und Scope vorschlagen.
 7. Nexi Approval fuer echte Kundenkommunikation einholen.
@@ -101,22 +122,42 @@ Stoppt bei Approval:
 
 ## Qualitaetsstandard
 
-Eine Chief-Web-Seite muss:
+Eine Nexyl-Studio-Seite muss:
 
 - mobil sauber aussehen
-- klare erste Bildschirmwirkung haben
+- in der ersten Ansicht das Angebot zeigen
+- Services, Preise und Terminlogik schnell erklaeren
 - eine eindeutige Handlungsaufforderung besitzen
-- Leistungen und Preisrahmen verstaendlich machen
+- ruhig und hochwertig wirken
 - schnell laden
 - keine leeren Claims enthalten
-- keine rechtlich riskanten Versprechen enthalten
+- keine medizinischen oder garantierten Wirkversprechen enthalten
 - ohne Nexis Go nicht online gehen
+
+## Beauty-Claim-Regeln
+
+Erlaubt als Richtung:
+
+- gepflegter Auftritt
+- klare Services
+- wohlfuehlende Studio-Atmosphaere
+- professionelle Behandlung
+- sichtbare Vorher/Nachher-Beispiele nur mit rechtlicher Pruefung
+
+Nicht nutzen ohne Rechtscheck:
+
+- heilt Akne
+- entfernt Falten dauerhaft
+- garantiert reine Haut
+- medizinisch wirksam
+- ersetzt Behandlung oder Beratung
 
 ## Memory-Rueckfluss
 
 Nach jedem Web-Projekt werden gespeichert:
 
 - Branche
+- Untersegment
 - Angebotstyp
 - Preis
 - Dauer
@@ -131,9 +172,9 @@ Nach jedem Web-Projekt werden gespeichert:
 
 | KPI | Ziel |
 |---|---|
-| erster lokaler Demo-Onepager | sofort |
-| erstes Angebotspaket | sofort |
+| Beauty-Demo-Onepager | fertig |
+| Beauty-Angebotspaket | fertig |
+| erstes externes Testangebot | nur nach Go |
 | erster zahlender Auftrag | 7-14 Tage nach Aussenstart |
 | erstes Wartungspaket | nach erstem Auftrag |
 | Template-Wiederverwendung | ab Auftrag 2 |
-
